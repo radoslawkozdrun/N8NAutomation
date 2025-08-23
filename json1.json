@@ -1,0 +1,63 @@
+[
+  {
+    "id": 11,
+    "summary": "DeepSeek, chiński s",
+    "title": "Financial Market Applications of LLMs",
+    "research_content": [
+      {
+        "id": 17,
+        "search_id": "melsqoxn4zx0HRyY",
+        "article_id": 11,
+        "source_url": "https://www.techcrunch.com/2024/05/15/deepseek-ai-efficiency-paradigm-shift"
+      },
+      {
+        "id": 18,
+        "search_id": "melsqoxn4zx0HRyY",
+        "article_id": 11,
+        "source_url": "https://www.reddit.com/r/MachineLearning/comments/1c6d4e/deepseek_ai_model_performance_discussion/"
+      },
+      {
+        "id": 19,
+        "search_id": "melsqoxn4zx0HRyY",
+        "article_id": 11,
+        "source_url": "https://www.linkedin.com/pulse/deepseek-the-quiet-challenger-shaking-up-ai-landscape-john-doe"
+      },
+      {
+        "id": 20,
+        "search_id": "melsqoxn4zx0HRyY",
+        "article_id": 11,
+        "source_url": "https://x.com/TechWhisperer/status/1798765432109876543"
+      }
+    ]
+  },
+  {
+    "id": 36,
+    "summary": "W 2023 roku LLMs, jak ChatGPT, zac",
+    "title": "Financial Market Applications of LLMs",
+    "research_content": [
+      {
+        "id": 21,
+        "search_id": "melsqp5w8VmfqsVi",
+        "article_id": 36,
+        "source_url": "https://www.bloomberg.com/news/articles/2024-09-01/llms-transform-financial-forecasting-new-era-of-market-analysis"
+      },
+      {
+        "id": 22,
+        "search_id": "melsqp5w8VmfqsVi",
+        "article_id": 36,
+        "source_url": "https://www.reddit.com/r/algotrading/comments/xyz123/llms_in_quant_trading_hype_or_game_changer/"
+      },
+      {
+        "id": 23,
+        "search_id": "melsqp5w8VmfqsVi",
+        "article_id": 36,
+        "source_url": "https://www.financial-tech-insights.com/blog/2024/10/multimodal-llms-redefine-financial-data-analysis"
+      {
+        "id": 24,
+        "search_id": "melsqp5w8VmfqsVi",
+        "article_id": 36,
+        "source_url": "https://x.com/fintech_trends/status/1801234567890123456"
+      }
+    ]
+  }
+]
