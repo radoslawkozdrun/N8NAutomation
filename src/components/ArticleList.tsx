@@ -9,9 +9,8 @@ import {
   Loader2,
 } from 'lucide-react';
 import { api } from '@/lib/api';
-import { Article, ArticleFilters as FilterType, ReviewDecision } from '@/types';
+import { Article, ReviewDecision } from '@/types';
 import { ArticleCard, ArticleTableRow } from '@/components/ArticleCard';
-import { ArticleFilters } from '@/components/ArticleFilters';
 import { Button } from '@/components/ui/Button';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
@@ -23,23 +22,21 @@ export function ArticleList({ onArticleSelect }: ArticleListProps) {
   // State
   const [selectedArticles, setSelectedArticles] = useState<number[]>([]);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
-  const [filters, setFilters] = useState<FilterType>({});
-  const [sortBy, setSortBy] = useState<'final_score' | 'created_date' | 'priority'>('final_score');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(1);
+  const [selectedStatus, setSelectedStatus] = useState<string>('PENDING_REVIEW');
   const [processingArticles, setProcessingArticles] = useState<Set<number>>(new Set());
 
   const queryClient = useQueryClient();
 
-  // Fetch articles
+  // Fetch articles with status filter
   const { 
     data: articlesResponse, 
     isLoading, 
     error, 
     refetch 
   } = useQuery({
-    queryKey: ['articles', filters, sortBy, sortOrder, page],
-    queryFn: () => api.getArticles(filters, page, 20),
+    queryKey: ['articles', page, selectedStatus],
+    queryFn: () => api.getArticles({ status: selectedStatus }, page, 20),
     keepPreviousData: true,
   });
 
@@ -145,19 +142,6 @@ export function ArticleList({ onArticleSelect }: ArticleListProps) {
     });
   };
 
-  const handleSortChange = (
-    newSortBy: 'final_score' | 'created_date' | 'priority',
-    newSortOrder: 'asc' | 'desc'
-  ) => {
-    setSortBy(newSortBy);
-    setSortOrder(newSortOrder);
-    setPage(1);
-  };
-
-  const handleFiltersChange = (newFilters: FilterType) => {
-    setFilters(newFilters);
-    setPage(1);
-  };
 
   // Keyboard shortcuts
   const keyboardShortcuts = [
@@ -197,10 +181,24 @@ export function ArticleList({ onArticleSelect }: ArticleListProps) {
 
   useKeyboardShortcuts(keyboardShortcuts);
 
-  // Reset selection when query parameters change (new page, filters, etc.)
+  // Reset selection when page or status changes
   useEffect(() => {
     setSelectedArticles([]);
-  }, [filters, sortBy, sortOrder, page]);
+  }, [page, selectedStatus]);
+
+  // Available status options
+  const statusOptions = [
+    { value: 'PENDING_REVIEW', label: 'Pending Review' },
+    { value: 'RESEARCH_DONE', label: 'Research Done' },
+    { value: 'ACCEPTED', label: 'Accepted' },
+    { value: 'REJECTED', label: 'Rejected' },
+    { value: '', label: 'All Statuses' },
+  ];
+
+  const handleStatusChange = (newStatus: string) => {
+    setSelectedStatus(newStatus);
+    setPage(1);
+  };
 
   if (error) {
     return (
@@ -219,20 +217,61 @@ export function ArticleList({ onArticleSelect }: ArticleListProps) {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Filters */}
-      <ArticleFilters
-        filters={filters}
-        onFiltersChange={handleFiltersChange}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        sortBy={sortBy}
-        sortOrder={sortOrder}
-        onSortChange={handleSortChange}
-        totalCount={pagination?.total || 0}
-        selectedCount={selectedArticles.length}
-        onRefresh={() => refetch()}
-        isLoading={isLoading}
-      />
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div>
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+            Review Articles
+          </h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            {pagination?.total || 0} articles {selectedStatus === '' ? 'total' : selectedStatus === 'PENDING_REVIEW' ? 'pending review' : selectedStatus.toLowerCase().replace('_', ' ')}
+          </p>
+        </div>
+        <div className="flex items-center space-x-3">
+          {/* Status filter */}
+          <select
+            value={selectedStatus}
+            onChange={(e) => handleStatusChange(e.target.value)}
+            className="px-3 py-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
+          >
+            {statusOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            loading={isLoading}
+          >
+            Refresh
+          </Button>
+          <div className="flex items-center space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+            <button
+              onClick={() => setViewMode('cards')}
+              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                viewMode === 'cards'
+                  ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+              }`}
+            >
+              Cards
+            </button>
+            <button
+              onClick={() => setViewMode('table')}
+              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                viewMode === 'table'
+                  ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+              }`}
+            >
+              Table
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Bulk actions */}
       {selectedArticles.length > 0 && (
@@ -290,8 +329,8 @@ export function ArticleList({ onArticleSelect }: ArticleListProps) {
             <p className="text-gray-600 dark:text-gray-400 mb-4">
               Try adjusting your filters or check back later for new articles.
             </p>
-            <Button variant="outline" onClick={() => setFilters({})}>
-              Clear Filters
+            <Button variant="outline" onClick={() => handleStatusChange('PENDING_REVIEW')}>
+              Reset Filter
             </Button>
           </div>
         ) : (

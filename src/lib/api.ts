@@ -1,6 +1,6 @@
-import { Article, ReviewDecision, BulkUpdateRequest, DashboardStats, ArticleFilters, PaginatedResponse, ApiResponse } from '@/types';
+import { Article, ReviewDecision, BulkUpdateRequest, ArticleFilters, PaginatedResponse, ApiResponse, ResearchMaterial, User } from '@/types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8002/api';
 
 class ApiError extends Error {
   constructor(
@@ -19,9 +19,13 @@ async function request<T>(
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
   
+  // Get auth token if available
+  const token = localStorage.getItem('authToken');
+  
   const config: RequestInit = {
     headers: {
       'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` }),
       ...options.headers,
     },
     ...options,
@@ -107,10 +111,6 @@ export const api = {
     });
   },
 
-  // Dashboard
-  getDashboardStats: async (): Promise<ApiResponse<DashboardStats>> => {
-    return request<ApiResponse<DashboardStats>>('/dashboard/stats');
-  },
 
   // Search and filters
   searchArticles: async (
@@ -128,9 +128,29 @@ export const api = {
     return request<ApiResponse<string[]>>('/articles/categories');
   },
 
+  // Research materials
+  getResearchMaterials: async (articleId: number): Promise<ApiResponse<ResearchMaterial[]>> => {
+    return request<ApiResponse<ResearchMaterial[]>>(`/articles/${articleId}/research`);
+  },
+
   // Health check
   healthCheck: async (): Promise<ApiResponse<{ status: string; timestamp: string }>> => {
     return request<ApiResponse<{ status: string; timestamp: string }>>('/health');
+  },
+
+  // Auth
+  getCurrentUser: async (): Promise<ApiResponse<User>> => {
+    return request<ApiResponse<User>>('/auth/profile');
+  },
+
+  logout: async (): Promise<ApiResponse<{ message: string }>> => {
+    return request<ApiResponse<{ message: string }>>('/auth/logout', {
+      method: 'POST'
+    });
+  },
+
+  validateToken: async (): Promise<ApiResponse<{ valid: boolean; user: User }>> => {
+    return request<ApiResponse<{ valid: boolean; user: User }>>('/auth/validate');
   },
 };
 

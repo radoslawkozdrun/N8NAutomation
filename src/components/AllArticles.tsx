@@ -8,18 +8,22 @@ import {
   ChevronRight,
   ExternalLink,
   Filter,
+  Search,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Article } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { ScoreIndicator } from '@/components/ui/ScoreIndicator';
+import { ResearchMaterialsModal } from '@/components/ResearchMaterialsModal';
 import { formatRelativeDate } from '@/lib/utils';
 
 export function AllArticles() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [selectedStatus, setSelectedStatus] = useState<string>('');
+  const [researchModalOpen, setResearchModalOpen] = useState(false);
+  const [selectedArticleForResearch, setSelectedArticleForResearch] = useState<Article | null>(null);
 
   const { 
     data: articlesResponse, 
@@ -85,6 +89,16 @@ export function AllArticles() {
   const handleStatusChange = (newStatus: string) => {
     setSelectedStatus(newStatus);
     setPage(1); // Reset to first page when filter changes
+  };
+
+  const handleViewResearch = (article: Article) => {
+    setSelectedArticleForResearch(article);
+    setResearchModalOpen(true);
+  };
+
+  const handleCloseResearchModal = () => {
+    setResearchModalOpen(false);
+    setSelectedArticleForResearch(null);
   };
 
   if (error) {
@@ -181,7 +195,7 @@ export function AllArticles() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-32">
                     Author
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-48">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider min-w-80">
                     Title
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -195,6 +209,9 @@ export function AllArticles() {
                   </th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">
                     Link
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-20">
+                    Research
                   </th>
                 </tr>
               </thead>
@@ -213,9 +230,9 @@ export function AllArticles() {
                         {truncateText(article.author || 'Unknown', 20)}
                       </div>
                     </td>
-                    <td className="px-6 py-4 w-48">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {truncateText(article.title, 50)}
+                    <td className="px-6 py-4 min-w-80">
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100 whitespace-normal break-words">
+                        {article.title}
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -241,6 +258,17 @@ export function AllArticles() {
                       >
                         <ExternalLink className="w-4 h-4" />
                       </a>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap w-20 text-center">
+                      {article.status === 'RESEARCH_DONE' && (
+                        <button
+                          onClick={() => handleViewResearch(article)}
+                          className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 transition-colors"
+                          title="View research materials"
+                        >
+                          <Search className="w-4 h-4" />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -314,6 +342,16 @@ export function AllArticles() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Research Materials Modal */}
+      {selectedArticleForResearch && (
+        <ResearchMaterialsModal
+          articleId={selectedArticleForResearch.id}
+          isOpen={researchModalOpen}
+          onClose={handleCloseResearchModal}
+          articleTitle={selectedArticleForResearch.title}
+        />
       )}
     </div>
   );

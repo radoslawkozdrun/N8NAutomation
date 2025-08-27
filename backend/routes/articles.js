@@ -453,4 +453,39 @@ router.get('/articles/categories', async (req, res) => {
   }
 });
 
+// Get research materials for an article
+router.get('/articles/:id/research', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const result = await query(`
+      SELECT 
+        id,
+        search_id,
+        source_url,
+        research_type,
+        content,
+        author,
+        title,
+        publication_date,
+        created_at
+      FROM sp_research 
+      WHERE article_id = $1
+      ORDER BY created_at DESC
+    `, [id]);
+    
+    res.json({
+      success: true,
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Error fetching research materials:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch research materials',
+      error: error.message 
+    });
+  }
+});
+
 module.exports = router;

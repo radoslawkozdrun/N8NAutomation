@@ -55,7 +55,8 @@ export type ArticleStatus =
   | 'ACCEPTED'
   | 'REJECTED'
   | 'ARCHIVED'
-  | 'NEEDS_MORE';
+  | 'NEEDS_MORE'
+  | 'RESEARCH_DONE';
 
 export interface ReviewDecision {
   action: 'accept' | 'reject' | 'needs_more';
@@ -66,6 +67,27 @@ export interface BulkUpdateRequest {
   articleIds: number[];
   action: 'accept' | 'reject';
   notes?: string;
+}
+
+export interface ResearchMaterial {
+  id: number;
+  search_id: string;
+  source_url: string;
+  research_type: string;
+  content: string;
+  author: string;
+  title: string;
+  publication_date: string;
+  created_at: string;
+}
+
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  role: string;
+  created_at: string;
+  last_login?: string;
 }
 
 export interface ArticleFilters {
@@ -79,21 +101,6 @@ export interface ArticleFilters {
   tags?: string[];
 }
 
-export interface DashboardStats {
-  total_pending: number;
-  average_score: number;
-  category_distribution: Record<ArticleCategory, number>;
-  priority_distribution: Record<Priority, number>;
-  recent_activity: ActivityItem[];
-}
-
-export interface ActivityItem {
-  id: string;
-  action: string;
-  article_title: string;
-  timestamp: string;
-  user?: string;
-}
 
 // UI State types
 export interface UIState {

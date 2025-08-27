@@ -9,22 +9,31 @@ import {
   HelpCircle,
   Menu,
   X,
+  User,
+  Rss,
+  MessageSquare,
+  FileText,
+  LogOut,
+  ChevronDown
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { cn, getStoredValue, setStoredValue } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface LayoutProps {
   children: React.ReactNode;
-  currentView: 'dashboard' | 'articles' | 'all-articles';
-  onViewChange: (view: 'dashboard' | 'articles' | 'all-articles') => void;
+  currentView: 'articles' | 'all-articles' | 'account' | 'feeds' | 'post-review';
+  onViewChange: (view: 'articles' | 'all-articles' | 'account' | 'feeds' | 'post-review') => void;
 }
 
 export function Layout({ children, currentView, onViewChange }: LayoutProps) {
+  const { user, logout } = useAuth();
   const [darkMode, setDarkMode] = useState(() => 
     getStoredValue('darkMode', window.matchMedia('(prefers-color-scheme: dark)').matches)
   );
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
   const toggleDarkMode = () => {
     const newDarkMode = !darkMode;
@@ -49,12 +58,6 @@ export function Layout({ children, currentView, onViewChange }: LayoutProps) {
 
   const navigation = [
     {
-      name: 'Dashboard',
-      key: 'dashboard' as const,
-      icon: Home,
-      current: currentView === 'dashboard',
-    },
-    {
       name: 'Review Articles',
       key: 'articles' as const,
       icon: List,
@@ -65,6 +68,24 @@ export function Layout({ children, currentView, onViewChange }: LayoutProps) {
       key: 'all-articles' as const,
       icon: Table,
       current: currentView === 'all-articles',
+    },
+    {
+      name: 'Review Posts',
+      key: 'post-review' as const,
+      icon: MessageSquare,
+      current: currentView === 'post-review',
+    },
+    {
+      name: 'Feed Sources',
+      key: 'feeds' as const,
+      icon: Rss,
+      current: currentView === 'feeds',
+    },
+    {
+      name: 'Account',
+      key: 'account' as const,
+      icon: User,
+      current: currentView === 'account',
     },
   ];
 
@@ -101,6 +122,21 @@ export function Layout({ children, currentView, onViewChange }: LayoutProps) {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  // Close dropdowns when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userDropdownOpen) {
+        const target = event.target as HTMLElement;
+        if (!target.closest('[data-user-dropdown]')) {
+          setUserDropdownOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [userDropdownOpen]);
 
   return (
     <div className="h-screen bg-gray-50 dark:bg-gray-900 flex overflow-hidden">
@@ -179,6 +215,50 @@ export function Layout({ children, currentView, onViewChange }: LayoutProps) {
                 </>
               )}
             </button>
+            
+            {/* User Info - separated at the bottom */}
+            {user && (
+              <>
+                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                  <div className="relative" data-user-dropdown>
+                    <button
+                      onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                      className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                    >
+                      <div className="flex items-center">
+                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3">
+                          <User className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex flex-col items-start">
+                          <span className="font-medium">{user.username}</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">{user.role}</span>
+                        </div>
+                      </div>
+                      <ChevronDown className={cn("w-4 h-4 transition-transform", userDropdownOpen && "transform rotate-180")} />
+                    </button>
+                    
+                    {/* User Dropdown */}
+                    {userDropdownOpen && (
+                      <div className="absolute bottom-full left-0 right-0 mb-1 bg-white dark:bg-gray-700 rounded-lg shadow-lg border border-gray-200 dark:border-gray-600">
+                        <div className="p-2">
+                          <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-600">
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user.username}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
+                          </div>
+                          <button
+                            onClick={logout}
+                            className="w-full flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded transition-colors"
+                          >
+                            <LogOut className="w-4 h-4 mr-2" />
+                            Logout
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -198,7 +278,7 @@ export function Layout({ children, currentView, onViewChange }: LayoutProps) {
         </div>
 
         {/* Page content */}
-        <main className="flex-1 overflow-hidden bg-gray-50 dark:bg-gray-900">
+        <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
           {children}
         </main>
       </div>
