@@ -38,13 +38,13 @@ Thumbs.db
 README.md
 docs/
 
-# Development files
+# Development files (but keep config files needed for build)
 .eslintrc*
 .prettierrc*
-tsconfig.json
-vite.config.ts
-tailwind.config.js
-postcss.config.js
+# tsconfig.json - needed for build
+# vite.config.ts - needed for build
+# tailwind.config.js - needed for build
+# postcss.config.js - needed for build
 
 # Testing
 coverage/

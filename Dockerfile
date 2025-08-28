@@ -2,17 +2,17 @@
 FROM node:18-alpine AS frontend-builder
 
 # Set working directory for frontend
-WORKDIR /app/frontend
+WORKDIR /app
 
-# Copy package files
+# Copy package files (they are in root, not frontend subdirectory)
 COPY package*.json ./
 COPY tsconfig.json ./
 COPY vite.config.ts ./
 COPY tailwind.config.js ./
 COPY postcss.config.js ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies (including devDependencies for build)
+RUN npm ci
 
 # Copy source code
 COPY src/ ./src/
@@ -52,10 +52,10 @@ COPY --from=backend-builder /app/backend/node_modules ./backend/node_modules
 COPY backend/ ./backend/
 
 # Copy frontend build
-COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+COPY --from=frontend-builder /app/dist ./frontend/dist
 
-# Copy additional files
-COPY --chown=n8nautomation:nodejs backend/.env.example ./backend/.env
+# Create .env file for backend if it doesn't exist
+RUN touch ./backend/.env
 
 # Set permissions
 RUN chown -R n8nautomation:nodejs /app
