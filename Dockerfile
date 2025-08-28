@@ -20,7 +20,8 @@ COPY src/ ./src/
 COPY public/ ./public/
 COPY index.html ./
 
-# Build frontend
+# Build frontend with production API URL
+ENV VITE_API_URL=/api
 RUN npm run build
 
 # Backend stage
