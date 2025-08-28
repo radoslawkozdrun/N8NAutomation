@@ -10,12 +10,12 @@ echo "=========================================="
 
 # Configuration
 APP_NAME="n8n-automation"
-NETWORK_NAME="n8n-network"
+NETWORK_NAME="root_default"  # Based on networks.txt analysis
 APP_CONTAINER="${APP_NAME}-app"
 
 # Database configuration (existing PostgreSQL container)
-# Based on docker-info.txt analysis: postgres:14.5 image is running
-DB_HOST="postgresql"  # Existing PostgreSQL container name  
+# Based on networks.txt analysis: my-postgres container in bridge network
+DB_HOST="my-postgres"  # Actual PostgreSQL container name from networks.txt
 DB_NAME="postgres"
 DB_USER="postgres"
 DB_PASSWORD="1qaz@WSX"
@@ -25,8 +25,8 @@ JWT_SECRET="n8n-automation-app-jwt-key-a7b9c2d4e6f8g1h3i5j7k9l2m4n6p8q0r2s4t6u8v
 APP_PORT="8002"
 
 echo "🔧 Configuration:"
-echo "   Network: ${NETWORK_NAME} (existing)"
-echo "   Database: ${DB_HOST} (existing)"
+echo "   Target Network: ${NETWORK_NAME} (existing - contains n8n and traefik)"
+echo "   Database: ${DB_HOST} (in bridge network)"
 echo "   Application: ${APP_CONTAINER}"
 echo "   App Port: ${APP_PORT}"
 echo ""
@@ -54,26 +54,24 @@ docker() {
     "${DOCKER_CMD}" "$@"
 }
 
-# Check if network exists
+# Check if target network exists
 if ! docker network ls | grep -q ${NETWORK_NAME}; then
-    echo "❌ Network ${NETWORK_NAME} does not exist. Please ensure n8n, traefik and postgresql are running."
-    echo "   Expected running containers based on docker-info.txt:"
-    echo "   - n8n (docker.n8n.io/n8nio/n8n:latest)"
-    echo "   - traefik (traefik:latest)" 
-    echo "   - postgresql (postgres:14.5)"
-    echo "   - n8n-mcp (ghcr.io/czlonkowski/n8n-mcp:latest)"
+    echo "❌ Network ${NETWORK_NAME} does not exist. Please ensure n8n and traefik are running."
+    echo "   Expected network structure based on networks.txt:"
+    echo "   - root_default: contains root-traefik-1 and root-n8n-1"
+    echo "   - bridge: contains my-postgres"
     exit 1
 fi
 
-# Check if PostgreSQL container exists and is running
+# Check if PostgreSQL container exists and is running (it's in bridge network)
 if ! docker ps | grep -q ${DB_HOST}; then
     echo "❌ PostgreSQL container '${DB_HOST}' is not running. Please ensure it's started."
-    echo "   Expected: postgres:14.5 image running as 'postgresql' container"
+    echo "   Expected: postgres container named 'my-postgres' in bridge network"
     exit 1
 fi
 
-echo "✅ Found existing network: ${NETWORK_NAME}"
-echo "✅ Found running PostgreSQL container: ${DB_HOST} (postgres:14.5)"
+echo "✅ Found existing network: ${NETWORK_NAME} (contains n8n and traefik)"
+echo "✅ Found running PostgreSQL container: ${DB_HOST} (in bridge network)"
 
 # Stop and remove existing application container if it exists
 echo "🛑 Stopping existing application container..."
@@ -101,6 +99,10 @@ docker build -t ${APP_NAME}:latest .
 
 # Run the application
 echo "🚀 Starting application container..."
+echo "   Note: Application will be in ${NETWORK_NAME} network"
+echo "   Database connectivity: Application will connect to ${DB_HOST} via Docker's internal networking"
+
+# First create the container in the target network
 docker run -d \
     --name ${APP_CONTAINER} \
     --network ${NETWORK_NAME} \
@@ -116,6 +118,10 @@ docker run -d \
     -e CORS_ORIGIN="*" \
     -p ${APP_PORT}:8002 \
     ${APP_NAME}:latest
+
+# Connect the application container to bridge network to access database
+echo "🔗 Connecting application to bridge network for database access..."
+docker network connect bridge ${APP_CONTAINER}
 
 echo "⏳ Waiting for application to start..."
 sleep 10
@@ -152,10 +158,12 @@ echo "   - ⚠️  Please change the password after first login!"
 echo ""
 echo "🔧 Management Commands:"
 echo "   - View app logs: docker logs ${APP_CONTAINER} -f"
-echo "   - View db logs: docker logs ${DB_HOST} -f"
+echo "   - View db logs: docker logs ${DB_HOST} -f"  
 echo "   - Stop application: docker stop ${APP_CONTAINER}"
 echo "   - Start application: docker start ${APP_CONTAINER}"
 echo "   - Remove application: docker stop ${APP_CONTAINER} && docker rm ${APP_CONTAINER}"
+echo "   - Check networks: docker network ls"
+echo "   - Inspect app networks: docker inspect ${APP_CONTAINER} | grep -A 20 'Networks'"
 echo ""
 echo "📊 Container Status (all containers in ${NETWORK_NAME}):"
 docker ps --filter "network=${NETWORK_NAME}" --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
@@ -164,10 +172,12 @@ echo "💾 Database Access (PostgreSQL 14.5):"
 echo "   - Connect: docker exec -it ${DB_HOST} psql -U ${DB_USER} -d ${DB_NAME}"
 echo "   - Backup: docker exec ${DB_HOST} pg_dump -U ${DB_USER} ${DB_NAME} > backup.sql"
 echo ""
-echo "🔗 Other services in the network:"
-echo "   - N8N: Available on port 5678 (docker.n8n.io/n8nio/n8n:latest)"
-echo "   - Traefik: Available on port 80 (traefik:latest)"
-echo "   - N8N-MCP: Available on port 3000 (ghcr.io/czlonkowski/n8n-mcp:latest)"
+echo "🔗 Network topology based on networks.txt:"
+echo "   - root_default network: ${APP_CONTAINER}, root-n8n-1, root-traefik-1"
+echo "   - bridge network: ${APP_CONTAINER}, my-postgres"
+echo "   - N8N: Available on port 5678 (root-n8n-1 container)"
+echo "   - Traefik: Available on port 80 (root-traefik-1 container)"
+echo "   - PostgreSQL: Available as my-postgres in bridge network"
 echo ""
 
 # Show running containers
