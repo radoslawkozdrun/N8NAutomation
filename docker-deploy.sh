@@ -30,11 +30,28 @@ echo "   Application: ${APP_CONTAINER}"
 echo "   App Port: ${APP_PORT}"
 echo ""
 
-# Check if Docker is installed
-if ! command -v docker &> /dev/null; then
-    echo "❌ Docker is not installed. Please install Docker first."
+# Check if Docker is installed (try multiple possible paths on Windows)
+DOCKER_CMD=""
+if command -v docker &> /dev/null; then
+    DOCKER_CMD="docker"
+elif command -v docker.exe &> /dev/null; then
+    DOCKER_CMD="docker.exe"
+elif [ -f "/c/Program Files/Docker/Docker/resources/bin/docker.exe" ]; then
+    DOCKER_CMD="/c/Program Files/Docker/Docker/resources/bin/docker.exe"
+elif [ -f "/mnt/c/Program Files/Docker/Docker/resources/bin/docker.exe" ]; then
+    DOCKER_CMD="/mnt/c/Program Files/Docker/Docker/resources/bin/docker.exe"
+else
+    echo "❌ Docker is not found. Please ensure Docker Desktop is installed and running."
+    echo "   Try running this script from PowerShell or CMD instead of Git Bash."
     exit 1
 fi
+
+echo "✅ Found Docker at: ${DOCKER_CMD}"
+
+# Create docker wrapper function
+docker() {
+    "${DOCKER_CMD}" "$@"
+}
 
 # Check if network exists
 if ! docker network ls | grep -q ${NETWORK_NAME}; then
