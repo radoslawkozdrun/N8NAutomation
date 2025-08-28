@@ -267,7 +267,7 @@ export function WorkflowVisualization() {
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               {phase.description}
             </p>
-            <Badge variant="outline" className="mt-2">
+            <Badge variant="secondary" className="mt-2">
               {nodes.length} nodes
             </Badge>
           </div>
