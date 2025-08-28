@@ -7,6 +7,7 @@ $NETWORK_NAME = "n8n-network"
 $APP_CONTAINER = "$APP_NAME-app"
 
 # Database configuration (existing PostgreSQL container)
+# Based on docker-info.txt analysis: postgres:14.5 image is running
 $DB_HOST = "postgresql"  # Existing PostgreSQL container name
 $DB_NAME = "postgres"
 $DB_USER = "postgres"
@@ -40,6 +41,11 @@ try {
     $networks = docker network ls --format "{{.Name}}"
     if ($networks -notcontains $NETWORK_NAME) {
         Write-Host "❌ Network $NETWORK_NAME does not exist. Please ensure n8n, traefik and postgresql are running." -ForegroundColor Red
+        Write-Host "   Expected running containers based on docker-info.txt:" -ForegroundColor Yellow
+        Write-Host "   - n8n (docker.n8n.io/n8nio/n8n:latest)" -ForegroundColor White
+        Write-Host "   - traefik (traefik:latest)" -ForegroundColor White
+        Write-Host "   - postgresql (postgres:14.5)" -ForegroundColor White
+        Write-Host "   - n8n-mcp (ghcr.io/czlonkowski/n8n-mcp:latest)" -ForegroundColor White
         exit 1
     }
     Write-Host "✅ Found existing network: $NETWORK_NAME" -ForegroundColor Green
@@ -53,9 +59,10 @@ try {
     $containers = docker ps --format "{{.Names}}"
     if ($containers -notcontains $DB_HOST) {
         Write-Host "❌ PostgreSQL container '$DB_HOST' is not running. Please ensure it's started." -ForegroundColor Red
+        Write-Host "   Expected: postgres:14.5 image running as 'postgresql' container" -ForegroundColor Yellow
         exit 1
     }
-    Write-Host "✅ Found running PostgreSQL container: $DB_HOST" -ForegroundColor Green
+    Write-Host "✅ Found running PostgreSQL container: $DB_HOST (postgres:14.5)" -ForegroundColor Green
 } catch {
     Write-Host "❌ Failed to check running containers" -ForegroundColor Red
     exit 1
@@ -184,11 +191,16 @@ Write-Host "   - Stop application: docker stop $APP_CONTAINER" -ForegroundColor 
 Write-Host "   - Start application: docker start $APP_CONTAINER" -ForegroundColor White
 Write-Host "   - Remove application: docker stop $APP_CONTAINER; docker rm $APP_CONTAINER" -ForegroundColor White
 Write-Host ""
-Write-Host "📊 Container Status:" -ForegroundColor Cyan
-docker ps --filter "network=$NETWORK_NAME" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+Write-Host "📊 Container Status (all containers in $NETWORK_NAME):" -ForegroundColor Cyan
+docker ps --filter "network=$NETWORK_NAME" --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
 Write-Host ""
-Write-Host "💾 Database Access:" -ForegroundColor Cyan
+Write-Host "💾 Database Access (PostgreSQL 14.5):" -ForegroundColor Cyan
 Write-Host "   - Connect: docker exec -it $DB_HOST psql -U $DB_USER -d $DB_NAME" -ForegroundColor White
 Write-Host "   - Backup: docker exec $DB_HOST pg_dump -U $DB_USER $DB_NAME > backup.sql" -ForegroundColor White
 Write-Host ""
-Write-Host "🎉 Deployment successful! Your application is now running." -ForegroundColor Green
+Write-Host "🔗 Other services in the network:" -ForegroundColor Cyan
+Write-Host "   - N8N: Available on port 5678 (docker.n8n.io/n8nio/n8n:latest)" -ForegroundColor White
+Write-Host "   - Traefik: Available on port 80 (traefik:latest)" -ForegroundColor White
+Write-Host "   - N8N-MCP: Available on port 3000 (ghcr.io/czlonkowski/n8n-mcp:latest)" -ForegroundColor White
+Write-Host ""
+Write-Host "🎉 Deployment successful! Your application is now running alongside existing services." -ForegroundColor Green

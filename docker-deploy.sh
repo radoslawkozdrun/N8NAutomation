@@ -14,7 +14,8 @@ NETWORK_NAME="n8n-network"
 APP_CONTAINER="${APP_NAME}-app"
 
 # Database configuration (existing PostgreSQL container)
-DB_HOST="postgresql"  # Existing PostgreSQL container name
+# Based on docker-info.txt analysis: postgres:14.5 image is running
+DB_HOST="postgresql"  # Existing PostgreSQL container name  
 DB_NAME="postgres"
 DB_USER="postgres"
 DB_PASSWORD="1qaz@WSX"
@@ -56,17 +57,23 @@ docker() {
 # Check if network exists
 if ! docker network ls | grep -q ${NETWORK_NAME}; then
     echo "❌ Network ${NETWORK_NAME} does not exist. Please ensure n8n, traefik and postgresql are running."
+    echo "   Expected running containers based on docker-info.txt:"
+    echo "   - n8n (docker.n8n.io/n8nio/n8n:latest)"
+    echo "   - traefik (traefik:latest)" 
+    echo "   - postgresql (postgres:14.5)"
+    echo "   - n8n-mcp (ghcr.io/czlonkowski/n8n-mcp:latest)"
     exit 1
 fi
 
 # Check if PostgreSQL container exists and is running
 if ! docker ps | grep -q ${DB_HOST}; then
     echo "❌ PostgreSQL container '${DB_HOST}' is not running. Please ensure it's started."
+    echo "   Expected: postgres:14.5 image running as 'postgresql' container"
     exit 1
 fi
 
 echo "✅ Found existing network: ${NETWORK_NAME}"
-echo "✅ Found running PostgreSQL container: ${DB_HOST}"
+echo "✅ Found running PostgreSQL container: ${DB_HOST} (postgres:14.5)"
 
 # Stop and remove existing application container if it exists
 echo "🛑 Stopping existing application container..."
@@ -150,13 +157,18 @@ echo "   - Stop application: docker stop ${APP_CONTAINER}"
 echo "   - Start application: docker start ${APP_CONTAINER}"
 echo "   - Remove application: docker stop ${APP_CONTAINER} && docker rm ${APP_CONTAINER}"
 echo ""
-echo "📊 Container Status:"
-docker ps --filter "network=${NETWORK_NAME}" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+echo "📊 Container Status (all containers in ${NETWORK_NAME}):"
+docker ps --filter "network=${NETWORK_NAME}" --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
 echo ""
-echo "💾 Database Access:"
+echo "💾 Database Access (PostgreSQL 14.5):"
 echo "   - Connect: docker exec -it ${DB_HOST} psql -U ${DB_USER} -d ${DB_NAME}"
 echo "   - Backup: docker exec ${DB_HOST} pg_dump -U ${DB_USER} ${DB_NAME} > backup.sql"
 echo ""
+echo "🔗 Other services in the network:"
+echo "   - N8N: Available on port 5678 (docker.n8n.io/n8nio/n8n:latest)"
+echo "   - Traefik: Available on port 80 (traefik:latest)"
+echo "   - N8N-MCP: Available on port 3000 (ghcr.io/czlonkowski/n8n-mcp:latest)"
+echo ""
 
 # Show running containers
-echo "🎉 Deployment successful! Your application is now running."
+echo "🎉 Deployment successful! Your application is now running alongside existing services."
