@@ -20,7 +20,12 @@
       "Read(/C:\\Data\\03_Repozytoria\\N8NAutomation\\src/**)",
       "Bash(npm run:*)",
       "Bash(node:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(chmod:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git log:*)",
+      "Bash(docker:*)"
     ],
     "deny": [],
     "ask": []
