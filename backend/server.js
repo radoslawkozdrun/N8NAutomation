@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
+const path = require('path');
 const { testConnection } = require('./database');
 require('dotenv').config();
 
@@ -9,13 +10,18 @@ const app = express();
 const PORT = process.env.PORT || 8002;
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false // Allow inline styles for React
+}));
 app.use(compression());
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
+
+// Serve static files from React build
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
 // Routes
 app.use('/api/posts', require('./routes/posts'));
@@ -41,8 +47,8 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Root endpoint
-app.get('/', (req, res) => {
+// API info endpoint (only for /api requests)
+app.get('/api', (req, res) => {
   res.json({
     message: 'RSS Review API Server',
     version: '1.0.0',
@@ -50,18 +56,24 @@ app.get('/', (req, res) => {
       health: '/api/health',
       auth: '/api/auth',
       articles: '/api/articles',
-      docs: '/api-docs'
+      dashboard: '/api/dashboard'
     }
   });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: `Route ${req.originalUrl} not found`,
-    code: 'ROUTE_NOT_FOUND'
-  });
+// Catch all handler for React Router (serve index.html for non-API routes)
+app.get('*', (req, res) => {
+  // If it's an API request that doesn't exist, return 404
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({
+      success: false,
+      message: `API route ${req.originalUrl} not found`,
+      code: 'ROUTE_NOT_FOUND'
+    });
+  }
+  
+  // Otherwise, serve the React app
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
 // Error handling middleware
