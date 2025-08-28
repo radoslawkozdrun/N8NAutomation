@@ -49,13 +49,8 @@ fi
 
 echo "✅ Found Docker at: ${DOCKER_CMD}"
 
-# Create docker wrapper function
-docker() {
-    "${DOCKER_CMD}" "$@"
-}
-
 # Check if target network exists
-if ! docker network ls | grep -q ${NETWORK_NAME}; then
+if ! "${DOCKER_CMD}" network ls | grep -q ${NETWORK_NAME}; then
     echo "❌ Network ${NETWORK_NAME} does not exist. Please ensure n8n and traefik are running."
     echo "   Expected network structure based on networks.txt:"
     echo "   - root_default: contains root-traefik-1 and root-n8n-1"
@@ -64,7 +59,7 @@ if ! docker network ls | grep -q ${NETWORK_NAME}; then
 fi
 
 # Check if PostgreSQL container exists and is running (it's in bridge network)
-if ! docker ps | grep -q ${DB_HOST}; then
+if ! "${DOCKER_CMD}" ps | grep -q ${DB_HOST}; then
     echo "❌ PostgreSQL container '${DB_HOST}' is not running. Please ensure it's started."
     echo "   Expected: postgres container named 'my-postgres' in bridge network"
     exit 1
@@ -75,13 +70,13 @@ echo "✅ Found running PostgreSQL container: ${DB_HOST} (in bridge network)"
 
 # Stop and remove existing application container if it exists
 echo "🛑 Stopping existing application container..."
-docker stop ${APP_CONTAINER} 2>/dev/null || true
-docker rm ${APP_CONTAINER} 2>/dev/null || true
+"${DOCKER_CMD}" stop ${APP_CONTAINER} 2>/dev/null || true
+"${DOCKER_CMD}" rm ${APP_CONTAINER} 2>/dev/null || true
 
 # Check database connection
 echo "🔍 Checking database connection..."
 for i in {1..10}; do
-    if docker exec ${DB_HOST} pg_isready -U ${DB_USER} -d ${DB_NAME} > /dev/null 2>&1; then
+    if "${DOCKER_CMD}" exec ${DB_HOST} pg_isready -U ${DB_USER} -d ${DB_NAME} > /dev/null 2>&1; then
         echo "✅ Database connection successful!"
         break
     fi
@@ -95,7 +90,7 @@ done
 
 # Build the application Docker image
 echo "🔨 Building application Docker image..."
-docker build -t ${APP_NAME}:latest .
+"${DOCKER_CMD}" build -t ${APP_NAME}:latest .
 
 # Run the application
 echo "🚀 Starting application container..."
@@ -103,7 +98,7 @@ echo "   Note: Application will be in ${NETWORK_NAME} network"
 echo "   Database connectivity: Application will connect to ${DB_HOST} via Docker's internal networking"
 
 # First create the container in the target network
-docker run -d \
+"${DOCKER_CMD}" run -d \
     --name ${APP_CONTAINER} \
     --network ${NETWORK_NAME} \
     --restart unless-stopped \
@@ -121,7 +116,7 @@ docker run -d \
 
 # Connect the application container to bridge network to access database
 echo "🔗 Connecting application to bridge network for database access..."
-docker network connect bridge ${APP_CONTAINER}
+"${DOCKER_CMD}" network connect bridge ${APP_CONTAINER}
 
 echo "⏳ Waiting for application to start..."
 sleep 10
@@ -136,7 +131,7 @@ for i in {1..20}; do
     if [ $i -eq 20 ]; then
         echo "❌ Application health check failed after 20 attempts"
         echo "📋 Application logs:"
-        docker logs ${APP_CONTAINER} --tail 50
+        "${DOCKER_CMD}" logs ${APP_CONTAINER} --tail 50
         exit 1
     fi
     echo "   Attempt $i/20 - waiting..."
@@ -157,20 +152,20 @@ echo "   - Password: admin123"
 echo "   - ⚠️  Please change the password after first login!"
 echo ""
 echo "🔧 Management Commands:"
-echo "   - View app logs: docker logs ${APP_CONTAINER} -f"
-echo "   - View db logs: docker logs ${DB_HOST} -f"  
-echo "   - Stop application: docker stop ${APP_CONTAINER}"
-echo "   - Start application: docker start ${APP_CONTAINER}"
-echo "   - Remove application: docker stop ${APP_CONTAINER} && docker rm ${APP_CONTAINER}"
-echo "   - Check networks: docker network ls"
-echo "   - Inspect app networks: docker inspect ${APP_CONTAINER} | grep -A 20 'Networks'"
+echo "   - View app logs: ${DOCKER_CMD} logs ${APP_CONTAINER} -f"
+echo "   - View db logs: ${DOCKER_CMD} logs ${DB_HOST} -f"  
+echo "   - Stop application: ${DOCKER_CMD} stop ${APP_CONTAINER}"
+echo "   - Start application: ${DOCKER_CMD} start ${APP_CONTAINER}"
+echo "   - Remove application: ${DOCKER_CMD} stop ${APP_CONTAINER} && ${DOCKER_CMD} rm ${APP_CONTAINER}"
+echo "   - Check networks: ${DOCKER_CMD} network ls"
+echo "   - Inspect app networks: ${DOCKER_CMD} inspect ${APP_CONTAINER} | grep -A 20 'Networks'"
 echo ""
 echo "📊 Container Status (all containers in ${NETWORK_NAME}):"
-docker ps --filter "network=${NETWORK_NAME}" --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+"${DOCKER_CMD}" ps --filter "network=${NETWORK_NAME}" --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
 echo ""
 echo "💾 Database Access (PostgreSQL 14.5):"
-echo "   - Connect: docker exec -it ${DB_HOST} psql -U ${DB_USER} -d ${DB_NAME}"
-echo "   - Backup: docker exec ${DB_HOST} pg_dump -U ${DB_USER} ${DB_NAME} > backup.sql"
+echo "   - Connect: ${DOCKER_CMD} exec -it ${DB_HOST} psql -U ${DB_USER} -d ${DB_NAME}"
+echo "   - Backup: ${DOCKER_CMD} exec ${DB_HOST} pg_dump -U ${DB_USER} ${DB_NAME} > backup.sql"
 echo ""
 echo "🔗 Network topology based on networks.txt:"
 echo "   - root_default network: ${APP_CONTAINER}, root-n8n-1, root-traefik-1"
