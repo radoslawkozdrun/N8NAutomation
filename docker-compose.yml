@@ -32,13 +32,13 @@ services:
     container_name: n8n-automation-app
     restart: unless-stopped
     environment:
-      # Database (using direct IP for bridge network compatibility)
-      DB_HOST: ${DB_HOST:-172.17.0.2}
+      # Database (external VPS database)
+      DB_HOST: ${DB_HOST:-srv936559.hstgr.cloud}
       DB_PORT: ${DB_PORT:-5432}
       DB_NAME: ${DB_NAME:-postgres}
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-1qaz@WSX}
-      DB_SSL: ${DB_SSL:-false}
+      DB_SSL: ${DB_SSL:-true}
       
       # Application
       NODE_ENV: production

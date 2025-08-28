@@ -81,12 +81,12 @@ print_status "🚀 Starting new application container..."
 docker run -d --name n8n-automation-app \
   --restart unless-stopped \
   -p 8002:8002 \
-  -e DB_HOST=172.17.0.2 \
+  -e DB_HOST=srv936559.hstgr.cloud \
   -e DB_PORT=5432 \
   -e DB_NAME=postgres \
   -e DB_USER=postgres \
   -e DB_PASSWORD=1qaz@WSX \
-  -e DB_SSL=false \
+  -e DB_SSL=true \
   -e NODE_ENV=production \
   -e PORT=8002 \
   -e FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000} \
