@@ -21,7 +21,7 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 
 // Serve static files from React build
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
+app.use(express.static(path.join(__dirname, '../dist')));
 
 // Routes
 app.use('/api/posts', require('./routes/posts'));
@@ -73,7 +73,7 @@ app.get('*', (req, res) => {
   }
   
   // Otherwise, serve the React app
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
 // Error handling middleware

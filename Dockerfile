@@ -53,7 +53,7 @@ COPY --from=backend-builder /app/backend/node_modules ./backend/node_modules
 COPY backend/ ./backend/
 
 # Copy frontend build
-COPY --from=frontend-builder /app/dist ./frontend/dist
+COPY --from=frontend-builder /app/dist ./dist
 
 # Create .env file for backend if it doesn't exist
 RUN touch ./backend/.env
