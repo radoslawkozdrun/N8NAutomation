@@ -8,11 +8,12 @@ const pool = new Pool({
   database: process.env.DB_NAME,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  ssl: false,
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
   // Connection pool settings
   max: 10, // Maximum number of clients
   idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  connectionTimeoutMillis: 2000, // Return error after 2 seconds if connection could not be established
+  connectionTimeoutMillis: 20000, // Return error after 20 seconds if connection could not be established
+  acquireTimeoutMillis: 20000, // Return error after 20 seconds if connection could not be acquired from pool
 });
 
 // Test database connection
