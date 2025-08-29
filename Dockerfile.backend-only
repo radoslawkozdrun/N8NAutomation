@@ -1,0 +1,39 @@
+# Backend-only Dockerfile
+FROM node:18-alpine
+
+# Install PostgreSQL client
+RUN apk add --no-cache postgresql-client
+
+# Set working directory
+WORKDIR /app
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S n8nautomation -u 1001
+
+# Copy backend package files
+COPY backend/package*.json ./backend/
+
+# Install backend dependencies
+WORKDIR /app/backend
+RUN npm ci --only=production
+
+# Copy backend files
+COPY backend/ ./
+
+# Set permissions
+WORKDIR /app
+RUN chown -R n8nautomation:nodejs /app
+
+# Switch to non-root user
+USER n8nautomation
+
+# Expose port
+EXPOSE 8002
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8002/api/health || exit 1
+
+# Start command
+CMD ["node", "backend/server.js"]

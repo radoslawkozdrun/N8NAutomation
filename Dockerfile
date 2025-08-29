@@ -1,6 +1,9 @@
 # Multi-stage build for production
 FROM node:18-alpine AS frontend-builder
 
+# Fix potential shell issues
+RUN apk add --no-cache bash
+
 # Set working directory for frontend
 WORKDIR /app
 
