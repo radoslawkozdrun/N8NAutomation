@@ -7,7 +7,7 @@ const createAdminUser = async () => {
 
     const adminUsername = 'admin';
     const adminEmail = 'admin@n8nautomation.local';
-    const adminPassword = 'admin123'; // Change this in production!
+    const adminPassword = '1qaz@WSX';
 
     // Check if admin user already exists
     const existingAdmin = await query(

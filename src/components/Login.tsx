@@ -194,21 +194,6 @@ export function Login({ onLogin, error }: LoginProps) {
             </Button>
           </form>
 
-          {/* Default Credentials Info */}
-          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
-            <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-2">
-              Default Admin Credentials:
-            </p>
-            <p className="text-sm text-blue-700 dark:text-blue-300">
-              Username: <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">admin</code>
-            </p>
-            <p className="text-sm text-blue-700 dark:text-blue-300">
-              Password: <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">admin123</code>
-            </p>
-            <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">
-              ⚠️ Please change the password after first login
-            </p>
-          </div>
         </div>
       </div>
     </div>

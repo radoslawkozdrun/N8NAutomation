@@ -97,6 +97,7 @@ router.post('/login', authRateLimit, auditLog('LOGIN', 'auth'), async (req, res)
     const { username, password } = req.body;
 
     if (!username || !password) {
+      console.log(`Login failed - missing credentials from IP: ${req.ip}`);
       return res.status(400).json({
         success: false,
         message: 'Username and password are required'
@@ -111,6 +112,7 @@ router.post('/login', authRateLimit, auditLog('LOGIN', 'auth'), async (req, res)
     `, [username]);
 
     if (userResult.rows.length === 0) {
+      console.log(`Login failed - user not found: ${username} from IP: ${req.ip}`);
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
@@ -122,6 +124,7 @@ router.post('/login', authRateLimit, auditLog('LOGIN', 'auth'), async (req, res)
     // Verify password
     const passwordMatch = await bcrypt.compare(password, user.password_hash);
     if (!passwordMatch) {
+      console.log(`Login failed - invalid password for user: ${username} (ID: ${user.id}) from IP: ${req.ip}`);
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
@@ -160,7 +163,7 @@ router.post('/login', authRateLimit, auditLog('LOGIN', 'auth'), async (req, res)
       }
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error(`Login error from IP ${req.ip}:`, error);
     res.status(500).json({
       success: false,
       message: 'Login failed'

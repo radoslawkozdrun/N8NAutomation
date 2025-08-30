@@ -16,7 +16,7 @@ async function createDefaultAdmin() {
     // Create default admin
     const username = 'admin';
     const email = 'admin@example.com';
-    const password = 'admin123'; // Change this in production!
+    const password = '1qaz@WSX';
     const role = 'admin';
 
     console.log('Creating default admin user...');
