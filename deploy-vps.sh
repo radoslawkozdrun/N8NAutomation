@@ -80,12 +80,15 @@ else
     print_warning "netcat not available, skipping database connection test"
 fi
 
-# Build and deploy
-print_status "Stopping existing containers..."
+# Clean up old images and containers
+print_status "Cleaning up old Docker resources..."
 docker-compose -f $COMPOSE_FILE down || true
+docker system prune -f || true
+docker image rm n8n-automation:latest || true
+docker image rm n8nautomation_app:latest || true
 
-print_status "Building application image..."
-docker-compose -f $COMPOSE_FILE build --no-cache
+print_status "Building fresh application image..."
+docker-compose -f $COMPOSE_FILE build --no-cache --pull
 
 print_status "Starting application..."
 docker-compose -f $COMPOSE_FILE up -d
