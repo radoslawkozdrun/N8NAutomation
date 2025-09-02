@@ -504,7 +504,7 @@ curl -X POST "http://localhost:8000/api/articles/bulk-update" \
 
 ### Articles Table
 ```sql
-CREATE TABLE sp_content (
+CREATE TABLE content (
   id SERIAL PRIMARY KEY,
   title VARCHAR(500) NOT NULL,
   author VARCHAR(200),
@@ -532,10 +532,10 @@ CREATE TABLE sp_content (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_sp_content_status ON sp_content(status);
-CREATE INDEX idx_sp_content_category ON sp_content(category);
-CREATE INDEX idx_sp_content_score ON sp_content(final_score);
-CREATE INDEX idx_sp_content_created ON sp_content(created_date);
+CREATE INDEX idx_content_status ON content(status);
+CREATE INDEX idx_content_category ON content(category);
+CREATE INDEX idx_content_score ON content(final_score);
+CREATE INDEX idx_content_created ON content(created_date);
 ```
 
 ## 🚀 Implementation Notes

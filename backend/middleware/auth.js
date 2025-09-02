@@ -258,13 +258,13 @@ const requireOwnershipOrAdmin = (resourceType = 'resource') => {
       let checkQuery;
       switch (resourceType) {
         case 'feed':
-          checkQuery = 'SELECT user_id FROM sp_feed WHERE id = $1';
+          checkQuery = 'SELECT user_id FROM feed WHERE id = $1';
           break;
         case 'article':
-          checkQuery = 'SELECT user_id FROM sp_content WHERE id = $1';
+          checkQuery = 'SELECT user_id FROM content WHERE id = $1';
           break;
         case 'post':
-          checkQuery = 'SELECT created_by as user_id FROM sp_posts WHERE id = $1';
+          checkQuery = 'SELECT created_by as user_id FROM post WHERE id = $1';
           break;
         default:
           return res.status(500).json({
