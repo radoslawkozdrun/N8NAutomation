@@ -5,7 +5,7 @@ async function createDefaultAdmin() {
   try {
     // Check if admin already exists
     const existingAdmin = await query(
-      "SELECT id FROM users WHERE role = 'admin' LIMIT 1"
+      "SELECT id FROM \"user\" WHERE role = 'admin' LIMIT 1"
     );
 
     if (existingAdmin.rows.length > 0) {
@@ -30,7 +30,7 @@ async function createDefaultAdmin() {
 
     // Create admin user
     const result = await query(`
-      INSERT INTO users (username, email, password_hash, role)
+      INSERT INTO "user" (username, email, password_hash, role)
       VALUES ($1, $2, $3, $4)
       RETURNING id, username, email, role, created_at
     `, [username, email, passwordHash, role]);

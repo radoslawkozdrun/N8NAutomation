@@ -53,7 +53,7 @@ sleep 10
 # Run database migrations
 echo "📊 Running database migrations..."
 docker-compose exec postgres psql -U postgres -d rss_review -c "
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE IF NOT EXISTS "user" (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,

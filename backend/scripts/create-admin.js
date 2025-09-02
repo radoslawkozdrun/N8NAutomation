@@ -11,7 +11,7 @@ const createAdminUser = async () => {
 
     // Check if admin user already exists
     const existingAdmin = await query(
-      'SELECT id FROM users WHERE username = $1 OR email = $2',
+      'SELECT id FROM "user" WHERE username = $1 OR email = $2',
       [adminUsername, adminEmail]
     );
 
@@ -26,7 +26,7 @@ const createAdminUser = async () => {
 
     // Create admin user
     const result = await query(`
-      INSERT INTO users (username, email, password_hash, role, is_active)
+      INSERT INTO "user" (username, email, password_hash, role, is_active)
       VALUES ($1, $2, $3, $4, $5)
       RETURNING id, username, email, role, created_at
     `, [adminUsername, adminEmail, passwordHash, 'admin', true]);

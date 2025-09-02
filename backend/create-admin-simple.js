@@ -11,7 +11,7 @@ const createAdmin = async () => {
     
     // Try to create admin user
     const result = await query(`
-      INSERT INTO users (username, email, password_hash, role, is_active)
+      INSERT INTO "user" (username, email, password_hash, role, is_active)
       VALUES ($1, $2, $3, $4, $5)
       ON CONFLICT (username) DO UPDATE SET
         password_hash = EXCLUDED.password_hash,
