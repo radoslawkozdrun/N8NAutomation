@@ -46,21 +46,21 @@ const testConnection = async () => {
     const result = await query('SELECT NOW() as current_time');
     console.log('✅ Database connection test successful:', result.rows[0].current_time);
     
-    // Check if sp_content table exists
+    // Check if content table exists
     const tableCheck = await query(`
       SELECT table_name 
       FROM information_schema.tables 
-      WHERE table_name = 'sp_content'
+      WHERE table_name = 'content'
     `);
     
     if (tableCheck.rows.length > 0) {
-      console.log('✅ Table sp_content found');
+      console.log('✅ Table content found');
       
       // Get table info
-      const countResult = await query('SELECT COUNT(*) FROM sp_content');
-      console.log(`📋 Found ${countResult.rows[0].count} articles in sp_content`);
+      const countResult = await query('SELECT COUNT(*) FROM content');
+      console.log(`📋 Found ${countResult.rows[0].count} articles in content`);
     } else {
-      console.log('⚠️ Table sp_content not found');
+      console.log('⚠️ Table content not found');
     }
   } catch (err) {
     console.error('❌ Database connection test failed:', err.message);

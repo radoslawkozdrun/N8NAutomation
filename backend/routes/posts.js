@@ -19,7 +19,7 @@ router.get('/', /* authenticateToken, */ async (req, res) => {
     let sqlQuery = `
       SELECT 
         p.*
-      FROM sp_posts p
+      FROM post p
     `;
     
     const conditions = [];
@@ -62,7 +62,7 @@ router.get('/', /* authenticateToken, */ async (req, res) => {
     const result = await query(sqlQuery, params);
     
     // Get total count for pagination
-    let countQuery = 'SELECT COUNT(*) FROM sp_posts p';
+    let countQuery = 'SELECT COUNT(*) FROM post p';
     const countConditions = [];
     const countParams = [];
     let countParamCount = 0;
@@ -114,7 +114,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
     const result = await query(`
       SELECT 
         p.*
-      FROM sp_posts p
+      FROM post p
       WHERE p.id = $1
     `, [id]);
     
@@ -160,7 +160,7 @@ router.post('/', authenticateToken, async (req, res) => {
     }
     
     const result = await query(`
-      INSERT INTO sp_posts (
+      INSERT INTO post (
         title, 
         content, 
         platform, 
@@ -201,7 +201,7 @@ router.post('/:id/approve', authenticateToken, async (req, res) => {
     const { id } = req.params;
     
     const result = await query(`
-      UPDATE sp_posts 
+      UPDATE post 
       SET 
         status = 'APPROVED_FOR_PUBLISHING',
         updated_at = CURRENT_TIMESTAMP
@@ -245,7 +245,7 @@ router.post('/:id/reject', authenticateToken, async (req, res) => {
     }
     
     const result = await query(`
-      UPDATE sp_posts 
+      UPDATE post 
       SET 
         status = 'NEEDS_REVISION',
         rejection_reason = $2,
@@ -282,7 +282,7 @@ router.post('/:id/publish', authenticateToken, async (req, res) => {
     const { id } = req.params;
     
     const result = await query(`
-      UPDATE sp_posts 
+      UPDATE post 
       SET 
         status = 'PUBLISHED',
         published_at = CURRENT_TIMESTAMP
@@ -325,7 +325,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     } = req.body;
     
     // Only allow updates for posts in pending or rejected status
-    const existingPost = await query('SELECT status FROM sp_posts WHERE id = $1', [id]);
+    const existingPost = await query('SELECT status FROM post WHERE id = $1', [id]);
     
     if (existingPost.rows.length === 0) {
       return res.status(404).json({
@@ -343,7 +343,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     }
     
     const result = await query(`
-      UPDATE sp_posts 
+      UPDATE post 
       SET 
         title = COALESCE($2, title),
         content = COALESCE($3, content),
@@ -387,7 +387,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     
     // Only allow deletion for posts in pending or rejected status
     const result = await query(`
-      DELETE FROM sp_posts 
+      DELETE FROM post 
       WHERE id = $1 AND status IN ('pending', 'rejected')
       RETURNING id
     `, [id]);
@@ -421,12 +421,12 @@ router.get('/stats/overview', authenticateToken, async (req, res) => {
         status,
         platform,
         COUNT(*) as count
-      FROM sp_posts 
+      FROM post 
       GROUP BY status, platform
       ORDER BY status, platform
     `);
     
-    const totalResult = await query('SELECT COUNT(*) as total FROM sp_posts');
+    const totalResult = await query('SELECT COUNT(*) as total FROM post');
     const total = parseInt(totalResult.rows[0].total);
     
     // Organize stats by status

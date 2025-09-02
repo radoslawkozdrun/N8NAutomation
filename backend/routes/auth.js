@@ -25,7 +25,7 @@ const authRateLimit = rateLimit({
   legacyHeaders: false,
 });
 
-// Register endpoint (admin only for creating new users)
+// Register endpoint (admin only for creating new user)
 router.post('/register', authRateLimit, authenticateToken, requireAdmin, auditLog('CREATE_USER', 'user'), async (req, res) => {
   try {
     const { username, email, password, role = 'user' } = req.body;
@@ -47,7 +47,7 @@ router.post('/register', authRateLimit, authenticateToken, requireAdmin, auditLo
 
     // Check if user already exists
     const existingUser = await query(
-      'SELECT id FROM users WHERE username = $1 OR email = $2',
+      'SELECT id FROM "user" WHERE username = $1 OR email = $2',
       [username, email]
     );
 
@@ -64,7 +64,7 @@ router.post('/register', authRateLimit, authenticateToken, requireAdmin, auditLo
 
     // Create user
     const result = await query(`
-      INSERT INTO users (username, email, password_hash, role)
+      INSERT INTO "user" (username, email, password_hash, role)
       VALUES ($1, $2, $3, $4)
       RETURNING id, username, email, role, created_at
     `, [username, email, passwordHash, role]);
@@ -107,7 +107,7 @@ router.post('/login', authRateLimit, auditLog('LOGIN', 'auth'), async (req, res)
     // Find user
     const userResult = await query(`
       SELECT id, username, email, password_hash, role, is_active, last_login
-      FROM users 
+      FROM "user" 
       WHERE (username = $1 OR email = $1) AND is_active = true
     `, [username]);
 
@@ -144,7 +144,7 @@ router.post('/login', authRateLimit, auditLog('LOGIN', 'auth'), async (req, res)
 
     // Update last login
     await query(
-      'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = $1',
+      'UPDATE "user" SET last_login = CURRENT_TIMESTAMP WHERE id = $1',
       [user.id]
     );
 
@@ -199,7 +199,7 @@ router.get('/profile', authenticateToken, async (req, res) => {
   try {
     const userResult = await query(`
       SELECT id, username, email, role, created_at, last_login
-      FROM users 
+      FROM "user" 
       WHERE id = $1
     `, [req.user.id]);
 
@@ -233,7 +233,7 @@ router.put('/profile', authenticateToken, auditLog('UPDATE_PROFILE', 'user'), as
 
     // Get current user data
     const userResult = await query(
-      'SELECT password_hash FROM users WHERE id = $1',
+      'SELECT password_hash FROM "user" WHERE id = $1',
       [userId]
     );
 
@@ -253,7 +253,7 @@ router.put('/profile', authenticateToken, auditLog('UPDATE_PROFILE', 'user'), as
     if (email && email !== req.user.email) {
       // Check if email already exists
       const emailCheck = await query(
-        'SELECT id FROM users WHERE email = $1 AND id != $2',
+        'SELECT id FROM "user" WHERE email = $1 AND id != $2',
         [email, userId]
       );
 
@@ -309,7 +309,7 @@ router.put('/profile', authenticateToken, auditLog('UPDATE_PROFILE', 'user'), as
     // Perform update
     values.push(userId);
     const updateQuery = `
-      UPDATE users 
+      UPDATE "user" 
       SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP 
       WHERE id = $${paramIndex}
       RETURNING id, username, email, role, updated_at
@@ -332,12 +332,12 @@ router.put('/profile', authenticateToken, auditLog('UPDATE_PROFILE', 'user'), as
   }
 });
 
-// Get all users (admin only)
-router.get('/users', authenticateToken, requireAdmin, async (req, res) => {
+// Get all user (admin only)
+router.get('/user', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const result = await query(`
       SELECT id, username, email, role, is_active, created_at, last_login
-      FROM users 
+      FROM "user" 
       ORDER BY created_at DESC
     `);
 
@@ -346,16 +346,16 @@ router.get('/users', authenticateToken, requireAdmin, async (req, res) => {
       data: result.rows
     });
   } catch (error) {
-    console.error('Get users error:', error);
+    console.error('Get user error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to get users'
+      message: 'Failed to get user'
     });
   }
 });
 
 // Update user (admin only)
-router.put('/users/:id', authenticateToken, requireAdmin, auditLog('UPDATE_USER', 'user'), async (req, res) => {
+router.put('/user/:id', authenticateToken, requireAdmin, auditLog('UPDATE_USER', 'user'), async (req, res) => {
   try {
     const userId = parseInt(req.params.id);
     const { role, is_active } = req.body;
@@ -383,7 +383,7 @@ router.put('/users/:id', authenticateToken, requireAdmin, auditLog('UPDATE_USER'
 
     values.push(userId);
     const updateQuery = `
-      UPDATE users 
+      UPDATE "user" 
       SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP 
       WHERE id = $${paramIndex}
       RETURNING id, username, email, role, is_active, updated_at

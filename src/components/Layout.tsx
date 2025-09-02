@@ -10,7 +10,9 @@ import {
   Menu,
   X,
   User,
+  Users,
   Rss,
+  Globe,
   MessageSquare,
   FileText,
   LogOut,
@@ -22,8 +24,8 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface LayoutProps {
   children: React.ReactNode;
-  currentView: 'articles' | 'all-articles' | 'account' | 'feeds' | 'post-review';
-  onViewChange: (view: 'articles' | 'all-articles' | 'account' | 'feeds' | 'post-review') => void;
+  currentView: 'articles' | 'all-articles' | 'account' | 'feeds' | 'post-review' | 'users' | 'domains';
+  onViewChange: (view: 'articles' | 'all-articles' | 'account' | 'feeds' | 'post-review' | 'users' | 'domains') => void;
 }
 
 export function Layout({ children, currentView, onViewChange }: LayoutProps) {
@@ -81,6 +83,18 @@ export function Layout({ children, currentView, onViewChange }: LayoutProps) {
       icon: Rss,
       current: currentView === 'feeds',
     },
+    // Only show admin features for admins
+    ...(user?.role === 'ADMIN' ? [{
+      name: 'User Management',
+      key: 'users' as const,
+      icon: Users,
+      current: currentView === 'users',
+    }, {
+      name: 'Domain Management',
+      key: 'domains' as const,
+      icon: Globe,
+      current: currentView === 'domains',
+    }] : []),
     {
       name: 'Account',
       key: 'account' as const,

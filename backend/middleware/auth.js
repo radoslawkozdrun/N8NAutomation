@@ -22,8 +22,8 @@ const authenticateToken = async (req, res, next) => {
     // Check if session exists and is valid
     const sessionResult = await query(`
       SELECT us.*, u.username, u.email, u.role, u.is_active
-      FROM user_sessions us
-      JOIN users u ON us.user_id = u.id
+      FROM user_session us
+      JOIN "user" u ON us.user_id = u.id
       WHERE us.session_token = $1 
         AND us.expires_at > CURRENT_TIMESTAMP
         AND u.is_active = true
@@ -79,7 +79,7 @@ const requireAdmin = (req, res, next) => {
     });
   }
 
-  if (req.user.role !== 'admin') {
+  if (req.user.role !== 'ADMIN') {
     return res.status(403).json({
       success: false,
       message: 'Admin access required'
@@ -147,7 +147,7 @@ const auditLog = (action, resourceType = null) => {
 const logAuditAction = async (userId, action, resourceType, resourceId, details, ipAddress, userAgent) => {
   try {
     await query(`
-      INSERT INTO audit_logs (user_id, action, resource_type, resource_id, details, ip_address, user_agent)
+      INSERT INTO audit_log (user_id, action, resource_type, resource_id, details, ip_address, user_agent)
       VALUES ($1, $2, $3, $4, $5, $6, $7)
     `, [userId, action, resourceType, resourceId, JSON.stringify(details), ipAddress, userAgent]);
   } catch (error) {
@@ -172,12 +172,12 @@ const generateToken = (user) => {
 const createSession = async (userId, token, ipAddress, userAgent) => {
   try {
     // Clean up expired sessions
-    await query('DELETE FROM user_sessions WHERE expires_at < CURRENT_TIMESTAMP');
+    await query('DELETE FROM user_session WHERE expires_at < CURRENT_TIMESTAMP');
     
     // Create new session
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
     const result = await query(`
-      INSERT INTO user_sessions (user_id, session_token, expires_at, ip_address, user_agent)
+      INSERT INTO user_session (user_id, session_token, expires_at, ip_address, user_agent)
       VALUES ($1, $2, $3, $4, $5)
       RETURNING id
     `, [userId, token, expiresAt, ipAddress, userAgent]);
@@ -192,11 +192,113 @@ const createSession = async (userId, token, ipAddress, userAgent) => {
 // Delete session
 const deleteSession = async (token) => {
   try {
-    await query('DELETE FROM user_sessions WHERE session_token = $1', [token]);
+    await query('DELETE FROM user_session WHERE session_token = $1', [token]);
   } catch (error) {
     console.error('Failed to delete session:', error);
     throw error;
   }
+};
+
+// Middleware to add user filter to queries (only for USER and DEMO roles)
+const addUserFilter = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Authentication required'
+    });
+  }
+
+  // ADMIN can see all data, USER and DEMO only their own data
+  if (req.user.role === 'ADMIN') {
+    req.userFilter = {}; // No filter for admin
+  } else {
+    req.userFilter = {
+      user_id: req.user.id
+    };
+  }
+
+  next();
+};
+
+// Helper function to add user constraints to WHERE clauses
+const addUserConstraint = (whereConditions, params, userFilter, paramIndex) => {
+  if (userFilter.user_id) {
+    whereConditions.push(`user_id = $${paramIndex}`);
+    params.push(userFilter.user_id);
+    return paramIndex + 1;
+  }
+  return paramIndex;
+};
+
+// Middleware to ensure user owns resource for non-admin user
+const requireOwnershipOrAdmin = (resourceType = 'resource') => {
+  return async (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required'
+      });
+    }
+
+    // ADMIN can access any resource
+    if (req.user.role === 'ADMIN') {
+      return next();
+    }
+
+    // For non-admin user, check ownership
+    const resourceId = req.params.id;
+    if (!resourceId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Resource ID required'
+      });
+    }
+
+    try {
+      let checkQuery;
+      switch (resourceType) {
+        case 'feed':
+          checkQuery = 'SELECT user_id FROM sp_feed WHERE id = $1';
+          break;
+        case 'article':
+          checkQuery = 'SELECT user_id FROM sp_content WHERE id = $1';
+          break;
+        case 'post':
+          checkQuery = 'SELECT created_by as user_id FROM sp_posts WHERE id = $1';
+          break;
+        default:
+          return res.status(500).json({
+            success: false,
+            message: 'Unknown resource type'
+          });
+      }
+
+      const result = await query(checkQuery, [resourceId]);
+      
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: `${resourceType} not found`
+        });
+      }
+
+      const resourceUserId = result.rows[0].user_id;
+      if (resourceUserId !== req.user.id) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied - not resource owner'
+        });
+      }
+
+      next();
+    } catch (error) {
+      console.error('Ownership check error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to verify resource ownership'
+      });
+    }
+  };
 };
 
 module.exports = {
@@ -208,5 +310,8 @@ module.exports = {
   createSession,
   deleteSession,
   logAuditAction,
+  addUserFilter,
+  addUserConstraint,
+  requireOwnershipOrAdmin,
   JWT_SECRET
 };

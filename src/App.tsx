@@ -9,6 +9,8 @@ import { Login } from '@/components/Login';
 import { AccountPanel } from '@/components/AccountPanel';
 import { FeedManagement } from '@/components/FeedManagement';
 import { PostReview } from '@/components/PostReview';
+import { UserManagement } from '@/components/UserManagement';
+import { DomainManagement } from '@/components/DomainManagement';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { Article } from '@/types';
 
@@ -25,7 +27,7 @@ const queryClient = new QueryClient({
 
 function AppContent() {
   const { user, loading } = useAuth();
-  const [currentView, setCurrentView] = useState<'articles' | 'all-articles' | 'account' | 'feeds' | 'post-review'>('articles');
+  const [currentView, setCurrentView] = useState<'articles' | 'all-articles' | 'account' | 'feeds' | 'post-review' | 'users' | 'domains'>('articles');
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
 
@@ -84,6 +86,10 @@ function AppContent() {
           <AccountPanel user={user} />
         ) : currentView === 'feeds' ? (
           <FeedManagement />
+        ) : currentView === 'users' ? (
+          <UserManagement />
+        ) : currentView === 'domains' ? (
+          <DomainManagement />
         ) : null}
       </Layout>
 

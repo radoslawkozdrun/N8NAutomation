@@ -1,5 +1,6 @@
 const express = require('express');
 const { query } = require('../database');
+const { authenticateToken, addUserFilter, addUserConstraint, requireOwnershipOrAdmin } = require('../middleware/auth');
 const router = express.Router();
 
 // Helper function to parse tags and key_takeaways
@@ -17,10 +18,13 @@ const parseArrayField = (field) => {
 };
 
 // Helper function to build WHERE clause for filters
-const buildWhereClause = (filters) => {
+const buildWhereClause = (filters, userFilter = {}) => {
   const conditions = [];
   const params = [];
   let paramIndex = 1;
+
+  // Add user filter first (for non-admin users)
+  paramIndex = addUserConstraint(conditions, params, userFilter, paramIndex);
 
   // Filter by status
   // If status is undefined, default to 'PENDING_REVIEW'
@@ -96,7 +100,7 @@ const buildWhereClause = (filters) => {
 };
 
 // GET /api/articles
-router.get('/articles', async (req, res) => {
+router.get('/articles', authenticateToken, addUserFilter, async (req, res) => {
   try {
     console.log('📄 Fetching articles with filters:', req.query);
 
@@ -111,7 +115,7 @@ router.get('/articles', async (req, res) => {
     delete filters.sort_by;
     delete filters.sort_order;
 
-    const { whereClause, params, paramIndex } = buildWhereClause(filters);
+    const { whereClause, params, paramIndex } = buildWhereClause(filters, req.userFilter);
 
     // Build ORDER BY clause
     let orderBy = 'ORDER BY created_date DESC';
@@ -137,7 +141,7 @@ router.get('/articles', async (req, res) => {
     }
 
     // Get total count
-    const countQuery = `SELECT COUNT(*) FROM sp_content ${whereClause}`;
+    const countQuery = `SELECT COUNT(*) FROM content ${whereClause}`;
     const countResult = await query(countQuery, params);
     const total = parseInt(countResult.rows[0].count);
 
@@ -164,7 +168,7 @@ router.get('/articles', async (req, res) => {
         reasoning,
         status,
         created_date
-      FROM sp_content 
+      FROM content 
       ${whereClause}
       ${orderBy}
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
@@ -208,7 +212,7 @@ router.get('/articles', async (req, res) => {
 });
 
 // GET /api/articles/:id
-router.get('/articles/:id', async (req, res) => {
+router.get('/articles/:id', authenticateToken, requireOwnershipOrAdmin('article'), async (req, res) => {
   try {
     const articleId = parseInt(req.params.id);
     console.log(`📄 Fetching article ${articleId}`);
@@ -219,7 +223,7 @@ router.get('/articles/:id', async (req, res) => {
         tags, priority, target_audience, relevance_score, novelty_score,
         viral_score, value_score, final_score, key_takeways, reasoning,
         status, created_date
-      FROM sp_content 
+      FROM content 
       WHERE id = $1
     `, [articleId]);
 
@@ -260,7 +264,7 @@ router.get('/articles/:id', async (req, res) => {
 });
 
 // POST /api/articles/:id/decision
-router.post('/articles/:id/decision', async (req, res) => {
+router.post('/articles/:id/decision', authenticateToken, requireOwnershipOrAdmin('article'), async (req, res) => {
   try {
     const articleId = parseInt(req.params.id);
     const { action, notes } = req.body;
@@ -289,7 +293,7 @@ router.post('/articles/:id/decision', async (req, res) => {
 
     // Update article
     const updateResult = await query(`
-      UPDATE sp_content 
+      UPDATE content 
       SET status = $1
       WHERE id = $2
       RETURNING *
@@ -328,7 +332,7 @@ router.post('/articles/:id/decision', async (req, res) => {
 });
 
 // POST /api/articles/bulk-update
-router.post('/articles/bulk-update', async (req, res) => {
+router.post('/articles/bulk-update', authenticateToken, addUserFilter, async (req, res) => {
   try {
     const { articleIds, action, notes } = req.body;
     
@@ -360,15 +364,24 @@ router.post('/articles/bulk-update', async (req, res) => {
     const newStatus = statusMap[action];
     const now = new Date().toISOString();
 
-    // Build placeholders for IN clause
+    // Build placeholders for IN clause and add user filter
     const placeholders = articleIds.map((_, index) => `$${index + 2}`).join(',');
+    
+    let whereClause = `id IN (${placeholders})`;
+    let params = [newStatus, ...articleIds];
+    
+    // Add user filter for non-admin users
+    if (req.userFilter.user_id) {
+      whereClause += ` AND user_id = $${params.length + 1}`;
+      params.push(req.userFilter.user_id);
+    }
 
     const updateResult = await query(`
-      UPDATE sp_content 
+      UPDATE content 
       SET status = $1
-      WHERE id IN (${placeholders})
+      WHERE ${whereClause}
       RETURNING id
-    `, [newStatus, ...articleIds]);
+    `, params);
 
     const updatedCount = updateResult.rows.length;
     const failedCount = articleIds.length - updatedCount;
@@ -398,14 +411,25 @@ router.post('/articles/bulk-update', async (req, res) => {
 });
 
 // GET /api/articles/tags
-router.get('/articles/tags', async (req, res) => {
+router.get('/articles/tags', authenticateToken, addUserFilter, async (req, res) => {
   try {
+    // Build WHERE clause with user filter
+    const conditions = [];
+    const params = [];
+    let paramIndex = 1;
+    
+    paramIndex = addUserConstraint(conditions, params, req.userFilter, paramIndex);
+    conditions.push('tags IS NOT NULL');
+    conditions.push("tags != ''");
+    
+    const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
+
     const result = await query(`
       SELECT DISTINCT unnest(string_to_array(tags, ',')) as tag
-      FROM sp_content 
-      WHERE tags IS NOT NULL AND tags != ''
+      FROM content 
+      ${whereClause}
       ORDER BY tag
-    `);
+    `, params);
 
     const tags = result.rows
       .map(row => row.tag.trim())
@@ -427,14 +451,24 @@ router.get('/articles/tags', async (req, res) => {
 });
 
 // GET /api/articles/categories
-router.get('/articles/categories', async (req, res) => {
+router.get('/articles/categories', authenticateToken, addUserFilter, async (req, res) => {
   try {
+    // Build WHERE clause with user filter
+    const conditions = [];
+    const params = [];
+    let paramIndex = 1;
+    
+    paramIndex = addUserConstraint(conditions, params, req.userFilter, paramIndex);
+    conditions.push('category IS NOT NULL');
+    
+    const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
+
     const result = await query(`
       SELECT DISTINCT category
-      FROM sp_content 
-      WHERE category IS NOT NULL
+      FROM content 
+      ${whereClause}
       ORDER BY category
-    `);
+    `, params);
 
     const categories = result.rows.map(row => row.category);
 
@@ -454,10 +488,12 @@ router.get('/articles/categories', async (req, res) => {
 });
 
 // Get research materials for an article
-router.get('/articles/:id/research', async (req, res) => {
+router.get('/articles/:id/research', authenticateToken, requireOwnershipOrAdmin('article'), async (req, res) => {
   try {
     const { id } = req.params;
     
+    // For research, we check if user owns the article via the requireOwnershipOrAdmin middleware
+    // No additional user filtering needed here since ownership is already verified
     const result = await query(`
       SELECT 
         id,
@@ -469,7 +505,7 @@ router.get('/articles/:id/research', async (req, res) => {
         title,
         publication_date,
         created_at
-      FROM sp_research 
+      FROM research 
       WHERE article_id = $1
       ORDER BY created_at DESC
     `, [id]);

@@ -81,13 +81,39 @@ export interface ResearchMaterial {
   created_at: string;
 }
 
+export type UserRole = 'ADMIN' | 'USER' | 'DEMO';
+
 export interface User {
   id: number;
   username: string;
   email: string;
-  role: string;
+  role: UserRole;
+  is_active: boolean;
   created_at: string;
+  updated_at: string;
   last_login?: string;
+}
+
+export interface UserFilters {
+  role?: UserRole;
+  active?: boolean;
+  search?: string;
+}
+
+export interface CreateUserRequest {
+  username: string;
+  email: string;
+  password: string;
+  role?: UserRole;
+  is_active?: boolean;
+}
+
+export interface UpdateUserRequest {
+  username?: string;
+  email?: string;
+  password?: string;
+  role?: UserRole;
+  is_active?: boolean;
 }
 
 export interface ArticleFilters {

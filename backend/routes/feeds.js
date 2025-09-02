@@ -1,11 +1,11 @@
 const express = require('express');
 const { query } = require('../database');
-const { authenticateToken, requireAdmin, auditLog } = require('../middleware/auth');
+const { authenticateToken, requireAdmin, auditLog, addUserFilter, addUserConstraint, requireOwnershipOrAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
 // Get all feeds with pagination and filtering
-router.get('/feeds', authenticateToken, async (req, res) => {
+router.get('/feeds', authenticateToken, addUserFilter, async (req, res) => {
   try {
     const {
       page = 1,
@@ -19,6 +19,9 @@ router.get('/feeds', authenticateToken, async (req, res) => {
     let whereConditions = [];
     let queryParams = [];
     let paramIndex = 1;
+
+    // Add user filter first
+    paramIndex = addUserConstraint(whereConditions, queryParams, req.userFilter, paramIndex);
 
     // Build WHERE clause
     if (category) {
@@ -44,7 +47,7 @@ router.get('/feeds', authenticateToken, async (req, res) => {
     // Get total count
     const countQuery = `
       SELECT COUNT(*) as total
-      FROM sp_feed
+      FROM feed
       ${whereClause}
     `;
 
@@ -57,7 +60,7 @@ router.get('/feeds', authenticateToken, async (req, res) => {
       SELECT 
         id, name, url, description, category, enabled,
         created_at, updated_at, last_checked, error_count, last_error
-      FROM sp_feed
+      FROM feed
       ${whereClause}
       ORDER BY name ASC
       LIMIT $${paramIndex++} OFFSET $${paramIndex++}
@@ -85,7 +88,7 @@ router.get('/feeds', authenticateToken, async (req, res) => {
 });
 
 // Get single feed by ID
-router.get('/feeds/:id', authenticateToken, async (req, res) => {
+router.get('/feeds/:id', authenticateToken, requireOwnershipOrAdmin('feed'), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -93,7 +96,7 @@ router.get('/feeds/:id', authenticateToken, async (req, res) => {
       SELECT 
         id, name, url, description, category, enabled,
         created_at, updated_at, last_checked, error_count, last_error
-      FROM sp_feed 
+      FROM feed 
       WHERE id = $1
     `, [id]);
 
@@ -131,7 +134,7 @@ router.post('/feeds', authenticateToken, requireAdmin, auditLog('CREATE_FEED', '
     }
 
     // Check if URL already exists
-    const existingFeed = await query('SELECT id FROM sp_feed WHERE url = $1', [url]);
+    const existingFeed = await query('SELECT id FROM feed WHERE url = $1', [url]);
     if (existingFeed.rows.length > 0) {
       return res.status(409).json({
         success: false,
@@ -139,14 +142,14 @@ router.post('/feeds', authenticateToken, requireAdmin, auditLog('CREATE_FEED', '
       });
     }
 
-    // Insert new feed
+    // Insert new feed with user_id
     const result = await query(`
-      INSERT INTO sp_feed (name, url, description, category, enabled, value, type)
-      VALUES ($1, $2, $3, $4, $5, $2, 'RSS')
+      INSERT INTO feed (name, url, description, category, enabled, value, type, user_id)
+      VALUES ($1, $2, $3, $4, $5, $2, 'RSS', $6)
       RETURNING 
         id, name, url, description, category, enabled,
         created_at, updated_at
-    `, [name, url, description, category, enabled]);
+    `, [name, url, description, category, enabled, req.user.id]);
 
     res.status(201).json({
       success: true,
@@ -163,13 +166,13 @@ router.post('/feeds', authenticateToken, requireAdmin, auditLog('CREATE_FEED', '
 });
 
 // Update feed
-router.put('/feeds/:id', authenticateToken, requireAdmin, auditLog('UPDATE_FEED', 'feed'), async (req, res) => {
+router.put('/feeds/:id', authenticateToken, requireOwnershipOrAdmin('feed'), auditLog('UPDATE_FEED', 'feed'), async (req, res) => {
   try {
     const { id } = req.params;
     const { name, url, description, category, enabled } = req.body;
 
     // Check if feed exists
-    const existingFeed = await query('SELECT id, url FROM sp_feed WHERE id = $1', [id]);
+    const existingFeed = await query('SELECT id, url FROM feed WHERE id = $1', [id]);
     if (existingFeed.rows.length === 0) {
       return res.status(404).json({
         success: false,
@@ -179,7 +182,7 @@ router.put('/feeds/:id', authenticateToken, requireAdmin, auditLog('UPDATE_FEED'
 
     // If URL is being changed, check for duplicates
     if (url && url !== existingFeed.rows[0].url) {
-      const duplicateCheck = await query('SELECT id FROM sp_feed WHERE url = $1 AND id != $2', [url, id]);
+      const duplicateCheck = await query('SELECT id FROM feed WHERE url = $1 AND id != $2', [url, id]);
       if (duplicateCheck.rows.length > 0) {
         return res.status(409).json({
           success: false,
@@ -226,7 +229,7 @@ router.put('/feeds/:id', authenticateToken, requireAdmin, auditLog('UPDATE_FEED'
     values.push(id);
 
     const updateQuery = `
-      UPDATE sp_feed 
+      UPDATE feed 
       SET ${updates.join(', ')}
       WHERE id = $${paramIndex}
       RETURNING 
@@ -251,12 +254,12 @@ router.put('/feeds/:id', authenticateToken, requireAdmin, auditLog('UPDATE_FEED'
 });
 
 // Toggle feed enabled status
-router.patch('/feeds/:id/toggle', authenticateToken, requireAdmin, auditLog('TOGGLE_FEED', 'feed'), async (req, res) => {
+router.patch('/feeds/:id/toggle', authenticateToken, requireOwnershipOrAdmin('feed'), auditLog('TOGGLE_FEED', 'feed'), async (req, res) => {
   try {
     const { id } = req.params;
 
     const result = await query(`
-      UPDATE sp_feed 
+      UPDATE feed 
       SET enabled = NOT enabled, updated_at = CURRENT_TIMESTAMP
       WHERE id = $1
       RETURNING 
@@ -285,13 +288,13 @@ router.patch('/feeds/:id/toggle', authenticateToken, requireAdmin, auditLog('TOG
   }
 });
 
-// Delete feed (admin only)
-router.delete('/feeds/:id', authenticateToken, requireAdmin, auditLog('DELETE_FEED', 'feed'), async (req, res) => {
+// Delete feed (admin or owner only)
+router.delete('/feeds/:id', authenticateToken, requireOwnershipOrAdmin('feed'), auditLog('DELETE_FEED', 'feed'), async (req, res) => {
   try {
     const { id } = req.params;
 
     const result = await query(`
-      DELETE FROM sp_feed 
+      DELETE FROM feed 
       WHERE id = $1
       RETURNING name, url
     `, [id]);
@@ -317,14 +320,24 @@ router.delete('/feeds/:id', authenticateToken, requireAdmin, auditLog('DELETE_FE
 });
 
 // Get feed categories
-router.get('/feeds/meta/categories', authenticateToken, async (req, res) => {
+router.get('/feeds/meta/categories', authenticateToken, addUserFilter, async (req, res) => {
   try {
+    // Build WHERE clause with user filter
+    const conditions = [];
+    const params = [];
+    let paramIndex = 1;
+    
+    paramIndex = addUserConstraint(conditions, params, req.userFilter, paramIndex);
+    conditions.push('category IS NOT NULL');
+    
+    const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
+
     const result = await query(`
       SELECT DISTINCT category
-      FROM sp_feed 
-      WHERE category IS NOT NULL
+      FROM feed 
+      ${whereClause}
       ORDER BY category
-    `);
+    `, params);
 
     res.json({
       success: true,
@@ -340,8 +353,20 @@ router.get('/feeds/meta/categories', authenticateToken, async (req, res) => {
 });
 
 // Get feed statistics
-router.get('/feeds/meta/stats', authenticateToken, async (req, res) => {
+router.get('/feeds/meta/stats', authenticateToken, addUserFilter, async (req, res) => {
   try {
+    // Build WHERE clauses with user filter
+    const conditions = [];
+    const params = [];
+    let paramIndex = 1;
+    
+    paramIndex = addUserConstraint(conditions, params, req.userFilter, paramIndex);
+    const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
+    
+    // Category stats need additional WHERE clause for NOT NULL
+    const categoryConditions = [...conditions, 'category IS NOT NULL'];
+    const categoryWhereClause = categoryConditions.length > 0 ? 'WHERE ' + categoryConditions.join(' AND ') : '';
+
     const statsQuery = `
       SELECT 
         COUNT(*) as total_feeds,
@@ -350,7 +375,8 @@ router.get('/feeds/meta/stats', authenticateToken, async (req, res) => {
         COUNT(CASE WHEN last_checked IS NOT NULL THEN 1 END) as checked_feeds,
         COUNT(CASE WHEN error_count > 0 THEN 1 END) as error_feeds,
         AVG(error_count) as avg_error_count
-      FROM sp_feed
+      FROM feed
+      ${whereClause}
     `;
 
     const categoryStatsQuery = `
@@ -358,15 +384,15 @@ router.get('/feeds/meta/stats', authenticateToken, async (req, res) => {
         category,
         COUNT(*) as count,
         COUNT(CASE WHEN enabled = true THEN 1 END) as enabled_count
-      FROM sp_feed 
-      WHERE category IS NOT NULL
+      FROM feed 
+      ${categoryWhereClause}
       GROUP BY category
       ORDER BY count DESC
     `;
 
     const [statsResult, categoryResult] = await Promise.all([
-      query(statsQuery),
-      query(categoryStatsQuery)
+      query(statsQuery, params),
+      query(categoryStatsQuery, params)
     ]);
 
     res.json({

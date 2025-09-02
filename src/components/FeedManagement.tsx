@@ -21,6 +21,8 @@ import {
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/utils';
+import { api } from '@/lib/api';
+import toast from 'react-hot-toast';
 
 interface Feed {
   id: number;
@@ -82,21 +84,14 @@ export function FeedManagement() {
     enabled: true
   });
 
-  const getAuthToken = () => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      console.warn('No auth token found - user may need to log in');
-      return null;
-    }
-    return token;
-  };
-
   const showMessage = (message: string, type: 'success' | 'error') => {
     if (type === 'success') {
+      toast.success(message);
       setSuccess(message);
       setError('');
       setTimeout(() => setSuccess(''), 5000);
     } else {
+      toast.error(message);
       setError(message);
       setSuccess('');
       setTimeout(() => setError(''), 5000);
@@ -106,74 +101,22 @@ export function FeedManagement() {
   const fetchFeeds = async () => {
     setLoading(true);
     try {
-      const token = getAuthToken();
-      if (!token) {
-        // Show mock data if not authenticated
-        const mockFeeds = [
-          {
-            id: 1,
-            name: 'Tech News RSS',
-            url: 'https://techcrunch.com/feed/',
-            description: 'Latest technology news and updates',
-            category: 'Technology',
-            enabled: true,
-            created_at: '2024-01-01T00:00:00Z',
-            updated_at: '2024-01-01T00:00:00Z',
-            last_checked: '2024-08-23T10:00:00Z',
-            error_count: 0,
-            last_error: null
-          },
-          {
-            id: 2,
-            name: 'Financial Times RSS',
-            url: 'https://www.ft.com/rss/home',
-            description: 'Financial and business news',
-            category: 'Finance',
-            enabled: false,
-            created_at: '2024-01-02T00:00:00Z',
-            updated_at: '2024-01-02T00:00:00Z',
-            last_checked: null,
-            error_count: 3,
-            last_error: 'Connection timeout'
-          }
-        ];
-        
-        setFeeds(mockFeeds);
-        setTotalPages(1);
-        showMessage('Please log in to manage feeds - showing mock data', 'error');
-        setLoading(false);
-        return;
-      }
+      const filters: Record<string, any> = {};
+      if (search) filters.search = search;
+      if (categoryFilter) filters.category = categoryFilter;
+      if (statusFilter !== 'all') filters.enabled = statusFilter === 'enabled';
 
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: '20',
-        ...(search && { search }),
-        ...(categoryFilter && { category: categoryFilter }),
-        ...(statusFilter !== 'all' && { enabled: (statusFilter === 'enabled').toString() })
-      });
-
-      const response = await fetch(`http://localhost:8002/api/feeds?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        setFeeds(data.data);
-        setTotalPages(data.pagination.total_pages);
+      const response = await api.getFeeds(filters, page, 20);
+      setFeeds(response.data);
+      setTotalPages(response.pagination.total_pages);
+    } catch (error: any) {
+      console.error('Error fetching feeds:', error);
+      if (error?.status === 401) {
+        showMessage('Authentication failed - please log in again', 'error');
+        localStorage.removeItem('authToken');
       } else {
-        if (response.status === 401 || response.status === 403) {
-          showMessage('Authentication failed - please log in again', 'error');
-          localStorage.removeItem('authToken');
-        } else {
-          showMessage(data.message || 'Failed to load feeds', 'error');
-        }
+        showMessage(error?.message || 'Failed to load feeds', 'error');
       }
-    } catch (error) {
-      console.error('Network error:', error);
-      showMessage('Network error - please check your connection', 'error');
     } finally {
       setLoading(false);
     }
@@ -181,80 +124,19 @@ export function FeedManagement() {
 
   const fetchStats = async () => {
     try {
-      const token = getAuthToken();
-      if (!token) {
-        // Mock stats for unauthenticated users
-        setStats({
-          overview: {
-            total_feeds: 2,
-            enabled_feeds: 1,
-            disabled_feeds: 1,
-            checked_feeds: 1,
-            error_feeds: 1,
-            avg_error_count: 1.5
-          },
-          categories: [
-            { category: 'Technology', count: 1, enabled_count: 1 },
-            { category: 'Finance', count: 1, enabled_count: 0 }
-          ]
-        });
-        return;
-      }
-
-      const response = await fetch('http://localhost:8002/api/feeds/meta/stats', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        setStats(data.data);
-      }
+      const response = await api.getFeedStats();
+      setStats(response.data);
     } catch (error) {
       console.error('Failed to fetch stats:', error);
-      
-      // Mock stats for development
-      setStats({
-        overview: {
-          total_feeds: 2,
-          enabled_feeds: 1,
-          disabled_feeds: 1,
-          checked_feeds: 1,
-          error_feeds: 1,
-          avg_error_count: 1.5
-        },
-        categories: [
-          { category: 'Technology', count: 1, enabled_count: 1 },
-          { category: 'Finance', count: 1, enabled_count: 0 }
-        ]
-      });
     }
   };
 
   const fetchCategories = async () => {
     try {
-      const token = getAuthToken();
-      if (!token) {
-        // Mock categories for unauthenticated users
-        setCategories(['Technology', 'Finance', 'News', 'Sports']);
-        return;
-      }
-
-      const response = await fetch('http://localhost:8002/api/feeds/meta/categories', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        setCategories(data.data);
-      }
+      const response = await api.getFeedCategories();
+      setCategories(response.data);
     } catch (error) {
       console.error('Failed to fetch categories:', error);
-      
-      // Mock categories for development
       setCategories(['Technology', 'Finance', 'News', 'Sports']);
     }
   };
@@ -267,6 +149,7 @@ export function FeedManagement() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Submitting form with data:', formData, 'editingFeed:', editingFeed);
 
     if (!formData.name || !formData.url) {
       showMessage('Name and URL are required', 'error');
@@ -275,37 +158,27 @@ export function FeedManagement() {
 
     setLoading(true);
     try {
-      const url = editingFeed 
-        ? `http://localhost:8002/api/feeds/${editingFeed.id}`
-        : 'http://localhost:8002/api/feeds';
-      
-      const method = editingFeed ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getAuthToken()}`
-        },
-        body: JSON.stringify(formData)
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        showMessage(data.message || `Feed ${editingFeed ? 'updated' : 'created'} successfully`, 'success');
-        setShowAddModal(false);
-        setShowEditModal(false);
-        setEditingFeed(null);
-        setFormData({ name: '', url: '', description: '', category: '', enabled: true });
-        fetchFeeds();
-        fetchStats();
-        fetchCategories();
+      let response;
+      if (editingFeed) {
+        console.log('Updating feed with ID:', editingFeed.id);
+        response = await api.updateFeed(editingFeed.id, formData);
       } else {
-        showMessage(data.message || 'Failed to save feed', 'error');
+        console.log('Creating new feed');
+        response = await api.createFeed(formData);
       }
-    } catch (error) {
-      showMessage('Network error occurred', 'error');
+      
+      console.log('API response:', response);
+      showMessage(response.message || `Feed ${editingFeed ? 'updated' : 'created'} successfully`, 'success');
+      setShowAddModal(false);
+      setShowEditModal(false);
+      setEditingFeed(null);
+      setFormData({ name: '', url: '', description: '', category: '', enabled: true });
+      fetchFeeds();
+      fetchStats();
+      fetchCategories();
+    } catch (error: any) {
+      console.error('Error submitting form:', error);
+      showMessage(error?.message || 'Failed to save feed', 'error');
     } finally {
       setLoading(false);
     }
@@ -313,24 +186,12 @@ export function FeedManagement() {
 
   const toggleFeed = async (id: number) => {
     try {
-      const response = await fetch(`http://localhost:8002/api/feeds/${id}/toggle`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${getAuthToken()}`
-        }
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        showMessage(data.message, 'success');
-        fetchFeeds();
-        fetchStats();
-      } else {
-        showMessage(data.message || 'Failed to toggle feed', 'error');
-      }
-    } catch (error) {
-      showMessage('Network error occurred', 'error');
+      const response = await api.toggleFeed(id);
+      showMessage(response.message, 'success');
+      fetchFeeds();
+      fetchStats();
+    } catch (error: any) {
+      showMessage(error?.message || 'Failed to toggle feed', 'error');
     }
   };
 
@@ -340,29 +201,18 @@ export function FeedManagement() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8002/api/feeds/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${getAuthToken()}`
-        }
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        showMessage(data.message, 'success');
-        fetchFeeds();
-        fetchStats();
-        fetchCategories();
-      } else {
-        showMessage(data.message || 'Failed to delete feed', 'error');
-      }
-    } catch (error) {
-      showMessage('Network error occurred', 'error');
+      const response = await api.deleteFeed(id);
+      showMessage(response.message, 'success');
+      fetchFeeds();
+      fetchStats();
+      fetchCategories();
+    } catch (error: any) {
+      showMessage(error?.message || 'Failed to delete feed', 'error');
     }
   };
 
   const openEditModal = (feed: Feed) => {
+    console.log('Opening edit modal for feed:', feed);
     setEditingFeed(feed);
     setFormData({
       name: feed.name,
@@ -617,16 +467,16 @@ export function FeedManagement() {
                           href={feed.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-blue-600"
-                          title="Open feed URL"
+                          className="p-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900/20 text-blue-600 border border-transparent hover:border-blue-300"
+                          title="Open feed URL in new tab"
                         >
                           <ExternalLink className="w-4 h-4" />
                         </a>
 
                         <button
                           onClick={() => openEditModal(feed)}
-                          className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
-                          title="Edit feed"
+                          className="p-1 rounded hover:bg-green-100 dark:hover:bg-green-900/20 text-green-600 border border-transparent hover:border-green-300"
+                          title="Edit this feed"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>

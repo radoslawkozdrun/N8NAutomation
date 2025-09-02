@@ -1,4 +1,4 @@
-import { Article, ReviewDecision, BulkUpdateRequest, ArticleFilters, PaginatedResponse, ApiResponse, ResearchMaterial, User } from '@/types';
+import { Article, ReviewDecision, BulkUpdateRequest, ArticleFilters, PaginatedResponse, ApiResponse, ResearchMaterial, User, UserFilters, CreateUserRequest, UpdateUserRequest } from '@/types';
 
 // Dynamic API URL detection
 const getApiBaseUrl = () => {
@@ -167,6 +167,179 @@ export const api = {
 
   validateToken: async (): Promise<ApiResponse<{ valid: boolean; user: User }>> => {
     return request<ApiResponse<{ valid: boolean; user: User }>>('/auth/validate');
+  },
+
+  // User management (Admin only)
+  getUsers: async (
+    filters: UserFilters = {},
+    page = 1,
+    limit = 20
+  ): Promise<PaginatedResponse<User>> => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+      ...Object.fromEntries(
+        Object.entries(filters).filter(([_, value]) => value !== undefined)
+      ),
+    });
+
+    return request<PaginatedResponse<User>>(`/users?${params}`);
+  },
+
+  getUser: async (id: number): Promise<ApiResponse<User>> => {
+    return request<ApiResponse<User>>(`/users/${id}`);
+  },
+
+  createUser: async (userData: CreateUserRequest): Promise<ApiResponse<User>> => {
+    return request<ApiResponse<User>>('/users', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
+  },
+
+  updateUser: async (id: number, userData: UpdateUserRequest): Promise<ApiResponse<User>> => {
+    return request<ApiResponse<User>>(`/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(userData),
+    });
+  },
+
+  toggleUserStatus: async (id: number): Promise<ApiResponse<User>> => {
+    return request<ApiResponse<User>>(`/users/${id}/toggle`, {
+      method: 'PATCH',
+    });
+  },
+
+  deleteUser: async (id: number): Promise<ApiResponse<{ message: string }>> => {
+    return request<ApiResponse<{ message: string }>>(`/users/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  getUserStats: async (): Promise<ApiResponse<{
+    overview: {
+      total_users: number;
+      active_users: number;
+      inactive_users: number;
+      admin_users: number;
+      regular_users: number;
+      demo_users: number;
+      recent_logins: number;
+    };
+    by_role: Array<{
+      role: string;
+      count: number;
+      active_count: number;
+    }>;
+  }>> => {
+    return request<ApiResponse<any>>('/users/meta/stats');
+  },
+
+  // Dashboard stats
+  getDashboardStats: async (): Promise<ApiResponse<{
+    total_pending: number;
+    average_score: number;
+    category_distribution: Record<string, number>;
+    priority_distribution: Record<string, number>;
+    recent_activity: Array<{
+      id: string;
+      action: string;
+      article_title: string;
+      timestamp: string;
+      user: string;
+    }>;
+  }>> => {
+    return request<ApiResponse<any>>('/dashboard/stats');
+  },
+
+  // Feed management
+  getFeeds: async (filters: Record<string, any> = {}, page = 1, limit = 20): Promise<any> => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+      ...Object.fromEntries(
+        Object.entries(filters).filter(([_, value]) => value !== undefined && value !== '')
+      ),
+    });
+
+    return request<any>(`/feeds?${params}`);
+  },
+
+  getFeedStats: async (): Promise<any> => {
+    return request<any>('/feeds/meta/stats');
+  },
+
+  getFeedCategories: async (): Promise<any> => {
+    return request<any>('/feeds/meta/categories');
+  },
+
+  createFeed: async (feedData: any): Promise<any> => {
+    return request<any>('/feeds', {
+      method: 'POST',
+      body: JSON.stringify(feedData),
+    });
+  },
+
+  updateFeed: async (id: number, feedData: any): Promise<any> => {
+    return request<any>(`/feeds/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(feedData),
+    });
+  },
+
+  toggleFeed: async (id: number): Promise<any> => {
+    return request<any>(`/feeds/${id}/toggle`, {
+      method: 'PATCH',
+    });
+  },
+
+  deleteFeed: async (id: number): Promise<any> => {
+    return request<any>(`/feeds/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Domain management
+  getDomains: async (filters: Record<string, any> = {}, page = 1, limit = 20): Promise<any> => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+      ...Object.fromEntries(
+        Object.entries(filters).filter(([_, value]) => value !== undefined && value !== '')
+      ),
+    });
+
+    return request<any>(`/domains?${params}`);
+  },
+
+  getDomainStats: async (): Promise<any> => {
+    return request<any>('/domains/meta/stats');
+  },
+
+  createDomain: async (domainData: any): Promise<any> => {
+    return request<any>('/domains', {
+      method: 'POST',
+      body: JSON.stringify(domainData),
+    });
+  },
+
+  updateDomain: async (id: number, domainData: any): Promise<any> => {
+    return request<any>(`/domains/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(domainData),
+    });
+  },
+
+  toggleDomain: async (id: number): Promise<any> => {
+    return request<any>(`/domains/${id}/toggle`, {
+      method: 'PATCH',
+    });
+  },
+
+  deleteDomain: async (id: number): Promise<any> => {
+    return request<any>(`/domains/${id}`, {
+      method: 'DELETE',
+    });
   },
 };
 

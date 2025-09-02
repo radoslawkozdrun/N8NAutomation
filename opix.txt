@@ -1,0 +1,102 @@
+OPIX - RSS Review Interface
+=======================================
+
+OPIS APLIKACJI:
+OPIX to zaawansowana aplikacja webowa do zarządzania i przeglądania artykułów RSS z wykorzystaniem sztucznej inteligencji do oceny i kategoryzacji treści. System umożliwia efektywne przeglądanie, filtrowanie i podejmowanie decyzji odnośnie artykułów pochodzących z różnych źródeł RSS.
+
+GŁÓWNE FUNKCJONALNOŚCI:
+
+1. ZARZĄDZANIE UŻYTKOWNIKAMI
+   - System ról użytkowników (ADMIN, USER, DEMO)
+   - Tworzenie, edycja i usuwanie kont użytkowników (tylko dla administratorów)
+   - Aktywacja/dezaktywacja użytkowników
+   - Śledzenie ostatnich logowań i statystyk użytkowników
+   - Bezpieczne logowanie z tokenami autoryzacji
+
+2. ZARZĄDZANIE ŹRÓDŁAMI RSS
+   - Dodawanie nowych źródeł RSS
+   - Edycja istniejących feedów (nazwa, URL, opis, kategoria)
+   - Aktywacja/dezaktywacja źródeł
+   - Kategoryzacja feedów
+   - Monitorowanie błędów połączeń
+   - Śledzenie ostatnich sprawdzeń feedów
+   - Statystyki feedów (łączna liczba, aktywne, nieaktywne, błędy)
+
+3. PRZEGLĄDANIE I OCENA ARTYKUŁÓW
+   - Lista artykułów z inteligentnym systemem oceny AI
+   - Szczegółowe punktacje według kryteriów:
+     * Relevance Score (trafność)
+     * Novelty Score (nowatorskość)  
+     * Viral Score (potencjał wiralowy)
+     * Value Score (wartość)
+     * Final Score (ocena końcowa)
+   - Kategoryzacja artykułów (AI_ML, WEB_DEV, MOBILE_DEV, DATA_SCIENCE, DEVOPS, SECURITY, CLOUD, BLOCKCHAIN, IOT, OTHER)
+   - Priorytetyzacja (P0_BREAKING, P1_TRENDING, P2_TIMELY, P3_EVERGREEN, P4_FILLER)
+   - Określanie grup docelowych (developers, architects, managers, beginners, experts, mixed)
+
+4. SYSTEM PRZEGLĄDANIA ARTYKUŁÓW
+   - Statusy artykułów (NEW, PENDING_REVIEW, ACCEPTED, REJECTED, ARCHIVED, NEEDS_MORE, RESEARCH_DONE)
+   - Podejmowanie decyzji: akceptacja, odrzucenie, wymagane dodatkowe informacje
+   - Operacje masowe na wielu artykułach jednocześnie
+   - Notatki i uzasadnienia decyzji
+   - Kluczowe wnioski automatycznie generowane przez AI
+
+5. ZAAWANSOWANE FILTROWANIE I WYSZUKIWANIE
+   - Wyszukiwanie pełnotekstowe w tytułach, treści, autorach i tagach
+   - Filtrowanie według:
+     * Statusu artykułu
+     * Kategorii
+     * Priorytetu
+     * Grupy docelowej
+     * Zakresu punktacji (min/max)
+     * Tagów
+   - Sortowanie według punktacji, daty utworzenia lub priorytetu
+   - Paginacja wyników
+
+6. MATERIAŁY BADAWCZE I ANALIZA
+   - Dostęp do materiałów badawczych powiązanych z artykułami
+   - Śledzenie źródeł badań i typów analiz
+   - Historia zmian i audyt działań
+
+7. DASHBOARD I STATYSTYKI
+   - Przegląd oczekujących artykułów
+   - Średnie punktacje
+   - Rozkład kategorii i priorytetów
+   - Ostatnia aktywność systemu
+   - Statystyki użytkowników i feedów
+
+8. INTERFEJS UŻYTKOWNIKA
+   - Responsywny design z obsługą trybu ciemnego
+   - Intuicyjna nawigacja między sekcjami
+   - Modalne okna do szczegółowych operacji
+   - Powiadomienia typu toast o statusie operacji
+   - Skróty klawiaturowe dla szybkich działań
+
+9. BEZPIECZEŃSTWO I AUTORYZACJA
+   - JWT token authentication
+   - Middleware autoryzacji z kontrolą dostępu opartą na rolach
+   - Audit log dla krytycznych operacji
+   - Filtrowanie danych na poziomie użytkownika (użytkownicy widzą tylko swoje dane)
+   - Wymaganie uprawnień właściciela lub administratora dla krytycznych operacji
+
+10. API I INTEGRACJE
+    - RESTful API z pełną dokumentacją
+    - Endpoints dla wszystkich funkcjonalności
+    - Health check i monitoring systemu
+    - Obsługa CORS dla aplikacji frontendowych
+    - Standardowe kody odpowiedzi HTTP i obsługa błędów
+
+TECHNOLOGIE:
+- Frontend: React 18, TypeScript, TailwindCSS, React Query
+- Backend: Node.js, Express.js, PostgreSQL
+- Uwierzytelnienie: JWT tokens
+- UI: Headless UI, Lucide React icons, Framer Motion
+- Tooling: Vite, ESLint, PostCSS
+
+ARCHITEKTURA:
+System składa się z trzech głównych warstw:
+- Warstwa prezentacji (React frontend)
+- Warstwa logiki biznesowej (Express.js API)
+- Warstwa danych (PostgreSQL z tabelami: sp_content, sp_feed, sp_research, users)
+
+Aplikacja została zaprojektowana z myślą o skalowalności i łatwości utrzymania, oferując kompleksowe rozwiązanie do zarządzania treścią RSS z wykorzystaniem sztucznej inteligencji.
