@@ -29,7 +29,7 @@ import {
   extractDomain,
   cn,
 } from '@/lib/utils';
-import { Button } from '@/components/ui/Button';
+import Button from './ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { ScoreIndicator, ScoreBreakdown } from '@/components/ui/ScoreIndicator';
 

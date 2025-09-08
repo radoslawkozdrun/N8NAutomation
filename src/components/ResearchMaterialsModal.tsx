@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { X, ExternalLink, Calendar, User, FileText, Loader2, AlertCircle, Expand, Minimize2 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { ResearchMaterial } from '@/types';
-import { Button } from '@/components/ui/Button';
+import Button from './ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { formatRelativeDate } from '@/lib/utils';
 

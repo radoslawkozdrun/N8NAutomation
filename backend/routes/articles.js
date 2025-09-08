@@ -120,8 +120,22 @@ router.get('/articles', authenticateToken, addUserFilter, async (req, res) => {
     // Build ORDER BY clause
     let orderBy = 'ORDER BY created_date DESC';
     if (req.query.sort_by) {
-      const validSortFields = ['final_score', 'created_date', 'priority'];
-      const sortBy = validSortFields.includes(req.query.sort_by) ? req.query.sort_by : 'final_score';
+      const validSortFields = [
+        'final_score', 
+        'created_date', 
+        'priority', 
+        'title', 
+        'author', 
+        'category', 
+        'subcategory',
+        'target_audience',
+        'status',
+        'relevance_score',
+        'novelty_score',
+        'viral_score',
+        'value_score'
+      ];
+      const sortBy = validSortFields.includes(req.query.sort_by) ? req.query.sort_by : 'created_date';
       const sortOrder = req.query.sort_order === 'asc' ? 'ASC' : 'DESC';
       
       if (sortBy === 'priority') {
@@ -135,8 +149,18 @@ router.get('/articles', authenticateToken, addUserFilter, async (req, res) => {
             WHEN 'P4_FILLER' THEN 5 
             ELSE 6 
           END ${sortOrder}`;
+      } else if (sortBy === 'status') {
+        // Custom status sorting 
+        orderBy = `ORDER BY 
+          CASE status 
+            WHEN 'PENDING_REVIEW' THEN 1 
+            WHEN 'NEEDS_MORE' THEN 2 
+            WHEN 'ACCEPTED' THEN 3 
+            WHEN 'REJECTED' THEN 4 
+            ELSE 5 
+          END ${sortOrder}`;
       } else {
-        orderBy = `ORDER BY ${sortBy} ${sortOrder}`;
+        orderBy = `ORDER BY ${sortBy} ${sortOrder} NULLS LAST`;
       }
     }
 

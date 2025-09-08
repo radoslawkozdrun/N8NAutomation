@@ -11,7 +11,21 @@ import { FeedManagement } from '@/components/FeedManagement';
 import { PostReview } from '@/components/PostReview';
 import { UserManagement } from '@/components/UserManagement';
 import { DomainManagement } from '@/components/DomainManagement';
+import { NewDashboard } from '@/components/NewDashboard';
+import { NewPostCreation } from '@/components/NewPostCreation';
+import { NewSocialMediaAccountManagement } from '@/components/NewSocialMediaAccountManagement';
+// Reference app pages
+import Dashboard from '@/pages/dashboard/index.tsx';
+import ArticleListPage from '@/pages/article-list/index.tsx';
+import ArticleDetailsPage from '@/pages/article-details/index.tsx';
+import LoginPage from '@/pages/login/index.tsx';
+import RSSFeedManagement from '@/pages/rss-feed-management/index.tsx';
+import UserManagementPage from '@/pages/user-management/index.tsx';
+import PostCreationPage from '@/pages/post-creation/index.tsx';
+import SocialMediaAccountManagementPage from '@/pages/social-media-account-management/index.tsx';
+import NotFound from '@/pages/NotFound.tsx';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { ToastProvider } from '@/components/ui/Toast';
 import { Article } from '@/types';
 
 // Create a client
@@ -27,7 +41,7 @@ const queryClient = new QueryClient({
 
 function AppContent() {
   const { user, loading } = useAuth();
-  const [currentView, setCurrentView] = useState<'articles' | 'all-articles' | 'account' | 'feeds' | 'post-review' | 'users' | 'domains'>('articles');
+  const [currentView, setCurrentView] = useState<'articles' | 'all-articles' | 'account' | 'feeds' | 'post-review' | 'users' | 'domains' | 'new-dashboard' | 'new-post-creation' | 'new-social-media-accounts' | 'dashboard' | 'article-list-page' | 'article-details' | 'rss-feeds' | 'user-management' | 'post-creation' | 'social-media-management'>('dashboard');
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
 
@@ -76,7 +90,27 @@ function AppContent() {
         currentView={currentView} 
         onViewChange={setCurrentView}
       >
-        {currentView === 'articles' ? (
+        {currentView === 'dashboard' ? (
+          <Dashboard />
+        ) : currentView === 'article-list-page' ? (
+          <ArticleListPage />
+        ) : currentView === 'article-details' ? (
+          <ArticleDetailsPage />
+        ) : currentView === 'rss-feeds' ? (
+          <RSSFeedManagement />
+        ) : currentView === 'user-management' ? (
+          <UserManagementPage />
+        ) : currentView === 'post-creation' ? (
+          <PostCreationPage />
+        ) : currentView === 'social-media-management' ? (
+          <SocialMediaAccountManagementPage />
+        ) : currentView === 'new-dashboard' ? (
+          <NewDashboard />
+        ) : currentView === 'new-post-creation' ? (
+          <NewPostCreation />
+        ) : currentView === 'new-social-media-accounts' ? (
+          <NewSocialMediaAccountManagement />
+        ) : currentView === 'articles' ? (
           <ArticleList onArticleSelect={handleArticleSelect} />
         ) : currentView === 'all-articles' ? (
           <AllArticles />
@@ -128,7 +162,9 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <AppContent />
+        <ToastProvider>
+          <AppContent />
+        </ToastProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

@@ -10,7 +10,7 @@ router.get('/feeds', authenticateToken, addUserFilter, async (req, res) => {
     const {
       page = 1,
       limit = 20,
-      category,
+      type,
       enabled,
       search
     } = req.query;
@@ -24,9 +24,9 @@ router.get('/feeds', authenticateToken, addUserFilter, async (req, res) => {
     paramIndex = addUserConstraint(whereConditions, queryParams, req.userFilter, paramIndex);
 
     // Build WHERE clause
-    if (category) {
-      whereConditions.push(`category = $${paramIndex++}`);
-      queryParams.push(category);
+    if (type) {
+      whereConditions.push(`type = $${paramIndex++}`);
+      queryParams.push(type);
     }
 
     if (enabled !== undefined) {
@@ -54,15 +54,44 @@ router.get('/feeds', authenticateToken, addUserFilter, async (req, res) => {
     const countResult = await query(countQuery, queryParams);
     const total = parseInt(countResult.rows[0].total);
 
+    // Build ORDER BY clause
+    let orderBy = 'ORDER BY f.name ASC';
+    if (req.query.sort_by) {
+      const validSortFields = [
+        'name', 
+        'url', 
+        'type', 
+        'enabled',
+        'created_at', 
+        'updated_at', 
+        'last_checked', 
+        'error_count',
+        'domain_name'
+      ];
+      const sortBy = validSortFields.includes(req.query.sort_by) ? req.query.sort_by : 'name';
+      const sortOrder = req.query.sort_order === 'asc' ? 'ASC' : 'DESC';
+      
+      if (sortBy === 'domain_name') {
+        orderBy = `ORDER BY d.domain_name ${sortOrder} NULLS LAST`;
+      } else if (sortBy === 'enabled') {
+        // Custom boolean sorting (enabled first when DESC)
+        orderBy = `ORDER BY f.enabled ${sortOrder}`;
+      } else {
+        orderBy = `ORDER BY f.${sortBy} ${sortOrder} NULLS LAST`;
+      }
+    }
+
     // Get feeds with pagination
     queryParams.push(limit, offset);
     const feedsQuery = `
       SELECT 
-        id, name, url, description, category, enabled,
-        created_at, updated_at, last_checked, error_count, last_error
-      FROM feed
-      ${whereClause}
-      ORDER BY name ASC
+        f.id, f.name, f.url, f.description, f.type, f.enabled,
+        f.created_at, f.updated_at, f.last_checked, f.error_count, f.last_error,
+        f.domain_id, d.domain_name, d.domain_id as domain_code
+      FROM feed f
+      LEFT JOIN domain d ON f.domain_id = d.id
+      ${whereClause.replace('FROM feed', 'FROM feed f')}
+      ${orderBy}
       LIMIT $${paramIndex++} OFFSET $${paramIndex++}
     `;
 
@@ -94,10 +123,12 @@ router.get('/feeds/:id', authenticateToken, requireOwnershipOrAdmin('feed'), asy
 
     const result = await query(`
       SELECT 
-        id, name, url, description, category, enabled,
-        created_at, updated_at, last_checked, error_count, last_error
-      FROM feed 
-      WHERE id = $1
+        f.id, f.name, f.url, f.description, f.type, f.enabled,
+        f.created_at, f.updated_at, f.last_checked, f.error_count, f.last_error,
+        f.domain_id, d.domain_name, d.domain_id as domain_code
+      FROM feed f
+      LEFT JOIN domain d ON f.domain_id = d.id
+      WHERE f.id = $1
     `, [id]);
 
     if (result.rows.length === 0) {
@@ -123,13 +154,20 @@ router.get('/feeds/:id', authenticateToken, requireOwnershipOrAdmin('feed'), asy
 // Create new feed (admin only)
 router.post('/feeds', authenticateToken, requireAdmin, auditLog('CREATE_FEED', 'feed'), async (req, res) => {
   try {
-    const { name, url, description, category, enabled = true } = req.body;
+    const { name, url, description, type, enabled = true, domain_id } = req.body;
 
     // Validation
     if (!name || !url) {
       return res.status(400).json({
         success: false,
         message: 'Name and URL are required'
+      });
+    }
+
+    if (!domain_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'Domain is required'
       });
     }
 
@@ -142,19 +180,27 @@ router.post('/feeds', authenticateToken, requireAdmin, auditLog('CREATE_FEED', '
       });
     }
 
-    // Insert new feed with user_id
+    // Insert new feed with user_id and domain_id
     const result = await query(`
-      INSERT INTO feed (name, url, description, category, enabled, value, type, user_id)
-      VALUES ($1, $2, $3, $4, $5, $2, 'RSS', $6)
-      RETURNING 
-        id, name, url, description, category, enabled,
-        created_at, updated_at
-    `, [name, url, description, category, enabled, req.user.id]);
+      INSERT INTO feed (name, url, description, type, enabled, value, user_id, domain_id)
+      VALUES ($1, $2, $3, $4, $5, $2, $6, $7)
+      RETURNING id, name, url, description, type, enabled, created_at, updated_at, domain_id
+    `, [name, url, description, type, enabled, req.user.id, domain_id]);
+
+    // Get domain info for the response
+    const feedWithDomain = await query(`
+      SELECT 
+        f.id, f.name, f.url, f.description, f.type, f.enabled,
+        f.created_at, f.updated_at, f.domain_id, d.domain_name, d.domain_id as domain_code
+      FROM feed f
+      LEFT JOIN domain d ON f.domain_id = d.id
+      WHERE f.id = $1
+    `, [result.rows[0].id]);
 
     res.status(201).json({
       success: true,
       message: 'Feed created successfully',
-      data: result.rows[0]
+      data: feedWithDomain.rows[0]
     });
   } catch (error) {
     console.error('Error creating feed:', error);
@@ -169,7 +215,7 @@ router.post('/feeds', authenticateToken, requireAdmin, auditLog('CREATE_FEED', '
 router.put('/feeds/:id', authenticateToken, requireOwnershipOrAdmin('feed'), auditLog('UPDATE_FEED', 'feed'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, url, description, category, enabled } = req.body;
+    const { name, url, description, type, enabled, domain_id } = req.body;
 
     // Check if feed exists
     const existingFeed = await query('SELECT id, url FROM feed WHERE id = $1', [id]);
@@ -209,13 +255,17 @@ router.put('/feeds/:id', authenticateToken, requireOwnershipOrAdmin('feed'), aud
       updates.push(`description = $${paramIndex++}`);
       values.push(description);
     }
-    if (category !== undefined) {
-      updates.push(`category = $${paramIndex++}`);
-      values.push(category);
+    if (type !== undefined) {
+      updates.push(`type = $${paramIndex++}`);
+      values.push(type);
     }
     if (enabled !== undefined) {
       updates.push(`enabled = $${paramIndex++}`);
       values.push(enabled);
+    }
+    if (domain_id !== undefined) {
+      updates.push(`domain_id = $${paramIndex++}`);
+      values.push(domain_id);
     }
 
     if (updates.length === 0) {
@@ -232,17 +282,27 @@ router.put('/feeds/:id', authenticateToken, requireOwnershipOrAdmin('feed'), aud
       UPDATE feed 
       SET ${updates.join(', ')}
       WHERE id = $${paramIndex}
-      RETURNING 
-        id, name, url, description, category, enabled,
-        created_at, updated_at, last_checked, error_count
+      RETURNING id, name, url, description, type, enabled,
+        created_at, updated_at, last_checked, error_count, domain_id
     `;
 
     const result = await query(updateQuery, values);
 
+    // Get updated feed with domain info
+    const feedWithDomain = await query(`
+      SELECT 
+        f.id, f.name, f.url, f.description, f.type, f.enabled,
+        f.created_at, f.updated_at, f.last_checked, f.error_count,
+        f.domain_id, d.domain_name, d.domain_id as domain_code
+      FROM feed f
+      LEFT JOIN domain d ON f.domain_id = d.id
+      WHERE f.id = $1
+    `, [id]);
+
     res.json({
       success: true,
       message: 'Feed updated successfully',
-      data: result.rows[0]
+      data: feedWithDomain.rows[0]
     });
   } catch (error) {
     console.error('Error updating feed:', error);
@@ -320,7 +380,7 @@ router.delete('/feeds/:id', authenticateToken, requireOwnershipOrAdmin('feed'), 
 });
 
 // Get feed categories
-router.get('/feeds/meta/categories', authenticateToken, addUserFilter, async (req, res) => {
+router.get('/feeds/meta/types', authenticateToken, addUserFilter, async (req, res) => {
   try {
     // Build WHERE clause with user filter
     const conditions = [];
@@ -328,20 +388,20 @@ router.get('/feeds/meta/categories', authenticateToken, addUserFilter, async (re
     let paramIndex = 1;
     
     paramIndex = addUserConstraint(conditions, params, req.userFilter, paramIndex);
-    conditions.push('category IS NOT NULL');
+    conditions.push('type IS NOT NULL');
     
     const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
 
     const result = await query(`
-      SELECT DISTINCT category
+      SELECT DISTINCT type
       FROM feed 
       ${whereClause}
-      ORDER BY category
+      ORDER BY type
     `, params);
 
     res.json({
       success: true,
-      data: result.rows.map(row => row.category)
+      data: result.rows.map(row => row.type)
     });
   } catch (error) {
     console.error('Error getting categories:', error);
@@ -364,8 +424,8 @@ router.get('/feeds/meta/stats', authenticateToken, addUserFilter, async (req, re
     const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
     
     // Category stats need additional WHERE clause for NOT NULL
-    const categoryConditions = [...conditions, 'category IS NOT NULL'];
-    const categoryWhereClause = categoryConditions.length > 0 ? 'WHERE ' + categoryConditions.join(' AND ') : '';
+    const typeConditions = [...conditions, 'type IS NOT NULL'];
+    const typeWhereClause = typeConditions.length > 0 ? 'WHERE ' + typeConditions.join(' AND ') : '';
 
     const statsQuery = `
       SELECT 
@@ -379,20 +439,20 @@ router.get('/feeds/meta/stats', authenticateToken, addUserFilter, async (req, re
       ${whereClause}
     `;
 
-    const categoryStatsQuery = `
+    const typeStatsQuery = `
       SELECT 
-        category,
+        type,
         COUNT(*) as count,
         COUNT(CASE WHEN enabled = true THEN 1 END) as enabled_count
       FROM feed 
-      ${categoryWhereClause}
-      GROUP BY category
+      ${typeWhereClause}
+      GROUP BY type
       ORDER BY count DESC
     `;
 
-    const [statsResult, categoryResult] = await Promise.all([
+    const [statsResult, typeResult] = await Promise.all([
       query(statsQuery, params),
-      query(categoryStatsQuery, params)
+      query(typeStatsQuery, params)
     ]);
 
     res.json({
@@ -402,7 +462,7 @@ router.get('/feeds/meta/stats', authenticateToken, addUserFilter, async (req, re
           ...statsResult.rows[0],
           avg_error_count: parseFloat(statsResult.rows[0].avg_error_count) || 0
         },
-        categories: categoryResult.rows
+        types: typeResult.rows
       }
     });
   } catch (error) {

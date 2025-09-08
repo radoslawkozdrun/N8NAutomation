@@ -183,35 +183,35 @@ export const api = {
       ),
     });
 
-    return request<PaginatedResponse<User>>(`/users?${params}`);
+    return request<PaginatedResponse<User>>(`/user?${params}`);
   },
 
   getUser: async (id: number): Promise<ApiResponse<User>> => {
-    return request<ApiResponse<User>>(`/users/${id}`);
+    return request<ApiResponse<User>>(`/user/${id}`);
   },
 
   createUser: async (userData: CreateUserRequest): Promise<ApiResponse<User>> => {
-    return request<ApiResponse<User>>('/users', {
+    return request<ApiResponse<User>>('/user', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
   },
 
   updateUser: async (id: number, userData: UpdateUserRequest): Promise<ApiResponse<User>> => {
-    return request<ApiResponse<User>>(`/users/${id}`, {
+    return request<ApiResponse<User>>(`/user/${id}`, {
       method: 'PUT',
       body: JSON.stringify(userData),
     });
   },
 
   toggleUserStatus: async (id: number): Promise<ApiResponse<User>> => {
-    return request<ApiResponse<User>>(`/users/${id}/toggle`, {
+    return request<ApiResponse<User>>(`/user/${id}/toggle`, {
       method: 'PATCH',
     });
   },
 
   deleteUser: async (id: number): Promise<ApiResponse<{ message: string }>> => {
-    return request<ApiResponse<{ message: string }>>(`/users/${id}`, {
+    return request<ApiResponse<{ message: string }>>(`/user/${id}`, {
       method: 'DELETE',
     });
   },
@@ -232,7 +232,7 @@ export const api = {
       active_count: number;
     }>;
   }>> => {
-    return request<ApiResponse<any>>('/users/meta/stats');
+    return request<ApiResponse<any>>('/user/meta/stats');
   },
 
   // Dashboard stats
@@ -269,8 +269,8 @@ export const api = {
     return request<any>('/feeds/meta/stats');
   },
 
-  getFeedCategories: async (): Promise<any> => {
-    return request<any>('/feeds/meta/categories');
+  getFeedTypes: async (): Promise<any> => {
+    return request<any>('/feeds/meta/types');
   },
 
   createFeed: async (feedData: any): Promise<any> => {

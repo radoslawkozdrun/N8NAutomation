@@ -11,7 +11,7 @@ import {
   User,
   ExternalLink
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import Button from './ui/Button';
 import { cn } from '@/lib/utils';
 import toast from 'react-hot-toast';
 

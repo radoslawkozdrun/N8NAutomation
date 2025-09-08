@@ -16,9 +16,12 @@ import {
   Save,
   X,
   Eye,
-  BarChart3
+  BarChart3,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import Button from './ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/utils';
 import { api } from '@/lib/api';
@@ -29,13 +32,16 @@ interface Feed {
   name: string;
   url: string;
   description: string;
-  category: string;
+  type: string;
   enabled: boolean;
   created_at: string;
   updated_at: string;
   last_checked: string | null;
   error_count: number;
   last_error: string | null;
+  domain_id: number | null;
+  domain_name: string | null;
+  domain_code: string | null;
 }
 
 interface FeedStats {
@@ -47,8 +53,8 @@ interface FeedStats {
     error_feeds: number;
     avg_error_count: number;
   };
-  categories: Array<{
-    category: string;
+  types: Array<{
+    type: string;
     count: number;
     enabled_count: number;
   }>;
@@ -60,19 +66,23 @@ export function FeedManagement() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [stats, setStats] = useState<FeedStats | null>(null);
-  const [categories, setCategories] = useState<string[]>([]);
+  const [types, setTypes] = useState<string[]>([]);
+  const [domains, setDomains] = useState<any[]>([]);
 
   // Filters and pagination
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'enabled' | 'disabled'>('all');
+  const [sortBy, setSortBy] = useState<string>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   // Modal states
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
+  const [currentView, setCurrentView] = useState('table'); // 'table' or 'stats'
   const [editingFeed, setEditingFeed] = useState<Feed | null>(null);
 
   // Form state
@@ -80,8 +90,9 @@ export function FeedManagement() {
     name: '',
     url: '',
     description: '',
-    category: '',
-    enabled: true
+    type: '',
+    enabled: true,
+    domain_id: '' as string | number
   });
 
   const showMessage = (message: string, type: 'success' | 'error') => {
@@ -103,8 +114,10 @@ export function FeedManagement() {
     try {
       const filters: Record<string, any> = {};
       if (search) filters.search = search;
-      if (categoryFilter) filters.category = categoryFilter;
+      if (typeFilter) filters.type = typeFilter;
       if (statusFilter !== 'all') filters.enabled = statusFilter === 'enabled';
+      if (sortBy) filters.sort_by = sortBy;
+      if (sortOrder) filters.sort_order = sortOrder;
 
       const response = await api.getFeeds(filters, page, 20);
       setFeeds(response.data);
@@ -131,21 +144,51 @@ export function FeedManagement() {
     }
   };
 
-  const fetchCategories = async () => {
+  const fetchTypes = async () => {
     try {
-      const response = await api.getFeedCategories();
-      setCategories(response.data);
+      const response = await api.getFeedTypes();
+      setTypes(response.data);
     } catch (error) {
-      console.error('Failed to fetch categories:', error);
-      setCategories(['Technology', 'Finance', 'News', 'Sports']);
+      console.error('Failed to fetch types:', error);
+      setTypes(['RSS', 'Atom', 'JSON']);
+    }
+  };
+
+  const fetchDomains = async () => {
+    try {
+      const response = await api.getDomains();
+      setDomains(response.data);
+    } catch (error) {
+      console.error('Failed to fetch domains:', error);
+      setDomains([]);
     }
   };
 
   useEffect(() => {
     fetchFeeds();
     fetchStats();
-    fetchCategories();
-  }, [page, search, categoryFilter, statusFilter]);
+    fetchTypes();
+    fetchDomains();
+  }, [page, search, typeFilter, statusFilter, sortBy, sortOrder]);
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+    setPage(1); // Reset to first page when sorting changes
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortBy !== field) {
+      return <ArrowUpDown className="w-4 h-4 text-gray-400" />;
+    }
+    return sortOrder === 'asc' ? 
+      <ArrowUp className="w-4 h-4 text-blue-500" /> : 
+      <ArrowDown className="w-4 h-4 text-blue-500" />;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -153,6 +196,11 @@ export function FeedManagement() {
 
     if (!formData.name || !formData.url) {
       showMessage('Name and URL are required', 'error');
+      return;
+    }
+
+    if (!formData.domain_id) {
+      showMessage('Domain is required', 'error');
       return;
     }
 
@@ -172,10 +220,10 @@ export function FeedManagement() {
       setShowAddModal(false);
       setShowEditModal(false);
       setEditingFeed(null);
-      setFormData({ name: '', url: '', description: '', category: '', enabled: true });
+      setFormData({ name: '', url: '', description: '', type: '', enabled: true, domain_id: '' });
       fetchFeeds();
       fetchStats();
-      fetchCategories();
+      fetchTypes();
     } catch (error: any) {
       console.error('Error submitting form:', error);
       showMessage(error?.message || 'Failed to save feed', 'error');
@@ -205,7 +253,7 @@ export function FeedManagement() {
       showMessage(response.message, 'success');
       fetchFeeds();
       fetchStats();
-      fetchCategories();
+      fetchTypes();
     } catch (error: any) {
       showMessage(error?.message || 'Failed to delete feed', 'error');
     }
@@ -218,8 +266,9 @@ export function FeedManagement() {
       name: feed.name,
       url: feed.url,
       description: feed.description || '',
-      category: feed.category || '',
-      enabled: feed.enabled
+      type: feed.type || '',
+      enabled: feed.enabled,
+      domain_id: feed.domain_id || ''
     });
     setShowEditModal(true);
   };
@@ -229,17 +278,17 @@ export function FeedManagement() {
     setShowEditModal(false);
     setShowStatsModal(false);
     setEditingFeed(null);
-    setFormData({ name: '', url: '', description: '', category: '', enabled: true });
+    setFormData({ name: '', url: '', description: '', type: '', enabled: true, domain_id: '' });
   };
 
   const getStatusBadgeColor = (enabled: boolean, errorCount: number) => {
     if (!enabled) {
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+      return 'text-muted-foreground bg-muted border-border';
     }
     if (errorCount > 0) {
-      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
+      return 'text-warning bg-warning/10 border-warning/20';
     }
-    return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
+    return 'text-success bg-success/10 border-success/20';
   };
 
   const getStatusText = (enabled: boolean, errorCount: number) => {
@@ -251,93 +300,193 @@ export function FeedManagement() {
   return (
     <div className="h-full flex flex-col p-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            Feed Management
+      <div className="mb-6">
+        <div className="mb-4">
+          <h1 className="text-2xl font-bold text-foreground">
+            Feed Sources
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-muted-foreground">
             Manage RSS feed sources for article collection
           </p>
         </div>
-        <div className="flex items-center space-x-3">
-          <Button variant="outline" onClick={() => setShowStatsModal(true)}>
-            <BarChart3 className="w-4 h-4 mr-2" />
-            Statistics
-          </Button>
-          <Button variant="outline" onClick={fetchFeeds} disabled={loading}>
-            <RefreshCw className={cn('w-4 h-4 mr-2', loading && 'animate-spin')} />
-            Refresh
-          </Button>
-          <Button onClick={() => setShowAddModal(true)}>
+        <div className="flex items-center justify-between">
+          <Button onClick={() => setShowAddModal(true)} className="w-32 whitespace-nowrap bg-yellow-500 hover:bg-yellow-600 text-white">
             <Plus className="w-4 h-4 mr-2" />
             Add Feed
           </Button>
+          
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center bg-muted rounded-lg p-1 space-x-1">
+              <Button
+                variant={currentView === 'table' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setCurrentView('table')}
+                className="w-32 whitespace-nowrap"
+              >
+                Table
+              </Button>
+              <Button
+                variant={currentView === 'stats' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setCurrentView('stats')}
+                className="w-32 whitespace-nowrap"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Statistics
+              </Button>
+            </div>
+            <Button variant="outline" onClick={fetchFeeds} disabled={loading} className="w-32 whitespace-nowrap">
+              <RefreshCw className={cn('w-4 h-4 mr-2', loading && 'animate-spin')} />
+              Refresh
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* Messages */}
       {error && (
-        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+        <div className="mb-4 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
           <div className="flex items-center">
-            <XCircle className="w-5 h-5 text-red-600 dark:text-red-400 mr-2" />
-            <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+            <XCircle className="w-5 h-5 text-destructive mr-2" />
+            <p className="text-sm text-destructive">{error}</p>
           </div>
         </div>
       )}
 
       {success && (
-        <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+        <div className="mb-4 p-4 bg-success/10 border border-success/20 rounded-lg">
           <div className="flex items-center">
-            <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mr-2" />
-            <p className="text-sm text-green-800 dark:text-green-200">{success}</p>
+            <CheckCircle className="w-5 h-5 text-success mr-2" />
+            <p className="text-sm text-success">{success}</p>
           </div>
         </div>
       )}
 
-      {/* Filters */}
-      <div className="mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+      {/* Stats View */}
+      {currentView === 'stats' && (
+        <div className="space-y-6">
+          {/* Main Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-card border border-border rounded-lg p-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Rss className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-foreground">{stats?.overview?.total_feeds || 0}</p>
+                  <p className="text-sm text-muted-foreground">Total Feeds</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-card border border-border rounded-lg p-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-foreground">{stats?.overview?.enabled_feeds || 0}</p>
+                  <p className="text-sm text-muted-foreground">Enabled Feeds</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-card border border-border rounded-lg p-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
+                  <XCircle className="w-5 h-5 text-red-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-foreground">{stats?.overview?.error_feeds || 0}</p>
+                  <p className="text-sm text-muted-foreground">Error Feeds</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-card border border-border rounded-lg p-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                  <Eye className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-foreground">{stats?.overview?.checked_feeds || 0}</p>
+                  <p className="text-sm text-muted-foreground">Checked Feeds</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Types Distribution */}
+          {stats?.types && stats.types.length > 0 && (
+            <div className="bg-card border border-border rounded-lg p-4">
+              <h3 className="text-lg font-medium text-foreground mb-4">Feed Types Distribution</h3>
+              <div className="space-y-3">
+                {stats.types.map((type) => (
+                  <div key={type.type} className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-3 h-3 rounded-full bg-primary" />
+                      <span className="text-sm text-foreground">{type.type}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-medium text-foreground">{type.count}</span>
+                      <span className="text-xs text-muted-foreground">
+                        ({type.enabled_count} enabled)
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Table View */}
+      {currentView === 'table' && (
+        <>
+          {/* Filters */}
+          <div className="mb-6 bg-card border border-border rounded-lg p-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Search
             </label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search feeds..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 pr-3 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                className="pl-10 pr-3 py-2 w-full border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Category
+            <label className="block text-sm font-medium text-foreground mb-1">
+              Type
             </label>
             <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
             >
-              <option value="">All Categories</option>
-              {categories.map(category => (
-                <option key={category} value={category}>{category}</option>
+              <option value="">All Types</option>
+              {types.map(type => (
+                <option key={type} value={type}>{type}</option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Status
             </label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
             >
               <option value="all">All Status</option>
               <option value="enabled">Enabled</option>
@@ -350,7 +499,7 @@ export function FeedManagement() {
               variant="outline"
               onClick={() => {
                 setSearch('');
-                setCategoryFilter('');
+                setTypeFilter('');
                 setStatusFilter('all');
                 setPage(1);
               }}
@@ -363,19 +512,19 @@ export function FeedManagement() {
       </div>
 
       {/* Feeds Table */}
-      <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="flex-1 bg-card border border-border rounded-lg overflow-hidden">
         {loading && feeds.length === 0 ? (
           <div className="flex items-center justify-center p-12">
-            <RefreshCw className="w-8 h-8 animate-spin text-blue-600 mr-3" />
-            <span className="text-gray-600 dark:text-gray-400">Loading feeds...</span>
+            <RefreshCw className="w-8 h-8 animate-spin text-primary mr-3" />
+            <span className="text-muted-foreground">Loading feeds...</span>
           </div>
         ) : feeds.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 text-center">
-            <Rss className="w-16 h-16 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+            <Rss className="w-16 h-16 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">
               No feeds found
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-muted-foreground mb-4">
               Get started by adding your first RSS feed source.
             </p>
             <Button onClick={() => setShowAddModal(true)}>
@@ -386,73 +535,102 @@ export function FeedManagement() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+              <thead className="bg-muted/50 border-b border-border">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Feed
+                  <th 
+                    className="px-4 py-3 text-left text-sm font-medium text-foreground cursor-pointer hover:bg-muted/80 select-none"
+                    onClick={() => handleSort('name')}
+                  >
+                    <div className="flex items-center space-x-1">
+                      <span>Feed</span>
+                      {getSortIcon('name')}
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Category
+                  <th 
+                    className="px-4 py-3 text-left text-sm font-medium text-foreground cursor-pointer hover:bg-muted/80 select-none"
+                    onClick={() => handleSort('type')}
+                  >
+                    <div className="flex items-center space-x-1">
+                      <span>Type</span>
+                      {getSortIcon('type')}
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Status
+                  <th 
+                    className="px-4 py-3 text-left text-sm font-medium text-foreground cursor-pointer hover:bg-muted/80 select-none"
+                    onClick={() => handleSort('domain_name')}
+                  >
+                    <div className="flex items-center space-x-1">
+                      <span>Domain</span>
+                      {getSortIcon('domain_name')}
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Last Checked
+                  <th 
+                    className="px-4 py-3 text-left text-sm font-medium text-foreground cursor-pointer hover:bg-muted/80 select-none"
+                    onClick={() => handleSort('enabled')}
+                  >
+                    <div className="flex items-center space-x-1">
+                      <span>Status</span>
+                      {getSortIcon('enabled')}
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-right text-sm font-medium text-foreground">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="bg-card divide-y divide-border">
                 {feeds.map((feed) => (
-                  <tr key={feed.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                    <td className="px-6 py-4">
-                      <div className="max-w-sm">
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                  <tr key={feed.id} className="hover:bg-muted/50">
+                    <td className="px-4 py-3">
+                      <div className="max-w-xs">
+                        <p className="text-sm font-medium text-foreground truncate">
                           {feed.name}
-                        </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
                           {feed.url}
-                        </div>
-                        {feed.description && (
-                          <div className="text-xs text-gray-500 dark:text-gray-500 mt-1 truncate">
-                            {feed.description}
-                          </div>
-                        )}
+                        </p>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      {feed.category && (
-                        <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
-                          {feed.category}
-                        </Badge>
+                    <td className="px-4 py-3">
+                      {feed.type && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
+                          {feed.type}
+                        </span>
                       )}
                     </td>
-                    <td className="px-6 py-4">
-                      <Badge className={getStatusBadgeColor(feed.enabled, feed.error_count)}>
+                    <td className="px-4 py-3">
+                      {feed.domain_name ? (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 border border-green-200 dark:border-green-800">
+                          {feed.domain_name}
+                        </span>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">No domain</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusBadgeColor(feed.enabled, feed.error_count)}`}>
+                        {feed.enabled ? (
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                        ) : (
+                          <XCircle className="w-3 h-3 mr-1" />
+                        )}
                         {getStatusText(feed.enabled, feed.error_count)}
-                      </Badge>
+                      </span>
                       {feed.error_count > 0 && (
-                        <div className="text-xs text-red-600 dark:text-red-400 mt-1">
+                        <div className="text-xs text-error mt-1">
                           {feed.error_count} errors
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                      {feed.last_checked 
-                        ? new Date(feed.last_checked).toLocaleDateString()
-                        : 'Never'
-                      }
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-center space-x-2">
-                        <button
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end space-x-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => toggleFeed(feed.id)}
                           className={cn(
-                            'p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700',
-                            feed.enabled ? 'text-green-600' : 'text-gray-400'
+                            'h-8 w-8 p-0',
+                            feed.enabled ? 'text-green-600 hover:text-green-700' : 'text-muted-foreground hover:text-foreground'
                           )}
                           title={feed.enabled ? 'Disable feed' : 'Enable feed'}
                         >
@@ -461,33 +639,37 @@ export function FeedManagement() {
                           ) : (
                             <PowerOff className="w-4 h-4" />
                           )}
-                        </button>
+                        </Button>
                         
                         <a
                           href={feed.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900/20 text-blue-600 border border-transparent hover:border-blue-300"
+                          className="inline-flex items-center justify-center h-8 w-8 rounded-md text-blue-600 hover:text-blue-700 hover:bg-muted transition-colors"
                           title="Open feed URL in new tab"
                         >
                           <ExternalLink className="w-4 h-4" />
                         </a>
 
-                        <button
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => openEditModal(feed)}
-                          className="p-1 rounded hover:bg-green-100 dark:hover:bg-green-900/20 text-green-600 border border-transparent hover:border-green-300"
+                          className="h-8 w-8 p-0 text-primary hover:text-primary/80"
                           title="Edit this feed"
                         >
                           <Edit2 className="w-4 h-4" />
-                        </button>
+                        </Button>
 
-                        <button
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => deleteFeed(feed.id, feed.name)}
-                          className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600"
+                          className="h-8 w-8 p-0 text-error hover:text-error/80"
                           title="Delete feed"
                         >
                           <Trash2 className="w-4 h-4" />
-                        </button>
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -498,10 +680,13 @@ export function FeedManagement() {
         )}
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
+        </>
+      )}
+
+      {/* Pagination - only show for table view */}
+      {currentView === 'table' && totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between">
-          <div className="text-sm text-gray-600 dark:text-gray-400">
+          <div className="text-sm text-muted-foreground">
             Page {page} of {totalPages}
           </div>
           <div className="flex space-x-2">
@@ -527,15 +712,15 @@ export function FeedManagement() {
 
       {/* Add/Edit Feed Modal */}
       {(showAddModal || showEditModal) && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-card border border-border rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-border">
+              <h3 className="text-lg font-semibold text-foreground">
                 {editingFeed ? 'Edit Feed' : 'Add New Feed'}
               </h3>
               <button
                 onClick={closeModals}
-                className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+                className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -543,7 +728,7 @@ export function FeedManagement() {
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Name *
                 </label>
                 <input
@@ -551,13 +736,13 @@ export function FeedManagement() {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
                   placeholder="Feed display name"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   URL *
                 </label>
                 <input
@@ -565,33 +750,52 @@ export function FeedManagement() {
                   required
                   value={formData.url}
                   onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
                   placeholder="https://example.com/feed.xml"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Category
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Domain *
+                </label>
+                <select
+                  required
+                  value={formData.domain_id}
+                  onChange={(e) => setFormData({ ...formData, domain_id: e.target.value })}
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
+                >
+                  <option value="">Select a domain</option>
+                  {domains.map(domain => (
+                    <option key={domain.id} value={domain.id}>
+                      {domain.domain_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Type
                 </label>
                 <input
                   type="text"
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  value={formData.type}
+                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
                   placeholder="e.g., Technology, News"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Description
                 </label>
                 <textarea
                   rows={3}
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
                   placeholder="Brief description of this feed"
                 />
               </div>
@@ -602,9 +806,9 @@ export function FeedManagement() {
                   id="enabled"
                   checked={formData.enabled}
                   onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-primary focus:ring-primary border-border rounded"
                 />
-                <label htmlFor="enabled" className="ml-2 block text-sm text-gray-900 dark:text-gray-100">
+                <label htmlFor="enabled" className="ml-2 block text-sm text-foreground">
                   Enable this feed
                 </label>
               </div>
@@ -625,15 +829,15 @@ export function FeedManagement() {
 
       {/* Statistics Modal */}
       {showStatsModal && stats && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-card border border-border rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-border">
+              <h3 className="text-lg font-semibold text-foreground">
                 Feed Statistics
               </h3>
               <button
                 onClick={() => setShowStatsModal(false)}
-                className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+                className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -672,13 +876,13 @@ export function FeedManagement() {
               </div>
 
               {/* Categories */}
-              {stats.categories.length > 0 && (
+              {stats.types.length > 0 && (
                 <div>
-                  <h4 className="text-md font-medium text-gray-900 dark:text-gray-100 mb-3">By Category</h4>
+                  <h4 className="text-md font-medium text-gray-900 dark:text-gray-100 mb-3">By Type</h4>
                   <div className="space-y-2">
-                    {stats.categories.map((cat) => (
-                      <div key={cat.category} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded">
-                        <span className="font-medium text-gray-900 dark:text-gray-100">{cat.category}</span>
+                    {stats.types.map((cat) => (
+                      <div key={cat.type} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded">
+                        <span className="font-medium text-gray-900 dark:text-gray-100">{cat.type}</span>
                         <div className="flex items-center space-x-4 text-sm">
                           <span className="text-gray-600 dark:text-gray-400">
                             {cat.count} total

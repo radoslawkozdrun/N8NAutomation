@@ -17,7 +17,7 @@ import {
   ChevronDown,
   ChevronRight
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import Button from './ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/utils';
 import { api } from '@/lib/api';
@@ -37,9 +37,8 @@ interface Domain {
 }
 
 interface DomainConfig {
-  categories: Record<string, {
+  categories: Array<{
     name: string;
-    description: string;
     subcategories: string[];
   }>;
   target_persona: string;
@@ -50,16 +49,13 @@ interface DomainConfig {
     novelty: string;
     relevance: string;
   };
-  target_audiences: Array<{
-    code: string;
-    name: string;
-    description: string;
-  }>;
+  target_audiences: string[];
   priority_examples: {
     P0: string;
     P1: string;
   };
   domain_specific_terms: string;
+  translations: string[];
 }
 
 interface DomainStats {
@@ -256,12 +252,12 @@ export function DomainManagement() {
       : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
   };
 
-  const toggleCategoryExpansion = (categoryKey: string) => {
+  const toggleCategoryExpansion = (categoryIndex: string) => {
     const newExpanded = new Set(expandedCategories);
-    if (newExpanded.has(categoryKey)) {
-      newExpanded.delete(categoryKey);
+    if (newExpanded.has(categoryIndex)) {
+      newExpanded.delete(categoryIndex);
     } else {
-      newExpanded.add(categoryKey);
+      newExpanded.add(categoryIndex);
     }
     setExpandedCategories(newExpanded);
   };
@@ -538,54 +534,74 @@ export function DomainManagement() {
 
             <div className="p-6 space-y-6">
               {/* Basic Info */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Domain ID
-                  </label>
-                  <p className="text-sm text-gray-900 dark:text-gray-100 font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded">
-                    {viewingDomain.domain_id}
-                  </p>
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border border-blue-100 dark:border-blue-800 mb-6">
+                <div className="flex items-center mb-4">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full mr-3 animate-pulse"></div>
+                  <h4 className="text-lg font-semibold text-blue-900 dark:text-blue-100">🌐 Domain Identity</h4>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Target Persona
-                  </label>
-                  <p className="text-sm text-gray-900 dark:text-gray-100">
-                    {viewingDomain.config.target_persona}
-                  </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2">
+                      Domain ID
+                    </label>
+                    <p className="text-sm text-gray-900 dark:text-gray-100 font-mono bg-white dark:bg-gray-700 p-3 rounded-lg border border-blue-200 dark:border-blue-700">
+                      {viewingDomain.domain_id}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2">
+                      Target Persona
+                    </label>
+                    <p className="text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 p-3 rounded-lg border border-blue-200 dark:border-blue-700">
+                      {viewingDomain.config.target_persona}
+                    </p>
+                  </div>
+                  {viewingDomain.config.translations && (
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2">
+                        🌍 Supported Languages
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {viewingDomain.config.translations.map((lang, index) => (
+                          <Badge key={index} className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
+                            {lang.toUpperCase()}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Categories */}
               <div>
-                <h4 className="text-md font-medium text-gray-900 dark:text-gray-100 mb-3">
-                  Categories ({Object.keys(viewingDomain.config.categories).length})
-                </h4>
+                <div className="flex items-center mb-4">
+                  <div className="w-3 h-3 bg-purple-500 rounded-full mr-3 animate-pulse"></div>
+                  <h4 className="text-lg font-semibold text-purple-900 dark:text-purple-100">
+                    📂 Categories ({viewingDomain.config.categories.length})
+                  </h4>
+                </div>
                 <div className="space-y-2">
-                  {Object.entries(viewingDomain.config.categories).map(([key, category]) => (
-                    <div key={key} className="border border-gray-200 dark:border-gray-700 rounded">
+                  {viewingDomain.config.categories.map((category, index) => (
+                    <div key={index} className="border border-gray-200 dark:border-gray-700 rounded">
                       <button
-                        onClick={() => toggleCategoryExpansion(key)}
+                        onClick={() => toggleCategoryExpansion(index.toString())}
                         className="w-full flex items-center justify-between p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700"
                       >
                         <span className="font-medium text-gray-900 dark:text-gray-100">
                           {category.name}
                         </span>
-                        {expandedCategories.has(key) ? (
+                        {expandedCategories.has(index.toString()) ? (
                           <ChevronDown className="w-4 h-4" />
                         ) : (
                           <ChevronRight className="w-4 h-4" />
                         )}
                       </button>
-                      {expandedCategories.has(key) && (
+                      {expandedCategories.has(index.toString()) && (
                         <div className="px-3 pb-3 border-t border-gray-200 dark:border-gray-700">
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                            {category.description}
-                          </p>
                           <div className="flex flex-wrap gap-1">
-                            {category.subcategories.map((sub, index) => (
-                              <Badge key={index} className="text-xs">
+                            {category.subcategories.map((sub, subIndex) => (
+                              <Badge key={subIndex} className="text-xs">
                                 {sub}
                               </Badge>
                             ))}
@@ -599,28 +615,29 @@ export function DomainManagement() {
 
               {/* Target Audiences */}
               <div>
-                <h4 className="text-md font-medium text-gray-900 dark:text-gray-100 mb-3">
-                  Target Audiences
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {viewingDomain.config.target_audiences.map((audience) => (
-                    <div key={audience.code} className="p-3 bg-gray-50 dark:bg-gray-700 rounded">
-                      <div className="font-medium text-sm text-gray-900 dark:text-gray-100">
-                        {audience.name}
-                      </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                        {audience.description}
-                      </div>
-                    </div>
+                <div className="flex items-center mb-4">
+                  <div className="w-3 h-3 bg-amber-500 rounded-full mr-3 animate-pulse"></div>
+                  <h4 className="text-lg font-semibold text-amber-900 dark:text-amber-100">
+                    👥 Target Audiences
+                  </h4>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {viewingDomain.config.target_audiences.map((audience, index) => (
+                    <Badge key={index} className="text-sm">
+                      {audience}
+                    </Badge>
                   ))}
                 </div>
               </div>
 
               {/* Scoring Criteria */}
               <div>
-                <h4 className="text-md font-medium text-gray-900 dark:text-gray-100 mb-3">
-                  Scoring Criteria
-                </h4>
+                <div className="flex items-center mb-4">
+                  <div className="w-3 h-3 bg-emerald-500 rounded-full mr-3 animate-pulse"></div>
+                  <h4 className="text-lg font-semibold text-emerald-900 dark:text-emerald-100">
+                    🎯 Scoring Criteria
+                  </h4>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {Object.entries(viewingDomain.config.scoring_criteria).map(([key, value]) => (
                     <div key={key} className="p-3 bg-gray-50 dark:bg-gray-700 rounded">
@@ -760,59 +777,56 @@ function DomainEditModal({
     });
   };
 
-  const updateCategories = (categories: Record<string, any>) => {
+  const updateCategories = (categories: Array<{name: string; subcategories: string[]}>) => {
     updateConfig({ categories });
   };
 
   const addCategory = () => {
-    const newCategoryKey = `new_category_${Date.now()}`;
-    const updatedCategories = {
-      ...formData.config?.categories,
-      [newCategoryKey]: {
+    const currentCategories = formData.config?.categories || [];
+    const updatedCategories = [
+      ...currentCategories,
+      {
         name: 'New Category',
-        description: 'Description of the new category',
         subcategories: []
       }
+    ];
+    updateCategories(updatedCategories);
+  };
+
+  const removeCategory = (categoryIndex: number) => {
+    const currentCategories = [...(formData.config?.categories || [])];
+    currentCategories.splice(categoryIndex, 1);
+    updateCategories(currentCategories);
+  };
+
+  const updateCategory = (categoryIndex: number, updates: any) => {
+    const currentCategories = [...(formData.config?.categories || [])];
+    currentCategories[categoryIndex] = {
+      ...currentCategories[categoryIndex],
+      ...updates
     };
-    updateCategories(updatedCategories);
+    updateCategories(currentCategories);
   };
 
-  const removeCategory = (categoryKey: string) => {
-    const updatedCategories = { ...formData.config?.categories };
-    delete updatedCategories[categoryKey];
-    updateCategories(updatedCategories);
-  };
-
-  const updateCategory = (categoryKey: string, updates: any) => {
-    const updatedCategories = {
-      ...formData.config?.categories,
-      [categoryKey]: {
-        ...formData.config?.categories[categoryKey],
-        ...updates
-      }
-    };
-    updateCategories(updatedCategories);
-  };
-
-  const addSubcategory = (categoryKey: string, subcategory: string) => {
-    const category = formData.config?.categories[categoryKey];
+  const addSubcategory = (categoryIndex: number, subcategory: string) => {
+    const currentCategories = [...(formData.config?.categories || [])];
+    const category = currentCategories[categoryIndex];
     if (category && subcategory.trim()) {
-      updateCategory(categoryKey, {
-        subcategories: [...(category.subcategories || []), subcategory.trim()]
-      });
+      category.subcategories = [...(category.subcategories || []), subcategory.trim()];
+      updateCategories(currentCategories);
     }
   };
 
-  const removeSubcategory = (categoryKey: string, index: number) => {
-    const category = formData.config?.categories[categoryKey];
+  const removeSubcategory = (categoryIndex: number, subIndex: number) => {
+    const currentCategories = [...(formData.config?.categories || [])];
+    const category = currentCategories[categoryIndex];
     if (category) {
-      const updatedSubcategories = [...category.subcategories];
-      updatedSubcategories.splice(index, 1);
-      updateCategory(categoryKey, { subcategories: updatedSubcategories });
+      category.subcategories.splice(subIndex, 1);
+      updateCategories(currentCategories);
     }
   };
 
-  const updateTargetAudiences = (audiences: Array<{code: string; name: string; description: string}>) => {
+  const updateTargetAudiences = (audiences: string[]) => {
     updateConfig({ target_audiences: audiences });
   };
 
@@ -820,17 +834,13 @@ function DomainEditModal({
     const currentAudiences = formData.config?.target_audiences || [];
     updateTargetAudiences([
       ...currentAudiences,
-      {
-        code: 'new_audience',
-        name: 'New Audience',
-        description: 'Description of the new audience'
-      }
+      'New Audience'
     ]);
   };
 
-  const updateAudience = (index: number, updates: any) => {
+  const updateAudience = (index: number, value: string) => {
     const currentAudiences = [...(formData.config?.target_audiences || [])];
-    currentAudiences[index] = { ...currentAudiences[index], ...updates };
+    currentAudiences[index] = value;
     updateTargetAudiences(currentAudiences);
   };
 
@@ -859,18 +869,18 @@ function DomainEditModal({
         <div className="border-b border-gray-200 dark:border-gray-700">
           <nav className="-mb-px flex px-6">
             {[
-              { key: 'basic', label: 'Basic Info' },
-              { key: 'categories', label: 'Categories' },
-              { key: 'persona', label: 'Persona & Criteria' },
-              { key: 'audiences', label: 'Target Audiences' }
+              { key: 'basic', label: '🌐 Basic Info', color: 'blue' },
+              { key: 'categories', label: '📂 Categories', color: 'purple' },
+              { key: 'persona', label: '🎯 Criteria', color: 'emerald' },
+              { key: 'audiences', label: '👥 Audiences', color: 'amber' }
             ].map(tab => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key as any)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm mr-8 ${
+                className={`py-3 px-4 border-b-3 font-semibold text-sm mr-6 rounded-t-lg transition-all duration-200 ${
                   activeTab === tab.key
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                    ? `border-${tab.color}-500 text-${tab.color}-600 dark:text-${tab.color}-400 bg-${tab.color}-50 dark:bg-${tab.color}-900/20 shadow-sm`
+                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                 }`}
               >
                 {tab.label}
@@ -883,85 +893,186 @@ function DomainEditModal({
           <div className="p-6 space-y-6">
             {/* Basic Info Tab */}
             {activeTab === 'basic' && (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Domain ID
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.domain_id}
-                    onChange={(e) => setFormData({ ...formData, domain_id: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-gray-100"
-                    placeholder="e.g., artificial_intelligence"
-                    disabled // Don't allow changing domain_id when editing
-                  />
+              <div className="space-y-6">
+                {/* Header with gradient */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border border-blue-100 dark:border-blue-800">
+                  <div className="flex items-center mb-4">
+                    <div className="w-3 h-3 bg-blue-500 rounded-full mr-3 animate-pulse"></div>
+                    <h4 className="text-lg font-semibold text-blue-900 dark:text-blue-100">🌐 Domain Identity</h4>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2 flex items-center">
+                        <Code className="w-4 h-4 mr-2" />
+                        Domain ID
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.domain_id}
+                        onChange={(e) => setFormData({ ...formData, domain_id: e.target.value })}
+                        className="w-full px-4 py-3 border-2 border-blue-200 dark:border-blue-700 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-gray-900 dark:text-gray-100 font-mono text-sm focus:border-blue-400 dark:focus:border-blue-500 transition-colors"
+                        placeholder="e.g., artificial_intelligence"
+                        disabled
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2 flex items-center">
+                        <Globe className="w-4 h-4 mr-2" />
+                        Domain Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.domain_name}
+                        onChange={(e) => setFormData({ ...formData, domain_name: e.target.value })}
+                        className="w-full px-4 py-3 border-2 border-blue-200 dark:border-blue-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-400 dark:focus:border-blue-500 transition-colors"
+                        placeholder="Display name for the domain"
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Domain Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.domain_name}
-                    onChange={(e) => setFormData({ ...formData, domain_name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                    placeholder="Display name for the domain"
-                  />
+                {/* Persona Section */}
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-xl border border-purple-100 dark:border-purple-800">
+                  <div className="flex items-center mb-4">
+                    <div className="w-3 h-3 bg-purple-500 rounded-full mr-3 animate-pulse"></div>
+                    <h4 className="text-lg font-semibold text-purple-900 dark:text-purple-100">👤 Target Persona</h4>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-semibold text-purple-700 dark:text-purple-300 mb-2">
+                      Who is your target audience?
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.config?.target_persona || ''}
+                      onChange={(e) => updateConfig({ target_persona: e.target.value })}
+                      className="w-full px-4 py-3 border-2 border-purple-200 dark:border-purple-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-purple-400 dark:focus:border-purple-500 transition-colors"
+                      placeholder="e.g., AI/ML specialist, fellow developer, automotive enthusiast"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Target Persona
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.config?.target_persona || ''}
-                    onChange={(e) => updateConfig({ target_persona: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                    placeholder="e.g., AI/ML specialist"
-                  />
+                {/* Expertise Section */}
+                <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 p-6 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                  <div className="flex items-center mb-4">
+                    <div className="w-3 h-3 bg-emerald-500 rounded-full mr-3 animate-pulse"></div>
+                    <h4 className="text-lg font-semibold text-emerald-900 dark:text-emerald-100">🧠 Domain Expertise</h4>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-2">
+                      Describe your domain expertise
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={formData.config?.domain_expertise || ''}
+                      onChange={(e) => updateConfig({ domain_expertise: e.target.value })}
+                      className="w-full px-4 py-3 border-2 border-emerald-200 dark:border-emerald-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-emerald-400 dark:focus:border-emerald-500 transition-colors resize-none"
+                      placeholder="Brief description of the domain expertise, key areas of knowledge, and technical focus..."
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Domain Expertise
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={formData.config?.domain_expertise || ''}
-                    onChange={(e) => updateConfig({ domain_expertise: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                    placeholder="Brief description of the domain expertise..."
-                  />
+                {/* Terms & Languages Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 p-6 rounded-xl border border-amber-100 dark:border-amber-800">
+                    <div className="flex items-center mb-4">
+                      <div className="w-3 h-3 bg-amber-500 rounded-full mr-3 animate-pulse"></div>
+                      <h4 className="text-lg font-semibold text-amber-900 dark:text-amber-100">🏷️ Key Terms</h4>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-semibold text-amber-700 dark:text-amber-300 mb-2">
+                        Domain-specific terminology
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={formData.config?.domain_specific_terms || ''}
+                        onChange={(e) => updateConfig({ domain_specific_terms: e.target.value })}
+                        className="w-full px-4 py-3 border-2 border-amber-200 dark:border-amber-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-amber-400 dark:focus:border-amber-500 transition-colors resize-none"
+                        placeholder="models, algorithms, frameworks, tools..."
+                      />
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 p-6 rounded-xl border border-rose-100 dark:border-rose-800">
+                    <div className="flex items-center mb-4">
+                      <div className="w-3 h-3 bg-rose-500 rounded-full mr-3 animate-pulse"></div>
+                      <h4 className="text-lg font-semibold text-rose-900 dark:text-rose-100">🌍 Languages</h4>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-semibold text-rose-700 dark:text-rose-300 mb-2">
+                        Supported translations
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {(formData.config?.translations || ['pl']).map((lang, index) => (
+                          <div key={index} className="flex items-center bg-white dark:bg-gray-700 rounded-lg border-2 border-rose-200 dark:border-rose-700 px-3 py-2">
+                            <input
+                              type="text"
+                              value={lang}
+                              onChange={(e) => {
+                                const newTranslations = [...(formData.config?.translations || [])];
+                                newTranslations[index] = e.target.value;
+                                updateConfig({ translations: newTranslations });
+                              }}
+                              className="w-16 text-center bg-transparent border-none outline-none text-gray-900 dark:text-gray-100 font-mono text-sm"
+                              placeholder="pl"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newTranslations = [...(formData.config?.translations || [])];
+                                newTranslations.splice(index, 1);
+                                updateConfig({ translations: newTranslations });
+                              }}
+                              className="ml-2 text-rose-400 hover:text-rose-600 transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newTranslations = [...(formData.config?.translations || []), 'en'];
+                            updateConfig({ translations: newTranslations });
+                          }}
+                          className="flex items-center justify-center w-10 h-10 bg-rose-100 dark:bg-rose-900/30 border-2 border-dashed border-rose-300 dark:border-rose-600 rounded-lg hover:bg-rose-200 dark:hover:bg-rose-900/50 transition-colors"
+                        >
+                          <Plus className="w-4 h-4 text-rose-500" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Domain Specific Terms
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={formData.config?.domain_specific_terms || ''}
-                    onChange={(e) => updateConfig({ domain_specific_terms: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                    placeholder="Comma-separated terms relevant to this domain..."
-                  />
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="is_active"
-                    checked={formData.is_active}
-                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor="is_active" className="ml-2 block text-sm text-gray-900 dark:text-gray-100">
-                    Active domain
-                  </label>
+                {/* Status Toggle */}
+                <div className="bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-900/20 dark:to-slate-900/20 p-6 rounded-xl border border-gray-100 dark:border-gray-800">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className={`w-3 h-3 rounded-full mr-3 ${formData.is_active ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">⚡ Domain Status</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Enable or disable this domain configuration</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="is_active"
+                        checked={formData.is_active}
+                        onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                        className="h-6 w-6 text-green-600 focus:ring-green-500 border-gray-300 rounded transition-colors"
+                      />
+                      <label htmlFor="is_active" className="ml-3 block text-sm font-medium text-gray-900 dark:text-gray-100">
+                        {formData.is_active ? 'Active' : 'Inactive'}
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -978,15 +1089,15 @@ function DomainEditModal({
                 </div>
 
                 <div className="space-y-4">
-                  {Object.entries(formData.config?.categories || {}).map(([categoryKey, category]: [string, any]) => (
+                  {(formData.config?.categories || []).map((category, index) => (
                     <CategoryEditor
-                      key={categoryKey}
-                      categoryKey={categoryKey}
+                      key={index}
+                      categoryIndex={index}
                       category={category}
-                      onUpdate={(updates) => updateCategory(categoryKey, updates)}
-                      onRemove={() => removeCategory(categoryKey)}
-                      onAddSubcategory={(subcategory) => addSubcategory(categoryKey, subcategory)}
-                      onRemoveSubcategory={(index) => removeSubcategory(categoryKey, index)}
+                      onUpdate={(updates) => updateCategory(index, updates)}
+                      onRemove={() => removeCategory(index)}
+                      onAddSubcategory={(subcategory) => addSubcategory(index, subcategory)}
+                      onRemoveSubcategory={(subIndex) => removeSubcategory(index, subIndex)}
                     />
                   ))}
                 </div>
@@ -1055,7 +1166,7 @@ function DomainEditModal({
                 </div>
 
                 <div className="space-y-4">
-                  {(formData.config?.target_audiences || []).map((audience: any, index: number) => (
+                  {(formData.config?.target_audiences || []).map((audience: string, index: number) => (
                     <div key={index} className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
                       <div className="flex items-center justify-between mb-3">
                         <h5 className="font-medium text-gray-900 dark:text-gray-100">
@@ -1070,43 +1181,17 @@ function DomainEditModal({
                         </button>
                       </div>
                       
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Code
-                          </label>
-                          <input
-                            type="text"
-                            value={audience.code}
-                            onChange={(e) => updateAudience(index, { code: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
-                            placeholder="e.g., developers"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Name
-                          </label>
-                          <input
-                            type="text"
-                            value={audience.name}
-                            onChange={(e) => updateAudience(index, { name: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
-                            placeholder="e.g., Developers"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Description
-                          </label>
-                          <input
-                            type="text"
-                            value={audience.description}
-                            onChange={(e) => updateAudience(index, { description: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
-                            placeholder="Description of this audience"
-                          />
-                        </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Audience Name
+                        </label>
+                        <input
+                          type="text"
+                          value={audience}
+                          onChange={(e) => updateAudience(index, e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
+                          placeholder="e.g., Junior Developers"
+                        />
                       </div>
                     </div>
                   ))}
@@ -1132,7 +1217,7 @@ function DomainEditModal({
 
 // Category Editor Component
 interface CategoryEditorProps {
-  categoryKey: string;
+  categoryIndex: number;
   category: any;
   onUpdate: (updates: any) => void;
   onRemove: () => void;
@@ -1141,7 +1226,7 @@ interface CategoryEditorProps {
 }
 
 function CategoryEditor({
-  categoryKey,
+  categoryIndex,
   category,
   onUpdate,
   onRemove,
@@ -1161,7 +1246,7 @@ function CategoryEditor({
     <div className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
       <div className="flex items-center justify-between mb-3">
         <h5 className="font-medium text-gray-900 dark:text-gray-100">
-          {categoryKey}
+          Category {categoryIndex + 1}
         </h5>
         <button
           type="button"
@@ -1175,24 +1260,12 @@ function CategoryEditor({
       <div className="space-y-3">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Display Name
+            Category Name
           </label>
           <input
             type="text"
             value={category.name || ''}
             onChange={(e) => onUpdate({ name: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
-          />
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Description
-          </label>
-          <textarea
-            rows={2}
-            value={category.description || ''}
-            onChange={(e) => onUpdate({ description: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
           />
         </div>

@@ -9,10 +9,13 @@ import {
   ExternalLink,
   Filter,
   Search,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Article } from '@/types';
-import { Button } from '@/components/ui/Button';
+import Button from './ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { ScoreIndicator } from '@/components/ui/ScoreIndicator';
 import { ResearchMaterialsModal } from '@/components/ResearchMaterialsModal';
@@ -22,6 +25,8 @@ export function AllArticles() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [selectedStatus, setSelectedStatus] = useState<string>('');
+  const [sortBy, setSortBy] = useState<string>('created_date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [researchModalOpen, setResearchModalOpen] = useState(false);
   const [selectedArticleForResearch, setSelectedArticleForResearch] = useState<Article | null>(null);
 
@@ -32,8 +37,12 @@ export function AllArticles() {
     refetch,
     isRefetching 
   } = useQuery({
-    queryKey: ['all-articles', page, limit, selectedStatus],
-    queryFn: () => api.getArticles({ status: selectedStatus }, page, limit),
+    queryKey: ['all-articles', page, limit, selectedStatus, sortBy, sortOrder],
+    queryFn: () => api.getArticles({ 
+      status: selectedStatus, 
+      sort_by: sortBy, 
+      sort_order: sortOrder 
+    }, page, limit),
     keepPreviousData: true,
   });
 
@@ -90,6 +99,36 @@ export function AllArticles() {
     setSelectedStatus(newStatus);
     setPage(1); // Reset to first page when filter changes
   };
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+    setPage(1); // Reset to first page when sorting changes
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortBy !== field) {
+      return <ArrowUpDown className="w-4 h-4 text-gray-400" />;
+    }
+    return sortOrder === 'asc' ? 
+      <ArrowUp className="w-4 h-4 text-blue-500" /> : 
+      <ArrowDown className="w-4 h-4 text-blue-500" />;
+  };
+
+  const sortableFields = [
+    { key: 'title', label: 'Title' },
+    { key: 'author', label: 'Author' },
+    { key: 'category', label: 'Category' },
+    { key: 'priority', label: 'Priority' },
+    { key: 'target_audience', label: 'Audience' },
+    { key: 'final_score', label: 'Score' },
+    { key: 'status', label: 'Status' },
+    { key: 'created_date', label: 'Created' },
+  ];
 
   const handleViewResearch = (article: Article) => {
     setSelectedArticleForResearch(article);
@@ -189,23 +228,53 @@ export function AllArticles() {
             <table className="w-full">
               <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-32">
-                    Status
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-32 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 select-none"
+                    onClick={() => handleSort('status')}
+                  >
+                    <div className="flex items-center justify-between">
+                      Status
+                      {getSortIcon('status')}
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-32">
-                    Author
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-32 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 select-none"
+                    onClick={() => handleSort('author')}
+                  >
+                    <div className="flex items-center justify-between">
+                      Author
+                      {getSortIcon('author')}
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider min-w-80">
-                    Title
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider min-w-80 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 select-none"
+                    onClick={() => handleSort('title')}
+                  >
+                    <div className="flex items-center justify-between">
+                      Title
+                      {getSortIcon('title')}
+                    </div>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Summary
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-28">
-                    Published
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-28 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 select-none"
+                    onClick={() => handleSort('created_date')}
+                  >
+                    <div className="flex items-center justify-between">
+                      Published
+                      {getSortIcon('created_date')}
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-20">
-                    Score
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-20 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 select-none"
+                    onClick={() => handleSort('final_score')}
+                  >
+                    <div className="flex items-center justify-between">
+                      Score
+                      {getSortIcon('final_score')}
+                    </div>
                   </th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">
                     Link

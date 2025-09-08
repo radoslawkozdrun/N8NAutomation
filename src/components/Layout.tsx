@@ -16,16 +16,19 @@ import {
   MessageSquare,
   FileText,
   LogOut,
-  ChevronDown
+  ChevronDown,
+  BarChart3,
+  Edit3,
+  Share2
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import Button from './ui/Button';
 import { cn, getStoredValue, setStoredValue } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface LayoutProps {
   children: React.ReactNode;
-  currentView: 'articles' | 'all-articles' | 'account' | 'feeds' | 'post-review' | 'users' | 'domains';
-  onViewChange: (view: 'articles' | 'all-articles' | 'account' | 'feeds' | 'post-review' | 'users' | 'domains') => void;
+  currentView: 'articles' | 'all-articles' | 'account' | 'feeds' | 'post-review' | 'users' | 'domains' | 'new-dashboard' | 'new-post-creation' | 'new-social-media-accounts' | 'dashboard' | 'article-list-page' | 'article-details' | 'rss-feeds' | 'user-management' | 'post-creation' | 'social-media-management';
+  onViewChange: (view: 'articles' | 'all-articles' | 'account' | 'feeds' | 'post-review' | 'users' | 'domains' | 'new-dashboard' | 'new-post-creation' | 'new-social-media-accounts' | 'dashboard' | 'article-list-page' | 'article-details' | 'rss-feeds' | 'user-management' | 'post-creation' | 'social-media-management') => void;
 }
 
 export function Layout({ children, currentView, onViewChange }: LayoutProps) {
@@ -60,32 +63,86 @@ export function Layout({ children, currentView, onViewChange }: LayoutProps) {
 
   const navigation = [
     {
-      name: 'Review Articles',
-      key: 'articles' as const,
-      icon: List,
-      current: currentView === 'articles',
-    },
-    {
-      name: 'All Articles',
-      key: 'all-articles' as const,
-      icon: Table,
-      current: currentView === 'all-articles',
-    },
-    {
-      name: 'Review Posts',
-      key: 'post-review' as const,
-      icon: MessageSquare,
-      current: currentView === 'post-review',
-    },
-    {
       name: 'Feed Sources',
       key: 'feeds' as const,
       icon: Rss,
       current: currentView === 'feeds',
     },
+    { divider: true },
+    {
+      name: 'Dashboard',
+      key: 'dashboard' as const,
+      icon: BarChart3,
+      current: currentView === 'dashboard',
+    },
+    {
+      name: 'Article List',
+      key: 'article-list-page' as const,
+      icon: List,
+      current: currentView === 'article-list-page',
+    },
+    {
+      name: 'RSS Feed Management',
+      key: 'rss-feeds' as const,
+      icon: Rss,
+      current: currentView === 'rss-feeds',
+    },
+    {
+      name: 'Post Creation',
+      key: 'post-creation' as const,
+      icon: Edit3,
+      current: currentView === 'post-creation',
+    },
+    {
+      name: 'Social Media Management',
+      key: 'social-media-management' as const,
+      icon: Share2,
+      current: currentView === 'social-media-management',
+    },
+    {
+      name: 'Review Articles (OLD)',
+      key: 'articles' as const,
+      icon: List,
+      current: currentView === 'articles',
+    },
+    {
+      name: 'All Articles (OLD)',
+      key: 'all-articles' as const,
+      icon: Table,
+      current: currentView === 'all-articles',
+    },
+    {
+      name: 'Review Posts (OLD)',
+      key: 'post-review' as const,
+      icon: MessageSquare,
+      current: currentView === 'post-review',
+    },
+    {
+      name: 'NEW - Dashboard',
+      key: 'new-dashboard' as const,
+      icon: BarChart3,
+      current: currentView === 'new-dashboard',
+    },
+    {
+      name: 'NEW - Post Creation',
+      key: 'new-post-creation' as const,
+      icon: Edit3,
+      current: currentView === 'new-post-creation',
+    },
+    {
+      name: 'NEW - Social Media Accounts',
+      key: 'new-social-media-accounts' as const,
+      icon: Share2,
+      current: currentView === 'new-social-media-accounts',
+    },
     // Only show admin features for admins
     ...(user?.role === 'ADMIN' ? [{
       name: 'User Management',
+      key: 'user-management' as const,
+      icon: Users,
+      current: currentView === 'user-management',
+    }, {
+      name: 'User Management (OLD)',
       key: 'users' as const,
       icon: Users,
       current: currentView === 'users',
@@ -163,11 +220,11 @@ export function Layout({ children, currentView, onViewChange }: LayoutProps) {
           {/* Logo */}
           <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <List className="w-5 h-5 text-white" />
+              <div className="w-16 h-16 bg-transparent">
+                <img src="/logo.png?v=4" alt="Logo" className="w-full h-full object-contain" />
               </div>
               <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                RSS Review
+                FlowCraft
               </span>
             </div>
             <button
@@ -180,7 +237,16 @@ export function Layout({ children, currentView, onViewChange }: LayoutProps) {
 
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 space-y-2">
-            {navigation.map((item) => {
+            {navigation.map((item, index) => {
+              if (item.divider) {
+                return (
+                  <div
+                    key={`divider-${index}`}
+                    className="my-2 border-t border-gray-200 dark:border-gray-700"
+                  />
+                );
+              }
+              
               const Icon = item.icon;
               return (
                 <button

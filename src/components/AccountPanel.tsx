@@ -15,7 +15,7 @@ import {
   UserPlus,
   Trash2
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import Button from './ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';

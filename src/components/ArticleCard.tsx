@@ -23,7 +23,7 @@ import {
   extractDomain,
 } from '@/lib/utils';
 import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
+import Button from './ui/Button';
 import { ScoreIndicator } from '@/components/ui/ScoreIndicator';
 
 interface ArticleCardProps {
@@ -284,32 +284,39 @@ export function ArticleTableRow({
         />
       </td>
 
-      {/* Title and metadata */}
+      {/* Title */}
       <td className="p-4">
-        <div className="space-y-1">
-          <h3 className="font-medium text-gray-900 dark:text-gray-100 line-clamp-2">
-            {article.title}
-          </h3>
-          <div className="flex items-center space-x-3 text-xs text-gray-500 dark:text-gray-400">
-            <span>{article.author}</span>
-            <span>•</span>
-            <span>{formatRelativeDate(article.created_date)}</span>
-            <span>•</span>
-            <span>{extractDomain(article.link)}</span>
-          </div>
-        </div>
+        <h3 className="font-medium text-gray-900 dark:text-gray-100 line-clamp-2">
+          {article.title}
+        </h3>
       </td>
 
-      {/* Category & Priority */}
+      {/* Category */}
       <td className="p-4">
-        <div className="space-y-1">
-          <Badge size="sm" className={getCategoryBadgeColor(article.category)}>
-            {getCategoryLabel(article.category)}
-          </Badge>
-          <Badge size="sm" className={getPriorityBadgeColor(article.priority)}>
-            {getPriorityLabel(article.priority)}
-          </Badge>
-        </div>
+        <Badge size="sm" className={getCategoryBadgeColor(article.category)}>
+          {getCategoryLabel(article.category)}
+        </Badge>
+      </td>
+
+      {/* Priority */}
+      <td className="p-4">
+        <Badge size="sm" className={getPriorityBadgeColor(article.priority)}>
+          {getPriorityLabel(article.priority)}
+        </Badge>
+      </td>
+
+      {/* Author */}
+      <td className="p-4">
+        <span className="text-sm text-gray-600 dark:text-gray-400">
+          {truncateText(article.author || 'Unknown', 20)}
+        </span>
+      </td>
+
+      {/* Date */}
+      <td className="p-4">
+        <span className="text-sm text-gray-600 dark:text-gray-400">
+          {formatRelativeDate(article.created_date)}
+        </span>
       </td>
 
       {/* Summary */}

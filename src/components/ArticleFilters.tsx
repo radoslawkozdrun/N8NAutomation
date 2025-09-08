@@ -15,7 +15,7 @@ import {
   getPriorityLabel, 
   getAudienceLabel,
 } from '@/lib/utils';
-import { Button } from '@/components/ui/Button';
+import Button from './ui/Button';
 import { Badge } from '@/components/ui/Badge';
 
 interface ArticleFiltersProps {

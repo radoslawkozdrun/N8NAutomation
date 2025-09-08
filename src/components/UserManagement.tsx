@@ -14,7 +14,7 @@ import {
   MoreVertical,
   X
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import Button from './ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { api } from '@/lib/api';
 import { User, UserRole, UserFilters, CreateUserRequest, UpdateUserRequest } from '@/types';

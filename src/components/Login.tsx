@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, User, Lock, LogIn, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import Button from './ui/Button';
 import { cn } from '@/lib/utils';
 
 interface LoginProps {
@@ -76,11 +76,11 @@ export function Login({ onLogin, error }: LoginProps) {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="mx-auto w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mb-4">
-            <LogIn className="w-8 h-8 text-white" />
+          <div className="mx-auto w-40 h-40 mb-4 bg-transparent">
+            <img src="/logo.png?v=4" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            N8N Automation
+            FlowCraft
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
             Sign in to your account

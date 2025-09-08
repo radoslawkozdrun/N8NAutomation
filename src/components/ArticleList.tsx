@@ -7,11 +7,14 @@ import {
   MoreHorizontal,
   AlertCircle,
   Loader2,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Article, ReviewDecision } from '@/types';
 import { ArticleCard, ArticleTableRow } from '@/components/ArticleCard';
-import { Button } from '@/components/ui/Button';
+import Button from './ui/Button';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 interface ArticleListProps {
@@ -24,6 +27,8 @@ export function ArticleList({ onArticleSelect }: ArticleListProps) {
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [page, setPage] = useState(1);
   const [selectedStatus, setSelectedStatus] = useState<string>('PENDING_REVIEW');
+  const [sortBy, setSortBy] = useState<string>('created_date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [processingArticles, setProcessingArticles] = useState<Set<number>>(new Set());
 
   const queryClient = useQueryClient();
@@ -35,13 +40,36 @@ export function ArticleList({ onArticleSelect }: ArticleListProps) {
     error, 
     refetch 
   } = useQuery({
-    queryKey: ['articles', page, selectedStatus],
-    queryFn: () => api.getArticles({ status: selectedStatus }, page, 20),
+    queryKey: ['articles', page, selectedStatus, sortBy, sortOrder],
+    queryFn: () => api.getArticles({ 
+      status: selectedStatus, 
+      sort_by: sortBy, 
+      sort_order: sortOrder 
+    }, page, 20),
     keepPreviousData: true,
   });
 
   const articles = articlesResponse?.data || [];
   const pagination = articlesResponse?.pagination;
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+    setPage(1); // Reset to first page when sorting changes
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortBy !== field) {
+      return <ArrowUpDown className="w-4 h-4 text-gray-400" />;
+    }
+    return sortOrder === 'asc' ? 
+      <ArrowUp className="w-4 h-4 text-blue-500" /> : 
+      <ArrowDown className="w-4 h-4 text-blue-500" />;
+  };
 
   // Mutations
   const updateArticleMutation = useMutation({
@@ -366,14 +394,59 @@ export function ArticleList({ onArticleSelect }: ArticleListProps) {
                           className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                         />
                       </th>
-                      <th className="w-20 p-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                        Score
+                      <th 
+                        className="w-20 p-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 select-none"
+                        onClick={() => handleSort('final_score')}
+                      >
+                        <div className="flex items-center justify-between">
+                          Score
+                          {getSortIcon('final_score')}
+                        </div>
                       </th>
-                      <th className="p-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                        Title
+                      <th 
+                        className="p-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 select-none"
+                        onClick={() => handleSort('title')}
+                      >
+                        <div className="flex items-center justify-between">
+                          Title
+                          {getSortIcon('title')}
+                        </div>
                       </th>
-                      <th className="w-40 p-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                        Category
+                      <th 
+                        className="w-40 p-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 select-none"
+                        onClick={() => handleSort('category')}
+                      >
+                        <div className="flex items-center justify-between">
+                          Category
+                          {getSortIcon('category')}
+                        </div>
+                      </th>
+                      <th 
+                        className="w-28 p-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 select-none"
+                        onClick={() => handleSort('priority')}
+                      >
+                        <div className="flex items-center justify-between">
+                          Priority
+                          {getSortIcon('priority')}
+                        </div>
+                      </th>
+                      <th 
+                        className="w-32 p-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 select-none"
+                        onClick={() => handleSort('author')}
+                      >
+                        <div className="flex items-center justify-between">
+                          Author
+                          {getSortIcon('author')}
+                        </div>
+                      </th>
+                      <th 
+                        className="w-28 p-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 select-none"
+                        onClick={() => handleSort('created_date')}
+                      >
+                        <div className="flex items-center justify-between">
+                          Date
+                          {getSortIcon('created_date')}
+                        </div>
                       </th>
                       <th className="p-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Summary
