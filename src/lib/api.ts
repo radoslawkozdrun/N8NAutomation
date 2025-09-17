@@ -155,6 +155,16 @@ export const api = {
   },
 
   // Auth
+  login: async (credentials: { email: string; password: string }): Promise<ApiResponse<{ token: string; user: User }>> => {
+    return request<ApiResponse<{ token: string; user: User }>>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        username: credentials.email, // Backend expects username field but we send email
+        password: credentials.password
+      }),
+    });
+  },
+
   getCurrentUser: async (): Promise<ApiResponse<User>> => {
     return request<ApiResponse<User>>('/auth/profile');
   },
@@ -338,6 +348,17 @@ export const api = {
 
   deleteDomain: async (id: number): Promise<any> => {
     return request<any>(`/domains/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Fetch articles logs
+  getFetchLogs: async (): Promise<ApiResponse<any[]>> => {
+    return request<ApiResponse<any[]>>('/feeds/fetch-logs');
+  },
+
+  clearFetchLogs: async (): Promise<ApiResponse<{ message: string }>> => {
+    return request<ApiResponse<{ message: string }>>('/feeds/fetch-logs', {
       method: 'DELETE',
     });
   },

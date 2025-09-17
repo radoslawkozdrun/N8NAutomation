@@ -1,7 +1,7 @@
 import React from 'react';
 import Icon from '../../../components/AppIcon';
 
-const CategoryPanel = ({ category, priority, targetAudience, confidence }) => {
+const CategoryPanel = ({ category, subcategory, priority, targetAudience, confidence }) => {
   const getCategoryIcon = (cat) => {
     const icons = {
       'AI_ML': 'Brain',
@@ -18,20 +18,27 @@ const CategoryPanel = ({ category, priority, targetAudience, confidence }) => {
     return icons?.[cat] || 'Package';
   };
 
-  const getCategoryLabel = (cat) => {
+  const getCategoryLabel = (cat, subcat) => {
     const labels = {
-      'AI_ML': 'Sztuczna Inteligencja',
-      'WEB_DEV': 'Rozwój Web',
-      'MOBILE_DEV': 'Rozwój Mobile',
+      'AI_ML': 'Artificial Intelligence',
+      'WEB_DEV': 'Web Development',
+      'MOBILE_DEV': 'Mobile Development',
       'DATA_SCIENCE': 'Data Science',
       'DEVOPS': 'DevOps',
-      'SECURITY': 'Bezpieczeństwo',
-      'CLOUD': 'Chmura',
+      'SECURITY': 'Security',
+      'CLOUD': 'Cloud',
       'BLOCKCHAIN': 'Blockchain',
-      'IOT': 'Internet Rzeczy',
-      'OTHER': 'Inne'
+      'IOT': 'Internet of Things',
+      'OTHER': 'Other'
     };
-    return labels?.[cat] || 'Inne';
+
+    const categoryLabel = labels?.[cat] || cat || 'Other';
+
+    if (subcat && subcat.trim() !== '') {
+      return `${categoryLabel} - ${subcat}`;
+    }
+
+    return categoryLabel;
   };
 
   const getPriorityColor = (priority) => {
@@ -47,13 +54,13 @@ const CategoryPanel = ({ category, priority, targetAudience, confidence }) => {
 
   const getPriorityLabel = (priority) => {
     const labels = {
-      'P0_BREAKING': 'P0 - Pilne',
+      'P0_BREAKING': 'P0 - Breaking',
       'P1_TRENDING': 'P1 - Trending',
-      'P2_TIMELY': 'P2 - Aktualne',
-      'P3_EVERGREEN': 'P3 - Ponadczasowe',
-      'P4_FILLER': 'P4 - Wypełniacz'
+      'P2_TIMELY': 'P2 - Timely',
+      'P3_EVERGREEN': 'P3 - Evergreen',
+      'P4_FILLER': 'P4 - Filler'
     };
-    return labels?.[priority] || 'Nieznany';
+    return labels?.[priority] || 'Unknown';
   };
 
   const getAudienceIcon = (audience) => {
@@ -69,15 +76,18 @@ const CategoryPanel = ({ category, priority, targetAudience, confidence }) => {
   };
 
   const getAudienceLabel = (audience) => {
+    // Handle predefined codes for backward compatibility
     const labels = {
-      'developers': 'Deweloperzy',
-      'architects': 'Architekci',
-      'managers': 'Menedżerowie',
-      'beginners': 'Początkujący',
-      'experts': 'Eksperci',
-      'mixed': 'Mieszana'
+      'developers': 'Developers',
+      'architects': 'Architects',
+      'managers': 'Managers',
+      'beginners': 'Beginners',
+      'experts': 'Experts',
+      'mixed': 'Mixed'
     };
-    return labels?.[audience] || 'Nieznana';
+
+    // Return mapped label if it exists, otherwise return the database value directly
+    return labels?.[audience] || audience || 'Unknown';
   };
 
   const getConfidenceColor = (conf) => {
@@ -88,29 +98,23 @@ const CategoryPanel = ({ category, priority, targetAudience, confidence }) => {
 
   return (
     <div className="bg-card border border-border rounded-lg p-6">
-      <h2 className="text-lg font-semibold text-foreground mb-6">Klasyfikacja</h2>
+      <h2 className="text-lg font-semibold text-foreground mb-6">Classification</h2>
       <div className="space-y-6">
         {/* Category */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-foreground">Kategoria</h3>
-            <span className={`text-sm font-medium ${getConfidenceColor(confidence?.category)}`}>
-              {confidence?.category}% pewności
-            </span>
+            <h3 className="text-sm font-medium text-foreground">Category</h3>
           </div>
           <div className="flex items-center space-x-3 p-3 bg-muted rounded-lg">
             <Icon name={getCategoryIcon(category)} size={20} className="text-primary" />
-            <span className="font-medium text-foreground">{getCategoryLabel(category)}</span>
+            <span className="font-medium text-foreground">{getCategoryLabel(category, subcategory)}</span>
           </div>
         </div>
 
         {/* Priority */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-foreground">Priorytet</h3>
-            <span className={`text-sm font-medium ${getConfidenceColor(confidence?.priority)}`}>
-              {confidence?.priority}% pewności
-            </span>
+            <h3 className="text-sm font-medium text-foreground">Priority</h3>
           </div>
           <div className={`flex items-center space-x-3 p-3 rounded-lg border ${getPriorityColor(priority)}`}>
             <Icon name="Flag" size={20} />
@@ -121,10 +125,7 @@ const CategoryPanel = ({ category, priority, targetAudience, confidence }) => {
         {/* Target Audience */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-foreground">Grupa docelowa</h3>
-            <span className={`text-sm font-medium ${getConfidenceColor(confidence?.audience)}`}>
-              {confidence?.audience}% pewności
-            </span>
+            <h3 className="text-sm font-medium text-foreground">Target Audience</h3>
           </div>
           <div className="flex items-center space-x-3 p-3 bg-muted rounded-lg">
             <Icon name={getAudienceIcon(targetAudience)} size={20} className="text-primary" />
@@ -132,20 +133,6 @@ const CategoryPanel = ({ category, priority, targetAudience, confidence }) => {
           </div>
         </div>
 
-        {/* Alternative Suggestions */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-medium text-foreground">Alternatywne sugestie</h3>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between p-2 bg-muted/50 rounded">
-              <span className="text-sm text-muted-foreground">Data Science</span>
-              <span className="text-xs text-muted-foreground">23%</span>
-            </div>
-            <div className="flex items-center justify-between p-2 bg-muted/50 rounded">
-              <span className="text-sm text-muted-foreground">Cloud</span>
-              <span className="text-xs text-muted-foreground">15%</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

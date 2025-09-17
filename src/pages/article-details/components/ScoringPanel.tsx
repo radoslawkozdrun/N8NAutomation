@@ -4,33 +4,39 @@ import Icon from '../../../components/AppIcon';
 const ScoringPanel = ({ scores, insights }) => {
   const [showTooltip, setShowTooltip] = useState(null);
 
+  // Clean special characters from insights
+  const cleanInsight = (insight) => {
+    if (typeof insight !== 'string') return insight;
+    return insight.replace(/[.{}"']/g, '').trim();
+  };
+
   const scoreItems = [
     {
       key: 'relevance',
-      label: 'Trafność',
+      label: 'Relevance',
       value: scores?.relevance,
-      description: 'Jak dobrze artykuł pasuje do naszej grupy docelowej',
+      description: 'How well the article fits our target audience',
       color: 'text-blue-600'
     },
     {
       key: 'novelty',
-      label: 'Nowość',
+      label: 'Novelty',
       value: scores?.novelty,
-      description: 'Czy artykuł zawiera nowe, unikalne informacje',
+      description: 'Whether the article contains new, unique information',
       color: 'text-green-600'
     },
     {
       key: 'viral',
-      label: 'Potencjał wiralowy',
+      label: 'Viral Potential',
       value: scores?.viral,
-      description: 'Prawdopodobieństwo, że artykuł zostanie szeroko udostępniony',
+      description: 'Probability that the article will be widely shared',
       color: 'text-purple-600'
     },
     {
       key: 'value',
-      label: 'Wartość',
+      label: 'Value',
       value: scores?.value,
-      description: 'Praktyczna wartość artykułu dla czytelników',
+      description: 'Practical value of the article for readers',
       color: 'text-orange-600'
     }
   ];
@@ -59,10 +65,10 @@ const ScoringPanel = ({ scores, insights }) => {
   return (
     <div className="bg-card border border-border rounded-lg p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-foreground">Analiza AI</h2>
+        <h2 className="text-lg font-semibold text-foreground">AI Analysis</h2>
         <div className="flex items-center space-x-2">
           <Icon name="Brain" size={20} className="text-primary" />
-          <span className="text-sm text-muted-foreground">Automatyczna ocena</span>
+          <span className="text-sm text-muted-foreground">Automatic Assessment</span>
         </div>
       </div>
       {/* Individual Scores */}
@@ -106,9 +112,9 @@ const ScoringPanel = ({ scores, insights }) => {
       <div className="bg-muted rounded-lg p-6 mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">Ocena końcowa</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-2">Final Score</h3>
             <p className="text-sm text-muted-foreground">
-              Średnia ważona wszystkich kryteriów
+              Weighted average of all criteria
             </p>
           </div>
           <div className="text-right">
@@ -116,21 +122,21 @@ const ScoringPanel = ({ scores, insights }) => {
               {scores?.final}
             </div>
             <p className="text-sm text-muted-foreground mt-2">
-              {scores?.final >= 80 ? 'Doskonały' : 
-               scores?.final >= 60 ? 'Dobry' : 
-               scores?.final >= 40 ? 'Średni' : 'Słaby'}
+              {scores?.final >= 80 ? 'Excellent' :
+               scores?.final >= 60 ? 'Good' :
+               scores?.final >= 40 ? 'Average' : 'Poor'}
             </p>
           </div>
         </div>
       </div>
       {/* AI Insights */}
       <div className="space-y-4">
-        <h3 className="text-md font-semibold text-foreground">Kluczowe spostrzeżenia AI</h3>
+        <h3 className="text-md font-semibold text-foreground">Key AI Insights</h3>
         <div className="space-y-3">
           {insights?.map((insight, index) => (
             <div key={index} className="flex items-start space-x-3 p-3 bg-muted rounded-lg">
               <Icon name="Lightbulb" size={16} className="text-accent mt-0.5 flex-shrink-0" />
-              <p className="text-sm text-foreground">{insight}</p>
+              <p className="text-sm text-foreground">{cleanInsight(insight)}</p>
             </div>
           ))}
         </div>

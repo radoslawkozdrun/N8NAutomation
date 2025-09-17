@@ -41,7 +41,7 @@ const ArticleContent = ({ article }) => {
             <div className="flex items-start space-x-2">
               <Icon name="FileText" size={20} className="text-primary mt-0.5 flex-shrink-0" />
               <div>
-                <h3 className="text-sm font-medium text-foreground mb-2">Streszczenie</h3>
+                <h3 className="text-sm font-medium text-foreground mb-2">Summary</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {article?.summary}
                 </p>
@@ -53,13 +53,10 @@ const ArticleContent = ({ article }) => {
         {/* Article Content */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-foreground">Treść artykułu</h2>
+            <h2 className="text-lg font-semibold text-foreground">Article Content</h2>
             <div className="flex items-center space-x-4">
               <Button variant="ghost" size="sm" iconName="Copy" iconPosition="left">
-                Kopiuj
-              </Button>
-              <Button variant="ghost" size="sm" iconName="ExternalLink" iconPosition="left">
-                Otwórz źródło
+                Copy
               </Button>
             </div>
           </div>
@@ -77,7 +74,7 @@ const ArticleContent = ({ article }) => {
                 iconName={isExpanded ? "ChevronUp" : "ChevronDown"}
                 iconPosition="right"
               >
-                {isExpanded ? 'Zwiń artykuł' : 'Rozwiń pełny artykuł'}
+                {isExpanded ? 'Collapse Article' : 'Expand Full Article'}
               </Button>
             </div>
           )}
@@ -85,43 +82,17 @@ const ArticleContent = ({ article }) => {
 
         {/* Article Metadata */}
         <div className="mt-8 pt-6 border-t border-border">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-            <div className="flex items-center space-x-2">
-              <Icon name="Link" size={16} className="text-muted-foreground" />
-              <span className="text-muted-foreground">URL:</span>
-              <a
-                href={article?.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline truncate"
-              >
-                {article?.url}
-              </a>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Icon name="Hash" size={16} className="text-muted-foreground" />
-              <span className="text-muted-foreground">ID:</span>
-              <span className="text-foreground font-mono">{article?.id}</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Icon name="Database" size={16} className="text-muted-foreground" />
-              <span className="text-muted-foreground">Źródło RSS:</span>
-              <span className="text-foreground">{article?.rssSource}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Language and Region */}
-        <div className="mt-4 flex items-center space-x-6 text-sm">
-          <div className="flex items-center space-x-2">
-            <Icon name="Globe" size={16} className="text-muted-foreground" />
-            <span className="text-muted-foreground">Język:</span>
-            <span className="text-foreground">{article?.language || 'Polski'}</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Icon name="MapPin" size={16} className="text-muted-foreground" />
-            <span className="text-muted-foreground">Region:</span>
-            <span className="text-foreground">{article?.region || 'Polska'}</span>
+          <div className="flex items-center space-x-2 text-sm">
+            <Icon name="Link" size={16} className="text-muted-foreground" />
+            <span className="text-muted-foreground">URL:</span>
+            <a
+              href={article?.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline truncate"
+            >
+              {article?.url}
+            </a>
           </div>
         </div>
       </div>

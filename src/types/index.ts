@@ -59,8 +59,9 @@ export type ArticleStatus =
   | 'RESEARCH_DONE';
 
 export interface ReviewDecision {
-  action: 'accept' | 'reject' | 'needs_more';
+  action: 'accept' | 'reject';
   notes?: string;
+  justification?: string;
 }
 
 export interface BulkUpdateRequest {
@@ -79,6 +80,7 @@ export interface ResearchMaterial {
   title: string;
   publication_date: string;
   created_at: string;
+  query: string;
 }
 
 export type UserRole = 'ADMIN' | 'USER' | 'DEMO';
@@ -125,6 +127,8 @@ export interface ArticleFilters {
   score_max?: number;
   search?: string;
   tags?: string[];
+  sort_by?: string;
+  sort_order?: 'asc' | 'desc';
 }
 
 
@@ -162,3 +166,23 @@ export interface KeyboardShortcut {
   description: string;
   handler: () => void;
 }
+
+// View types
+export type ViewType =
+  | 'articles'
+  | 'all-articles'
+  | 'account'
+  | 'feeds'
+  | 'post-review'
+  | 'users'
+  | 'domains'
+  | 'new-dashboard'
+  | 'new-post-creation'
+  | 'new-social-media-accounts'
+  | 'dashboard'
+  | 'article-list-page'
+  | 'article-details'
+  | 'rss-feeds'
+  | 'user-management'
+  | 'post-creation'
+  | 'social-media-management';

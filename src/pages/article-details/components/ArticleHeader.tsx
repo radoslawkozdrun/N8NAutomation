@@ -15,15 +15,15 @@ const ArticleHeader = ({ article, onBack }) => {
 
   const getStatusColor = (status) => {
     const statusColors = {
-      'NEW': 'bg-blue-100 text-blue-800',
-      'PENDING_REVIEW': 'bg-yellow-100 text-yellow-800',
-      'ACCEPTED': 'bg-green-100 text-green-800',
-      'REJECTED': 'bg-red-100 text-red-800',
-      'ARCHIVED': 'bg-gray-100 text-gray-800',
-      'NEEDS_MORE': 'bg-orange-100 text-orange-800',
-      'RESEARCH_DONE': 'bg-purple-100 text-purple-800'
+      'NEW': 'bg-yellow-400 text-yellow-900 border border-yellow-500',
+      'PENDING_REVIEW': 'bg-yellow-100 text-yellow-800 border border-yellow-200',
+      'ACCEPTED': 'bg-green-500 text-white border border-green-600',
+      'REJECTED': 'bg-red-500 text-white border border-red-600',
+      'ARCHIVED': 'bg-gray-100 text-gray-800 border border-gray-200',
+      'NEEDS_MORE': 'bg-orange-100 text-orange-800 border border-orange-200',
+      'RESEARCH_DONE': 'bg-purple-100 text-purple-800 border border-purple-200'
     };
-    return statusColors?.[status] || 'bg-gray-100 text-gray-800';
+    return statusColors?.[status] || 'bg-gray-100 text-gray-800 border border-gray-200';
   };
 
   return (
@@ -36,7 +36,7 @@ const ArticleHeader = ({ article, onBack }) => {
           onClick={onBack}
           className="mb-4"
         >
-          Powrót do listy artykułów
+          Back to article list
         </Button>
         <div className="flex items-center space-x-2">
           <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(article?.status)}`}>
@@ -55,31 +55,35 @@ const ArticleHeader = ({ article, onBack }) => {
         <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
           <div className="flex items-center space-x-2">
             <Icon name="User" size={16} />
-            <span>Autor: {article?.author}</span>
+            <span>Author: {article?.author}</span>
           </div>
           <div className="flex items-center space-x-2">
             <Icon name="Calendar" size={16} />
-            <span>Opublikowano: {formatDate(article?.publishedAt)}</span>
+            <span>Published: {formatDate(article?.publishedAt)}</span>
           </div>
           <div className="flex items-center space-x-2">
             <Icon name="Globe" size={16} />
-            <span>Źródło: {article?.source}</span>
+            <span>Source: {article?.source}</span>
           </div>
           <div className="flex items-center space-x-2">
             <Icon name="Clock" size={16} />
-            <span>Czas czytania: {article?.readingTime} min</span>
+            <span>Reading time: {article?.readingTime} min</span>
           </div>
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {article?.tags?.map((tag, index) => (
-            <span
-              key={index}
-              className="px-2 py-1 bg-muted text-muted-foreground rounded-md text-xs"
-            >
-              #{tag}
-            </span>
-          ))}
+          {article?.tags?.map((tag, index) => {
+            // Clean up the tag by removing quotes, curly braces, and extra whitespace
+            const cleanTag = typeof tag === 'string' ? tag.replace(/['"{}]/g, '').trim() : tag;
+            return (
+              <span
+                key={index}
+                className="px-2 py-1 bg-muted text-muted-foreground rounded-md text-xs"
+              >
+                #{cleanTag}
+              </span>
+            );
+          })}
         </div>
       </div>
     </div>

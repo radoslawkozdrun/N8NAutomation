@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { useMockNavigate } from '../../utils/mockNavigation';
 import { ToastContainer, useToast } from '../../components/ui/Toast';
+import { api } from '../../lib/api';
 import ArticleHeader from './components/ArticleHeader';
 import ScoringPanel from './components/ScoringPanel';
 import CategoryPanel from './components/CategoryPanel';
@@ -12,15 +12,93 @@ import ResearchPanel from './components/ResearchPanel';
 
 const ArticleDetails = () => {
   const navigate = useMockNavigate();
-  const [searchParams] = useSearchParams();
   const { success, error } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [article, setArticle] = useState(null);
   const [activeTab, setActiveTab] = useState('content');
+  const [selectedAction, setSelectedAction] = useState(null);
+  const [researchData, setResearchData] = useState([]);
 
-  // Mock article data
+  // Get article ID from URL hash
+  const getArticleIdFromHash = () => {
+    const hash = window.location.hash;
+    if (hash.includes('article-details?id=')) {
+      const params = new URLSearchParams(hash.split('?')[1]);
+      return params.get('id');
+    }
+    return null;
+  };
+
+  // Load research data from API
+  const loadResearchData = async (articleId) => {
+    try {
+      const researchResponse = await api.getResearchMaterials(articleId);
+      setResearchData(researchResponse.data || []);
+      console.log(`✅ Loaded ${researchResponse.data?.length || 0} research materials for article ${articleId}`);
+    } catch (err) {
+      console.error('Failed to load research data:', err);
+      setResearchData([]);
+    }
+  };
+
+  // Load article from API
+  const loadArticle = async () => {
+    const articleId = getArticleIdFromHash();
+    if (!articleId) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await api.getArticle(parseInt(articleId));
+      const articleData = response.data;
+
+      // Load research data for this article
+      await loadResearchData(parseInt(articleId));
+
+      // Transform API data to match component expectations
+      const transformedArticle = {
+        id: articleData.id,
+        title: articleData.title,
+        author: articleData.author,
+        publishedAt: articleData.created_date,
+        source: "RSS Feed", // Could be added to backend later
+        rssSource: "rss-feed",
+        url: articleData.link,
+        content: articleData.content,
+        summary: articleData.summary,
+        category: articleData.category,
+        subcategory: articleData.subcategory,
+        priority: articleData.priority,
+        targetAudience: articleData.target_audience,
+        status: articleData.status,
+        tags: articleData.tags || [],
+        keyTakeaways: articleData.key_takeaways || [],
+        reasoning: articleData.reasoning,
+        readingTime: Math.ceil((articleData.content?.length || 0) / 200), // Estimate reading time
+        language: "Polish",
+        region: "Poland",
+        // Include scores for analysis tab
+        relevance_score: articleData.relevance_score || 0,
+        novelty_score: articleData.novelty_score || 0,
+        viral_score: articleData.viral_score || 0,
+        value_score: articleData.value_score || 0,
+        final_score: articleData.final_score || 0
+      };
+
+      setArticle(transformedArticle);
+    } catch (err) {
+      console.error('Failed to load article:', err);
+      error('Failed to load article');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Mock article data (fallback)
   const mockArticle = {
-    id: searchParams?.get('id') || 'ART-2025-001',
+    id: getArticleIdFromHash() || 'ART-2025-001',
     title: "Przełomowe osiągnięcia w dziedzinie sztucznej inteligencji w 2025 roku",
     author: "Dr Anna Kowalska",
     publishedAt: "2025-01-05T08:30:00Z",
@@ -54,12 +132,24 @@ Wyzwania etyczne i regulacyjne pozostają jednak kluczowe. Wraz z rozwojem techn
 Eksperci przewidują, że 2025 rok będzie przełomowy dla sztucznej inteligencji, a osiągnięcia z pierwszych miesięcy to dopiero początek większej rewolucji technologicznej.`
   };
 
-  const mockScores = {
-    relevance: 92,
-    novelty: 88,
-    viral: 76,
-    value: 94,
-    final: 87
+  // Get scores from current article or use defaults
+  const getScores = () => {
+    if (article) {
+      return {
+        relevance: article.relevance_score || 0,
+        novelty: article.novelty_score || 0,
+        viral: article.viral_score || 0,
+        value: article.value_score || 0,
+        final: article.final_score || 0
+      };
+    }
+    return {
+      relevance: 92,
+      novelty: 88,
+      viral: 76,
+      value: 94,
+      final: 87
+    };
   };
 
   const mockInsights = [
@@ -147,37 +237,77 @@ Eksperci przewidują, że 2025 rok będzie przełomowy dla sztucznej inteligencj
   ];
 
   useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => {
-      setArticle(mockArticle);
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
+    loadArticle();
   }, []);
 
   const handleBack = () => {
     navigate('/article-list');
   };
 
-  const handleDecisionMade = (decision) => {
+  const handleDecisionMade = async (decision) => {
     console.log('Decision made:', decision);
-    // Update article status based on decision
-    const statusMap = {
-      'accept': 'ACCEPTED',
-      'reject': 'REJECTED',
-      'needs_more': 'NEEDS_MORE'
-    };
-    
-    setArticle(prev => ({
-      ...prev,
-      status: statusMap?.[decision?.action]
-    }));
+
+    if (!article?.id) return;
+
+    try {
+      const response = await api.updateArticleStatus(article.id, decision);
+
+      // Update local article state with new status
+      setArticle(prev => ({
+        ...prev,
+        status: response.data.status
+      }));
+
+      const actionText = decision.action === 'accept' ? 'accepted' :
+                        decision.action === 'reject' ? 'rejected' : 'marked as needing more information';
+      success(`Article has been ${actionText}`);
+    } catch (err) {
+      console.error('Failed to update article status:', err);
+      error('Failed to update article status');
+    }
   };
 
   const handleAddResearch = (research) => {
     console.log('Research added:', research);
-    success('Badanie zostało dodane pomyślnie');
+    // Add new research to the state
+    setResearchData(prev => [...prev, { ...research, id: Date.now() }]);
+    success('Research has been added successfully');
+  };
+
+  const handleActionSelect = (action) => {
+    // If the same action is clicked, deselect it
+    if (selectedAction === action) {
+      setSelectedAction(null);
+    } else {
+      setSelectedAction(action);
+    }
+  };
+
+  const handleSaveAction = async () => {
+    if (!selectedAction || !article?.id) return;
+
+    try {
+      const decision = {
+        action: selectedAction,
+        articleId: article.id,
+        notes: `Article ${selectedAction === 'accept' ? 'accepted' : selectedAction === 'reject' ? 'rejected' : 'marked as needing research'} via quick action`
+      };
+
+      const response = await api.updateArticleStatus(article.id, decision);
+
+      setArticle(prev => ({
+        ...prev,
+        status: response.data.status
+      }));
+
+      const actionText = selectedAction === 'accept' ? 'accepted' :
+                        selectedAction === 'reject' ? 'rejected' : 'marked as needing research';
+      success(`Article has been ${actionText}`);
+      setSelectedAction(null);
+    } catch (err) {
+      console.error('Failed to update article status:', err);
+      error('Failed to update article status');
+    }
   };
 
   // Add removeToast function for ToastContainer
@@ -192,7 +322,7 @@ Eksperci przewidują, że 2025 rok będzie przełomowy dla sztucznej inteligencj
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Ładowanie szczegółów artykułu...</p>
+            <p className="text-muted-foreground">Loading article details...</p>
           </div>
         </div>
       </div>
@@ -204,13 +334,13 @@ Eksperci przewidują, że 2025 rok będzie przełomowy dla sztucznej inteligencj
       <div className="min-h-screen bg-background">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <p className="text-foreground text-lg mb-2">Artykuł nie został znaleziony</p>
-            <p className="text-muted-foreground mb-4">Sprawdź czy ID artykułu jest poprawne</p>
+            <p className="text-foreground text-lg mb-2">Article not found</p>
+            <p className="text-muted-foreground mb-4">Check if the article ID is correct</p>
             <button
               onClick={handleBack}
               className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-smooth"
             >
-              Powrót do listy
+              Back to list
             </button>
           </div>
         </div>
@@ -218,13 +348,30 @@ Eksperci przewidują, że 2025 rok będzie przełomowy dla sztucznej inteligencj
     );
   }
 
-  const tabs = [
-    { id: 'content', label: 'Treść artykułu', icon: 'FileText' },
-    { id: 'analysis', label: 'Analiza AI', icon: 'Brain' },
-    { id: 'decision', label: 'Decyzja', icon: 'CheckCircle' },
-    { id: 'research', label: 'Badania', icon: 'Search' },
-    { id: 'history', label: 'Historia', icon: 'History' }
-  ];
+  const getVisibleTabs = () => {
+    const allTabs = [
+      { id: 'content', label: 'Article Content', icon: 'FileText' },
+      { id: 'analysis', label: 'AI Analysis', icon: 'Brain' },
+      { id: 'decision', label: 'Decision', icon: 'CheckCircle' },
+      { id: 'research', label: 'Research', icon: 'Search' },
+      { id: 'history', label: 'History', icon: 'History' }
+    ];
+
+    // For NEW, REJECTED, and ACCEPTED status articles, only show content tab
+    if (article?.status === 'NEW' || article?.status === 'REJECTED' || article?.status === 'ACCEPTED') {
+      return allTabs.filter(tab => tab.id === 'content');
+    }
+
+    // Filter out research tab if no research data exists
+    return allTabs.filter(tab => {
+      if (tab.id === 'research') {
+        return researchData && researchData.length > 0;
+      }
+      return true;
+    });
+  };
+
+  const tabs = getVisibleTabs();
 
   return (
     <div className="min-h-screen bg-background">
@@ -232,7 +379,7 @@ Eksperci przewidują, że 2025 rok będzie przełomowy dla sztucznej inteligencj
       {/* Article Header */}
       <ArticleHeader article={article} onBack={handleBack} />
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="w-full px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-8">
@@ -262,7 +409,7 @@ Eksperci przewidują, że 2025 rok będzie przełomowy dla sztucznej inteligencj
               )}
               
               {activeTab === 'analysis' && (
-                <ScoringPanel scores={mockScores} insights={mockInsights} />
+                <ScoringPanel scores={getScores()} insights={article?.keyTakeaways || []} />
               )}
               
               {activeTab === 'decision' && (
@@ -275,7 +422,7 @@ Eksperci przewidują, że 2025 rok będzie przełomowy dla sztucznej inteligencj
               
               {activeTab === 'research' && (
                 <ResearchPanel
-                  researchData={mockResearchData}
+                  researchData={researchData}
                   onAddResearch={handleAddResearch}
                 />
               )}
@@ -290,70 +437,66 @@ Eksperci przewidują, że 2025 rok będzie przełomowy dla sztucznej inteligencj
           <div className="space-y-6">
             {/* Quick Actions */}
             <div className="bg-card border border-border rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">Szybkie akcje</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h3>
               <div className="space-y-3">
-                <button
-                  onClick={() => setActiveTab('decision')}
-                  className="w-full flex items-center space-x-3 p-3 bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg transition-smooth"
-                >
-                  <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm">✓</span>
-                  </div>
-                  <span className="font-medium text-green-800">Zaakceptuj artykuł</span>
-                </button>
-                
-                <button
-                  onClick={() => setActiveTab('decision')}
-                  className="w-full flex items-center space-x-3 p-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-smooth"
-                >
-                  <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm">✗</span>
-                  </div>
-                  <span className="font-medium text-red-800">Odrzuć artykuł</span>
-                </button>
-                
-                <button
-                  onClick={() => setActiveTab('research')}
-                  className="w-full flex items-center space-x-3 p-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-lg transition-smooth"
-                >
-                  <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm">?</span>
-                  </div>
-                  <span className="font-medium text-orange-800">Wymaga badań</span>
-                </button>
+                {/* Accept Button - hide if already ACCEPTED */}
+                {article?.status !== 'ACCEPTED' && (
+                  <button
+                    onClick={() => handleActionSelect('accept')}
+                    className={`w-full flex items-center space-x-3 p-3 border rounded-lg transition-smooth ${
+                      selectedAction === 'accept'
+                        ? 'bg-green-100 border-green-400 ring-2 ring-green-200'
+                        : 'bg-green-50 hover:bg-green-100 border-green-200'
+                    }`}
+                  >
+                    <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+                      <span className="text-white text-sm">✓</span>
+                    </div>
+                    <span className="font-medium text-green-800">Accept Article</span>
+                  </button>
+                )}
+
+                {/* Reject Button - hide if already REJECTED */}
+                {article?.status !== 'REJECTED' && (
+                  <button
+                    onClick={() => handleActionSelect('reject')}
+                    className={`w-full flex items-center space-x-3 p-3 border rounded-lg transition-smooth ${
+                      selectedAction === 'reject'
+                        ? 'bg-red-100 border-red-400 ring-2 ring-red-200'
+                        : 'bg-red-50 hover:bg-red-100 border-red-200'
+                    }`}
+                  >
+                    <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
+                      <span className="text-white text-sm">✗</span>
+                    </div>
+                    <span className="font-medium text-red-800">Reject Article</span>
+                  </button>
+                )}
+
+
+                {/* Save Button */}
+                {selectedAction && (
+                  <button
+                    onClick={handleSaveAction}
+                    className="w-full flex items-center justify-center space-x-2 p-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-smooth mt-4"
+                  >
+                    <span className="font-medium">Save Decision</span>
+                  </button>
+                )}
               </div>
             </div>
 
-            {/* Category Panel */}
-            <CategoryPanel
-              category={article?.category}
-              priority={article?.priority}
-              targetAudience={article?.targetAudience}
-              confidence={mockConfidence}
-            />
+            {/* Category Panel - only show for non-NEW, non-REJECTED, and non-ACCEPTED articles */}
+            {article?.status !== 'NEW' && article?.status !== 'REJECTED' && article?.status !== 'ACCEPTED' && (
+              <CategoryPanel
+                category={article?.category}
+                subcategory={article?.subcategory}
+                priority={article?.priority}
+                targetAudience={article?.targetAudience}
+                confidence={mockConfidence}
+              />
+            )}
 
-            {/* Quick Stats */}
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">Statystyki</h3>
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Ocena AI:</span>
-                  <span className="font-semibold text-foreground">{mockScores?.final}/100</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Czas czytania:</span>
-                  <span className="font-semibold text-foreground">{article?.readingTime} min</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Słowa kluczowe:</span>
-                  <span className="font-semibold text-foreground">{article?.tags?.length}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Badania:</span>
-                  <span className="font-semibold text-foreground">{mockResearchData?.length}</span>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

@@ -5,7 +5,7 @@ const StatusBadge = ({ status, size = 'default' }) => {
     const configs = {
       NEW: {
         label: 'Nowy',
-        className: 'bg-blue-100 text-blue-800 border-blue-200'
+        className: 'bg-yellow-400 text-yellow-900 border-yellow-500'
       },
       PENDING_REVIEW: {
         label: 'Oczekuje przeglądu',
@@ -13,11 +13,11 @@ const StatusBadge = ({ status, size = 'default' }) => {
       },
       ACCEPTED: {
         label: 'Zaakceptowany',
-        className: 'bg-green-100 text-green-800 border-green-200'
+        className: 'bg-green-500 text-white border-green-600'
       },
       REJECTED: {
         label: 'Odrzucony',
-        className: 'bg-red-100 text-red-800 border-red-200'
+        className: 'bg-red-500 text-white border-red-600'
       },
       ARCHIVED: {
         label: 'Zarchiwizowany',
@@ -43,7 +43,7 @@ const StatusBadge = ({ status, size = 'default' }) => {
   const sizeClasses = size === 'sm' ? 'px-2 py-1 text-xs' : 'px-3 py-1 text-sm';
 
   return (
-    <span className={`inline-flex items-center rounded-full border font-medium ${sizeClasses} ${config?.className}`}>
+    <span className={`inline-flex items-center justify-center rounded-full border font-medium w-32 ${sizeClasses} ${config?.className}`}>
       {config?.label}
     </span>
   );

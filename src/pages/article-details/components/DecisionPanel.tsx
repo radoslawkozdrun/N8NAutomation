@@ -2,34 +2,29 @@ import React, { useState } from 'react';
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 import { useToast } from '../../../components/ui/Toast';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const DecisionPanel = ({ articleId, currentStatus, onDecisionMade }) => {
   const [selectedAction, setSelectedAction] = useState('');
   const [justification, setJustification] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { success, error } = useToast();
+  const { user } = useAuth();
 
   const actions = [
     {
       id: 'accept',
-      label: 'Zaakceptuj',
+      label: 'Accept',
       icon: 'Check',
       color: 'bg-green-600 hover:bg-green-700',
-      description: 'Artykuł zostanie opublikowany'
+      description: 'Article will be published'
     },
     {
       id: 'reject',
-      label: 'Odrzuć',
+      label: 'Reject',
       icon: 'X',
       color: 'bg-red-600 hover:bg-red-700',
-      description: 'Artykuł zostanie odrzucony'
-    },
-    {
-      id: 'needs_more',
-      label: 'Wymaga więcej informacji',
-      icon: 'AlertCircle',
-      color: 'bg-orange-600 hover:bg-orange-700',
-      description: 'Artykuł wymaga dodatkowych badań'
+      description: 'Article will be rejected'
     }
   ];
 
@@ -37,17 +32,17 @@ const DecisionPanel = ({ articleId, currentStatus, onDecisionMade }) => {
     e?.preventDefault();
     
     if (!selectedAction) {
-      error('Wybierz akcję do wykonania');
+      error('Select an action to perform');
       return;
     }
 
     if (!justification?.trim()) {
-      error('Uzasadnienie jest wymagane');
+      error('Justification is required');
       return;
     }
 
     if (justification?.trim()?.length < 10) {
-      error('Uzasadnienie musi mieć co najmniej 10 znaków');
+      error('Justification must be at least 10 characters');
       return;
     }
 
@@ -61,17 +56,17 @@ const DecisionPanel = ({ articleId, currentStatus, onDecisionMade }) => {
         action: selectedAction,
         justification: justification?.trim(),
         timestamp: new Date()?.toISOString(),
-        reviewer: 'Jan Kowalski'
+        reviewer: user?.username || 'Unknown User'
       };
 
       onDecisionMade(decision);
-      success(`Artykuł został ${selectedAction === 'accept' ? 'zaakceptowany' : selectedAction === 'reject' ? 'odrzucony' : 'oznaczony jako wymagający więcej informacji'}`);
-      
+      success(`Article has been ${selectedAction === 'accept' ? 'accepted' : 'rejected'}`);
+
       // Reset form
       setSelectedAction('');
       setJustification('');
     } catch (err) {
-      error('Wystąpił błąd podczas zapisywania decyzji');
+      error('An error occurred while saving the decision');
     } finally {
       setIsSubmitting(false);
     }
@@ -94,17 +89,17 @@ const DecisionPanel = ({ articleId, currentStatus, onDecisionMade }) => {
   return (
     <div className="bg-card border border-border rounded-lg p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-foreground">Panel decyzji</h2>
+        <h2 className="text-lg font-semibold text-foreground">Decision Panel</h2>
         <div className="flex items-center space-x-2">
           <Icon name="UserCheck" size={20} className="text-primary" />
-          <span className="text-sm text-muted-foreground">Recenzent: Jan Kowalski</span>
+          <span className="text-sm text-muted-foreground">Reviewer: {user?.username || 'Unknown User'}</span>
         </div>
       </div>
       {/* Current Status */}
       <div className="mb-6 p-4 bg-muted rounded-lg">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-medium text-foreground mb-1">Aktualny status</h3>
+            <h3 className="text-sm font-medium text-foreground mb-1">Current Status</h3>
             <span className="text-lg font-semibold text-primary">{currentStatus?.replace('_', ' ')}</span>
           </div>
           <Icon name="GitBranch" size={24} className="text-muted-foreground" />
@@ -114,7 +109,7 @@ const DecisionPanel = ({ articleId, currentStatus, onDecisionMade }) => {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Action Selection */}
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-foreground">Wybierz akcję</h3>
+          <h3 className="text-sm font-medium text-foreground">Select Action</h3>
           <div className="grid gap-3">
             {actions?.map((action) => (
               <button
@@ -144,18 +139,18 @@ const DecisionPanel = ({ articleId, currentStatus, onDecisionMade }) => {
         {/* Justification */}
         <div className="space-y-3">
           <label className="text-sm font-medium text-foreground">
-            Uzasadnienie decyzji *
+            Decision Justification *
           </label>
           <textarea
             value={justification}
             onChange={(e) => setJustification(e?.target?.value)}
-            placeholder="Opisz powody swojej decyzji. To uzasadnienie zostanie zapisane w historii zmian..."
+            placeholder="Describe the reasons for your decision. This justification will be saved in the change history..."
             className="w-full h-32 p-3 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
             required
             minLength={10}
           />
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Minimum 10 znaków</span>
+            <span>Minimum 10 characters</span>
             <span>{justification?.length}/500</span>
           </div>
         </div>
@@ -163,7 +158,7 @@ const DecisionPanel = ({ articleId, currentStatus, onDecisionMade }) => {
         {/* Submit Button */}
         <div className="flex items-center justify-between pt-4 border-t border-border">
           <div className="text-sm text-muted-foreground">
-            Decyzja zostanie zapisana w historii zmian
+            Decision will be saved in change history
           </div>
           <Button
             type="submit"
@@ -171,14 +166,14 @@ const DecisionPanel = ({ articleId, currentStatus, onDecisionMade }) => {
             disabled={!selectedAction || !justification?.trim()}
             className="min-w-32"
           >
-            {isSubmitting ? 'Zapisywanie...' : 'Zapisz decyzję'}
+            {isSubmitting ? 'Saving...' : 'Save Decision'}
           </Button>
         </div>
       </form>
       {/* Available Transitions */}
       {availableTransitions?.length > 0 && (
         <div className="mt-6 pt-6 border-t border-border">
-          <h3 className="text-sm font-medium text-foreground mb-3">Dostępne przejścia</h3>
+          <h3 className="text-sm font-medium text-foreground mb-3">Available Transitions</h3>
           <div className="flex flex-wrap gap-2">
             {availableTransitions?.map((status) => (
               <span

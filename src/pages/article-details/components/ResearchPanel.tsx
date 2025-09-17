@@ -183,59 +183,65 @@ const ResearchPanel = ({ researchData, onAddResearch }) => {
           </div>
         ) : (
           researchData?.map((research) => (
-            <div key={research?.id} className="border border-border rounded-lg p-4 space-y-3">
+            <div key={research?.id} className="border border-border rounded-lg p-4 space-y-4">
+              {/* Header with Query and Source Type */}
               <div className="flex items-start justify-between">
-                <div className="flex items-start space-x-3">
-                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <Icon name={getTypeIcon(research?.type)} size={20} className="text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <h3 className="font-medium text-foreground">{getTypeLabel(research?.type)}</h3>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(research?.status)}`}>
-                        {getStatusLabel(research?.status)}
-                      </span>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                      <Icon name={getTypeIcon(research?.research_type)} size={16} className="text-primary" />
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Źródło: {research?.source}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Dodane {formatDate(research?.createdAt)} przez {research?.createdBy}
-                    </p>
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                      {research?.research_type || 'Unknown Type'}
+                    </span>
                   </div>
+                  {research?.query && (
+                    <div className="mb-3">
+                      <h4 className="text-sm font-medium text-muted-foreground mb-1">Query:</h4>
+                      <p className="text-sm text-foreground font-medium">{research.query}</p>
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center space-x-2">
-                  {research?.url && (
+                  {research?.source_url && (
                     <Button
                       variant="ghost"
                       size="sm"
                       iconName="ExternalLink"
-                      onClick={() => window.open(research?.url, '_blank')}
+                      onClick={() => window.open(research?.source_url, '_blank')}
+                      title="Open source"
                     />
                   )}
                   <Button variant="ghost" size="sm" iconName="MoreVertical" />
                 </div>
               </div>
 
-              {research?.notes && (
-                <div className="bg-muted p-3 rounded-lg">
-                  <p className="text-sm text-foreground">{research?.notes}</p>
+              {/* Title */}
+              {research?.title && (
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-1">Title:</h4>
+                  <h3 className="text-lg font-semibold text-foreground">{research.title}</h3>
                 </div>
               )}
 
-              {research?.attachments && research?.attachments?.length > 0 && (
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium text-foreground">Załączniki:</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {research?.attachments?.map((attachment, index) => (
-                      <div key={index} className="flex items-center space-x-2 bg-muted px-3 py-1 rounded-lg">
-                        <Icon name="Paperclip" size={14} className="text-muted-foreground" />
-                        <span className="text-sm text-foreground">{attachment?.name}</span>
-                      </div>
-                    ))}
+              {/* Content */}
+              {research?.content && (
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-2">Content:</h4>
+                  <div className="bg-muted p-3 rounded-lg">
+                    <p className="text-sm text-foreground leading-relaxed">{research.content}</p>
                   </div>
                 </div>
               )}
+
+              {/* Additional Info */}
+              <div className="pt-2 border-t border-border">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>Added: {formatDate(research?.created_at)}</span>
+                  {research?.author && <span>Author: {research.author}</span>}
+                  {research?.publication_date && <span>Published: {formatDate(research.publication_date)}</span>}
+                </div>
+              </div>
             </div>
           ))
         )}

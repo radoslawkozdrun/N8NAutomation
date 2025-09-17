@@ -36,16 +36,16 @@ const ChangeHistory = ({ history }) => {
 
   const getActionLabel = (action) => {
     const labels = {
-      'created': 'Utworzono',
-      'status_changed': 'Zmieniono status',
-      'reviewed': 'Zrecenzowano',
-      'accepted': 'Zaakceptowano',
-      'rejected': 'Odrzucono',
-      'needs_more': 'Wymaga więcej informacji',
-      'archived': 'Zarchiwizowano',
-      'updated': 'Zaktualizowano'
+      'created': 'Created',
+      'status_changed': 'Status Changed',
+      'reviewed': 'Reviewed',
+      'accepted': 'Accepted',
+      'rejected': 'Rejected',
+      'needs_more': 'Needs More Information',
+      'archived': 'Archived',
+      'updated': 'Updated'
     };
-    return labels?.[action] || 'Nieznana akcja';
+    return labels?.[action] || 'Unknown Action';
   };
 
   const formatDate = (dateString) => {
@@ -63,10 +63,10 @@ const ChangeHistory = ({ history }) => {
   return (
     <div className="bg-card border border-border rounded-lg p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-foreground">Historia zmian</h2>
+        <h2 className="text-lg font-semibold text-foreground">Change History</h2>
         <div className="flex items-center space-x-2">
           <Icon name="History" size={20} className="text-primary" />
-          <span className="text-sm text-muted-foreground">{history?.length} wpisów</span>
+          <span className="text-sm text-muted-foreground">{history?.length} entries</span>
         </div>
       </div>
       <div className="space-y-4">
@@ -103,7 +103,7 @@ const ChangeHistory = ({ history }) => {
                     )}
                   </div>
                   <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                    <span>przez {entry?.user}</span>
+                    <span>by {entry?.user}</span>
                     <span>{formatDate(entry?.timestamp)}</span>
                   </div>
                 </div>
@@ -113,7 +113,7 @@ const ChangeHistory = ({ history }) => {
                   onClick={() => setSelectedEntry(selectedEntry === entry?.id ? null : entry?.id)}
                   iconName={selectedEntry === entry?.id ? "ChevronUp" : "ChevronDown"}
                 >
-                  {selectedEntry === entry?.id ? 'Zwiń' : 'Rozwiń'}
+                  {selectedEntry === entry?.id ? 'Collapse' : 'Expand'}
                 </Button>
               </div>
 
@@ -122,7 +122,7 @@ const ChangeHistory = ({ history }) => {
                 <div className="mt-4 pt-4 border-t border-border space-y-3">
                   {entry?.notes && (
                     <div>
-                      <h4 className="text-sm font-medium text-foreground mb-2">Notatki:</h4>
+                      <h4 className="text-sm font-medium text-foreground mb-2">Notes:</h4>
                       <p className="text-sm text-muted-foreground bg-muted p-3 rounded">
                         {entry?.notes}
                       </p>
@@ -131,7 +131,7 @@ const ChangeHistory = ({ history }) => {
                   
                   {entry?.changes && entry?.changes?.length > 0 && (
                     <div>
-                      <h4 className="text-sm font-medium text-foreground mb-2">Zmiany:</h4>
+                      <h4 className="text-sm font-medium text-foreground mb-2">Changes:</h4>
                       <div className="space-y-2">
                         {entry?.changes?.map((change, idx) => (
                           <div key={idx} className="text-sm bg-muted p-2 rounded">
@@ -146,7 +146,7 @@ const ChangeHistory = ({ history }) => {
 
                   {entry?.metadata && (
                     <div>
-                      <h4 className="text-sm font-medium text-foreground mb-2">Metadane:</h4>
+                      <h4 className="text-sm font-medium text-foreground mb-2">Metadata:</h4>
                       <div className="text-xs text-muted-foreground space-y-1">
                         <div>IP: {entry?.metadata?.ip}</div>
                         <div>User Agent: {entry?.metadata?.userAgent}</div>
@@ -170,8 +170,8 @@ const ChangeHistory = ({ history }) => {
             iconPosition="right"
           >
             {isExpanded 
-              ? `Pokaż mniej (ukryj ${history?.length - 3} wpisów)` 
-              : `Pokaż wszystkie (${history?.length - 3} więcej)`
+              ? `Show Less (hide ${history?.length - 3} entries)`
+              : `Show All (${history?.length - 3} more)`
             }
           </Button>
         </div>
@@ -180,10 +180,10 @@ const ChangeHistory = ({ history }) => {
       <div className="flex justify-end mt-6 pt-4 border-t border-border">
         <div className="flex items-center space-x-2">
           <Button variant="ghost" size="sm" iconName="Download" iconPosition="left">
-            Eksportuj historię
+            Export History
           </Button>
           <Button variant="ghost" size="sm" iconName="Printer" iconPosition="left">
-            Drukuj
+            Print
           </Button>
         </div>
       </div>

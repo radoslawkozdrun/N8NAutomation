@@ -27,18 +27,14 @@ const buildWhereClause = (filters, userFilter = {}) => {
   paramIndex = addUserConstraint(conditions, params, userFilter, paramIndex);
 
   // Filter by status
-  // If status is undefined, default to 'PENDING_REVIEW'
-  // If status is explicitly empty string, don't filter by status (show all)
-  if (filters.status === undefined) {
-    conditions.push(`status = $${paramIndex}`);
-    params.push('PENDING_REVIEW');
-    paramIndex++;
-  } else if (filters.status && filters.status !== '') {
+  // If status is undefined or empty string, don't filter by status (show all)
+  // If status has a specific value, filter by that status
+  if (filters.status && filters.status !== '') {
     conditions.push(`status = $${paramIndex}`);
     params.push(filters.status);
     paramIndex++;
   }
-  // If filters.status === '', no status condition is added (show all statuses)
+  // If filters.status is undefined or '', no status condition is added (show all statuses)
 
   if (filters.category) {
     conditions.push(`category = $${paramIndex}`);
@@ -171,7 +167,7 @@ router.get('/articles', authenticateToken, addUserFilter, async (req, res) => {
 
     // Get articles
     const articlesQuery = `
-      SELECT 
+      SELECT
         id,
         title,
         author,
@@ -191,8 +187,9 @@ router.get('/articles', authenticateToken, addUserFilter, async (req, res) => {
         key_takeways,
         reasoning,
         status,
+        review_justification,
         created_date
-      FROM content 
+      FROM content
       ${whereClause}
       ${orderBy}
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
@@ -242,12 +239,12 @@ router.get('/articles/:id', authenticateToken, requireOwnershipOrAdmin('article'
     console.log(`📄 Fetching article ${articleId}`);
 
     const result = await query(`
-      SELECT 
+      SELECT
         id, title, author, link, summary, content, category, subcategory,
         tags, priority, target_audience, relevance_score, novelty_score,
         viral_score, value_score, final_score, key_takeways, reasoning,
-        status, created_date
-      FROM content 
+        status, review_justification, created_date
+      FROM content
       WHERE id = $1
     `, [articleId]);
 
@@ -291,16 +288,16 @@ router.get('/articles/:id', authenticateToken, requireOwnershipOrAdmin('article'
 router.post('/articles/:id/decision', authenticateToken, requireOwnershipOrAdmin('article'), async (req, res) => {
   try {
     const articleId = parseInt(req.params.id);
-    const { action, notes } = req.body;
-    
+    const { action, notes, justification } = req.body;
+
     console.log(`⚡ Processing decision for article ${articleId}: ${action}`);
 
     // Validate action
-    const validActions = ['accept', 'reject', 'needs_more'];
+    const validActions = ['accept', 'reject'];
     if (!validActions.includes(action)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid action. Must be accept, reject, or needs_more',
+        message: 'Invalid action. Must be accept or reject',
         code: 'INVALID_ACTION'
       });
     }
@@ -308,20 +305,19 @@ router.post('/articles/:id/decision', authenticateToken, requireOwnershipOrAdmin
     // Map actions to status
     const statusMap = {
       'accept': 'ACCEPTED',
-      'reject': 'REJECTED',
-      'needs_more': 'NEEDS_MORE'
+      'reject': 'REJECTED'
     };
 
     const newStatus = statusMap[action];
     const now = new Date().toISOString();
 
-    // Update article
+    // Update article with justification
     const updateResult = await query(`
-      UPDATE content 
-      SET status = $1
-      WHERE id = $2
+      UPDATE content
+      SET status = $1, review_justification = $2
+      WHERE id = $3
       RETURNING *
-    `, [newStatus, articleId]);
+    `, [newStatus, justification || notes, articleId]);
 
     if (updateResult.rows.length === 0) {
       return res.status(404).json({
@@ -519,7 +515,7 @@ router.get('/articles/:id/research', authenticateToken, requireOwnershipOrAdmin(
     // For research, we check if user owns the article via the requireOwnershipOrAdmin middleware
     // No additional user filtering needed here since ownership is already verified
     const result = await query(`
-      SELECT 
+      SELECT
         id,
         search_id,
         source_url,
@@ -528,8 +524,9 @@ router.get('/articles/:id/research', authenticateToken, requireOwnershipOrAdmin(
         author,
         title,
         publication_date,
-        created_at
-      FROM research 
+        created_at,
+        query
+      FROM research
       WHERE article_id = $1
       ORDER BY created_at DESC
     `, [id]);
