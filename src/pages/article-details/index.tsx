@@ -5,7 +5,6 @@ import { api } from '../../lib/api';
 import ArticleHeader from './components/ArticleHeader';
 import ScoringPanel from './components/ScoringPanel';
 import CategoryPanel from './components/CategoryPanel';
-import DecisionPanel from './components/DecisionPanel';
 import ArticleContent from './components/ArticleContent';
 import ChangeHistory from './components/ChangeHistory';
 import ResearchPanel from './components/ResearchPanel';
@@ -99,7 +98,7 @@ const ArticleDetails = () => {
   // Mock article data (fallback)
   const mockArticle = {
     id: getArticleIdFromHash() || 'ART-2025-001',
-    title: "Przełomowe osiągnięcia w dziedzinie sztucznej inteligencji w 2025 roku",
+    title: "Breakthrough achievements in artificial intelligence in 2025",
     author: "Dr Anna Kowalska",
     publishedAt: "2025-01-05T08:30:00Z",
     source: "TechNews Poland",
@@ -107,29 +106,29 @@ const ArticleDetails = () => {
     url: "https://technews.pl/ai-breakthroughs-2025",
     imageUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=400&fit=crop",
     readingTime: 8,
-    language: "Polski",
-    region: "Polska",
+    language: "English",
+    region: "Global",
     status: "PENDING_REVIEW",
     category: "AI_ML",
     priority: "P1_TRENDING",
     targetAudience: "developers",
-    tags: ["sztuczna-inteligencja", "machine-learning", "technologia", "innowacje", "2025"],
-    summary: `Artykuł przedstawia najważniejsze osiągnięcia w dziedzinie sztucznej inteligencji w pierwszych miesiącach 2025 roku. Omawia nowe modele językowe, postępy w uczeniu maszynowym oraz praktyczne zastosowania AI w różnych branżach.`,
-    content: `Rok 2025 rozpoczął się spektakularnymi osiągnięciami w dziedzinie sztucznej inteligencji, które mogą na zawsze zmienić sposób, w jaki postrzegamy i wykorzystujemy technologię AI.
+    tags: ["artificial-intelligence", "machine-learning", "technology", "innovation", "2025"],
+    summary: `Article presents the most important achievements in artificial intelligence in the first months of 2025. It discusses new language models, advances in machine learning and practical applications of AI in various industries.`,
+    content: `The year 2025 began with spectacular achievements in artificial intelligence that could forever change the way we perceive and use AI technology.
 
-Najważniejszym przełomem jest wprowadzenie nowej generacji modeli językowych, które osiągnęły bezprecedensowy poziom zrozumienia kontekstu i generowania treści. Te modele nie tylko lepiej rozumieją ludzki język, ale także potrafią prowadzić bardziej naturalne i kontekstowe rozmowy.
+The most important breakthrough is the introduction of a new generation of language models that have achieved an unprecedented level of context understanding and content generation. These models not only better understand human language, but can also conduct more natural and contextual conversations.
 
-W dziedzinie uczenia maszynowego obserwujemy znaczące postępy w algorytmach uczenia ze wzmocnieniem. Nowe techniki pozwalają na szybsze i bardziej efektywne trenowanie modeli, co przekłada się na lepsze wyniki przy mniejszych kosztach obliczeniowych.
+In the field of machine learning, we are observing significant advances in reinforcement learning algorithms. New techniques allow for faster and more efficient model training, which translates into better results at lower computational costs.
 
-Szczególnie interesujące są zastosowania AI w medycynie, gdzie nowe systemy diagnostyczne osiągają dokładność przewyższającą ludzkich specjalistów w wykrywaniu niektórych chorób. To może zrewolucjonizować opiekę zdrowotną na całym świecie.
+Particularly interesting are AI applications in medicine, where new diagnostic systems achieve accuracy surpassing human specialists in detecting certain diseases. This could revolutionize healthcare worldwide.
 
-Branża finansowa również nie pozostaje w tyle, wprowadzając zaawansowane systemy AI do analizy ryzyka i wykrywania oszustw. Te rozwiązania pozwalają na znacznie szybsze i dokładniejsze podejmowanie decyzji finansowych.
+The financial industry is also not lagging behind, introducing advanced AI systems for risk analysis and fraud detection. These solutions enable much faster and more accurate financial decision-making.
 
-Nie można zapomnieć o postępach w dziedzinie robotyki, gdzie AI umożliwia tworzenie bardziej autonomicznych i inteligentnych robotów. Te maszyny mogą wykonywać coraz bardziej złożone zadania, od prac domowych po skomplikowane operacje przemysłowe.
+We cannot forget about advances in robotics, where AI enables the creation of more autonomous and intelligent robots. These machines can perform increasingly complex tasks, from household chores to complicated industrial operations.
 
-Wyzwania etyczne i regulacyjne pozostają jednak kluczowe. Wraz z rozwojem technologii AI, rośnie potrzeba opracowania odpowiednich ram prawnych i etycznych, które zapewnią bezpieczne i odpowiedzialne wykorzystanie tych technologii.
+However, ethical and regulatory challenges remain key. Along with the development of AI technology, there is a growing need to develop appropriate legal and ethical frameworks that will ensure safe and responsible use of these technologies.
 
-Eksperci przewidują, że 2025 rok będzie przełomowy dla sztucznej inteligencji, a osiągnięcia z pierwszych miesięcy to dopiero początek większej rewolucji technologicznej.`
+Experts predict that 2025 will be a breakthrough year for artificial intelligence, and the achievements from the first months are just the beginning of a larger technological revolution.`
   };
 
   // Get scores from current article or use defaults
@@ -153,11 +152,11 @@ Eksperci przewidują, że 2025 rok będzie przełomowy dla sztucznej inteligencj
   };
 
   const mockInsights = [
-    "Artykuł zawiera aktualne informacje o najnowszych trendach w AI",
-    "Wysoka wartość edukacyjna dla deweloperów i architektów",
-    "Potencjał do generowania wysokiego zaangażowania czytelników",
-    "Dobrze zbalansowana treść między teorią a praktycznymi zastosowaniami",
-    "Może stać się popularny w mediach społecznościowych"
+    "Article contains current information about the latest AI trends",
+    "High educational value for developers and architects",
+    "Potential to generate high reader engagement",
+    "Well-balanced content between theory and practical applications",
+    "May become popular on social media"
   ];
 
   const mockConfidence = {
@@ -172,7 +171,7 @@ Eksperci przewidują, że 2025 rok będzie przełomowy dla sztucznej inteligencj
       action: 'created',
       user: 'System RSS',
       timestamp: '2025-01-05T08:35:00Z',
-      notes: 'Artykuł automatycznie pobrany z RSS feed TechNews Poland',
+      notes: 'Article automatically downloaded from TechNews Poland RSS feed',
       metadata: {
         ip: '192.168.1.100',
         userAgent: 'RSS-Bot/1.0',
@@ -186,7 +185,7 @@ Eksperci przewidują, że 2025 rok będzie przełomowy dla sztucznej inteligencj
       timestamp: '2025-01-05T08:36:00Z',
       fromStatus: 'NEW',
       toStatus: 'PENDING_REVIEW',
-      notes: 'Automatyczna analiza AI zakończona, artykuł gotowy do recenzji',
+      notes: 'Automatic AI analysis completed, article ready for review',
       changes: [
         { field: 'Status', oldValue: 'NEW', newValue: 'PENDING_REVIEW' },
         { field: 'AI Score', oldValue: 'null', newValue: '87' }
@@ -202,7 +201,7 @@ Eksperci przewidują, że 2025 rok będzie przełomowy dla sztucznej inteligencj
       action: 'reviewed',
       user: 'Piotr Nowak',
       timestamp: '2025-01-05T09:15:00Z',
-      notes: 'Wstępna recenzja - artykuł wymaga dodatkowej weryfikacji źródeł',
+      notes: 'Initial review - article requires additional source verification',
       metadata: {
         ip: '192.168.1.45',
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
@@ -217,10 +216,10 @@ Eksperci przewidują, że 2025 rok będzie przełomowy dla sztucznej inteligencj
       type: 'source_verification',
       source: 'TechNews Poland',
       status: 'completed',
-      notes: 'Źródło zweryfikowane - renomowany portal technologiczny z 10-letnim doświadczeniem',
+      notes: 'Source verified - reputable technology portal with 10 years of experience',
       url: 'https://technews.pl/about',
       createdAt: '2025-01-05T09:00:00Z',
-      createdBy: 'Maria Wiśniewska',
+      createdBy: 'Maria Wisniewski',
       attachments: [
         { name: 'source-verification-report.pdf' }
       ]
@@ -230,7 +229,7 @@ Eksperci przewidują, że 2025 rok będzie przełomowy dla sztucznej inteligencj
       type: 'fact_check',
       source: 'AI Research Institute',
       status: 'in_progress',
-      notes: 'Sprawdzanie faktów dotyczących najnowszych osiągnięć w AI - oczekiwanie na odpowiedź eksperta',
+      notes: 'Fact-checking regarding latest AI achievements - waiting for expert response',
       createdAt: '2025-01-05T09:30:00Z',
       createdBy: 'Jan Kowalski'
     }
@@ -238,34 +237,22 @@ Eksperci przewidują, że 2025 rok będzie przełomowy dla sztucznej inteligencj
 
   useEffect(() => {
     loadArticle();
+  }, [window.location.hash]); // Reload when hash changes
+
+  // Also listen for hash changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      loadArticle();
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
   const handleBack = () => {
     navigate('/article-list');
   };
 
-  const handleDecisionMade = async (decision) => {
-    console.log('Decision made:', decision);
-
-    if (!article?.id) return;
-
-    try {
-      const response = await api.updateArticleStatus(article.id, decision);
-
-      // Update local article state with new status
-      setArticle(prev => ({
-        ...prev,
-        status: response.data.status
-      }));
-
-      const actionText = decision.action === 'accept' ? 'accepted' :
-                        decision.action === 'reject' ? 'rejected' : 'marked as needing more information';
-      success(`Article has been ${actionText}`);
-    } catch (err) {
-      console.error('Failed to update article status:', err);
-      error('Failed to update article status');
-    }
-  };
 
   const handleAddResearch = (research) => {
     console.log('Research added:', research);
@@ -352,7 +339,6 @@ Eksperci przewidują, że 2025 rok będzie przełomowy dla sztucznej inteligencj
     const allTabs = [
       { id: 'content', label: 'Article Content', icon: 'FileText' },
       { id: 'analysis', label: 'AI Analysis', icon: 'Brain' },
-      { id: 'decision', label: 'Decision', icon: 'CheckCircle' },
       { id: 'research', label: 'Research', icon: 'Search' },
       { id: 'history', label: 'History', icon: 'History' }
     ];
@@ -374,12 +360,12 @@ Eksperci przewidują, że 2025 rok będzie przełomowy dla sztucznej inteligencj
   const tabs = getVisibleTabs();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-full flex flex-col p-6 space-y-6">
       <ToastContainer removeToast={removeToast} />
       {/* Article Header */}
       <ArticleHeader article={article} onBack={handleBack} />
       {/* Main Content */}
-      <div className="w-full px-6 py-8">
+      <div className="w-full">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-8">
@@ -412,13 +398,6 @@ Eksperci przewidują, że 2025 rok będzie przełomowy dla sztucznej inteligencj
                 <ScoringPanel scores={getScores()} insights={article?.keyTakeaways || []} />
               )}
               
-              {activeTab === 'decision' && (
-                <DecisionPanel
-                  articleId={article?.id}
-                  currentStatus={article?.status}
-                  onDecisionMade={handleDecisionMade}
-                />
-              )}
               
               {activeTab === 'research' && (
                 <ResearchPanel

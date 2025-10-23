@@ -1,203 +1,93 @@
-import { type ClassValue, clsx } from 'clsx';
-import { format, formatDistanceToNow, isToday, isYesterday } from 'date-fns';
-import { ArticleCategory, Priority, TargetAudience } from '@/types';
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+import { format, formatDistanceToNow } from "date-fns"
 
-// Utility for combining Tailwind classes
 export function cn(...inputs: ClassValue[]) {
-  return clsx(inputs);
-}
-
-// Score-related utilities
-export function getScoreColor(score: number): string {
-  if (score >= 80) return 'text-score-high';
-  if (score >= 60) return 'text-yellow-600';
-  if (score >= 40) return 'text-orange-500';
-  return 'text-score-low';
-}
-
-export function getScoreBackgroundColor(score: number): string {
-  if (score >= 80) return 'bg-score-high';
-  if (score >= 60) return 'bg-yellow-500';
-  if (score >= 40) return 'bg-orange-500';
-  return 'bg-score-low';
-}
-
-export function getScoreGradient(score: number): string {
-  if (score >= 80) return 'from-green-400 to-green-600';
-  if (score >= 60) return 'from-yellow-400 to-yellow-600';
-  if (score >= 40) return 'from-orange-400 to-orange-600';
-  return 'from-red-400 to-red-600';
-}
-
-// Priority-related utilities
-export function getPriorityColor(priority: Priority): string {
-  const colors = {
-    P0_BREAKING: 'text-priority-p0',
-    P1_TRENDING: 'text-priority-p1',
-    P2_TIMELY: 'text-priority-p2',
-    P3_EVERGREEN: 'text-priority-p3',
-    P4_FILLER: 'text-priority-p4',
-  };
-  return colors[priority];
-}
-
-export function getPriorityBadgeColor(priority: Priority): string {
-  const colors = {
-    P0_BREAKING: 'bg-priority-p0 text-white',
-    P1_TRENDING: 'bg-priority-p1 text-white',
-    P2_TIMELY: 'bg-priority-p2 text-white',
-    P3_EVERGREEN: 'bg-priority-p3 text-white',
-    P4_FILLER: 'bg-priority-p4 text-white',
-  };
-  return colors[priority];
-}
-
-export function getPriorityLabel(priority: Priority): string {
-  const labels = {
-    P0_BREAKING: 'Breaking',
-    P1_TRENDING: 'Trending',
-    P2_TIMELY: 'Timely',
-    P3_EVERGREEN: 'Evergreen',
-    P4_FILLER: 'Filler',
-  };
-  return labels[priority];
-}
-
-// Category-related utilities
-export function getCategoryColor(category: ArticleCategory): string {
-  const colors = {
-    AI_ML: 'text-category-ai',
-    WEB_DEV: 'text-category-web',
-    MOBILE_DEV: 'text-category-mobile',
-    DATA_SCIENCE: 'text-category-data',
-    DEVOPS: 'text-category-devops',
-    SECURITY: 'text-category-security',
-    CLOUD: 'text-blue-500',
-    BLOCKCHAIN: 'text-purple-500',
-    IOT: 'text-green-500',
-    OTHER: 'text-gray-500',
-  };
-  return colors[category];
-}
-
-export function getCategoryBadgeColor(category: ArticleCategory): string {
-  const colors = {
-    AI_ML: 'bg-category-ai text-white',
-    WEB_DEV: 'bg-category-web text-white',
-    MOBILE_DEV: 'bg-category-mobile text-white',
-    DATA_SCIENCE: 'bg-category-data text-white',
-    DEVOPS: 'bg-category-devops text-white',
-    SECURITY: 'bg-category-security text-white',
-    CLOUD: 'bg-blue-500 text-white',
-    BLOCKCHAIN: 'bg-purple-500 text-white',
-    IOT: 'bg-green-500 text-white',
-    OTHER: 'bg-gray-500 text-white',
-  };
-  return colors[category];
-}
-
-export function getCategoryLabel(category: ArticleCategory): string {
-  const labels = {
-    AI_ML: 'AI/ML',
-    WEB_DEV: 'Web Dev',
-    MOBILE_DEV: 'Mobile',
-    DATA_SCIENCE: 'Data Science',
-    DEVOPS: 'DevOps',
-    SECURITY: 'Security',
-    CLOUD: 'Cloud',
-    BLOCKCHAIN: 'Blockchain',
-    IOT: 'IoT',
-    OTHER: 'Other',
-  };
-  return labels[category];
-}
-
-// Target audience utilities
-export function getAudienceLabel(audience: TargetAudience): string {
-  const labels = {
-    developers: 'Developers',
-    architects: 'Architects',
-    managers: 'Managers',
-    beginners: 'Beginners',
-    experts: 'Experts',
-    mixed: 'Mixed',
-  };
-  return labels[audience];
-}
-
-export function getAudienceBadgeColor(audience: TargetAudience): string {
-  const colors = {
-    developers: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-    architects: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-    managers: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-    beginners: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-    experts: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-    mixed: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
-  };
-  return colors[audience];
+  return twMerge(clsx(inputs))
 }
 
 // Date formatting utilities
-export function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  
-  if (isToday(date)) {
-    return `Today at ${format(date, 'HH:mm')}`;
-  }
-  
-  if (isYesterday(date)) {
-    return `Yesterday at ${format(date, 'HH:mm')}`;
-  }
-  
-  return format(date, 'MMM dd, yyyy');
+export function formatDate(date: string | Date): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return format(d, 'MMM dd, yyyy');
 }
 
-export function formatRelativeDate(dateString: string): string {
-  return formatDistanceToNow(new Date(dateString), { addSuffix: true });
+export function formatRelativeDate(date: string | Date): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return formatDistanceToNow(d, { addSuffix: true });
 }
 
-// Text utilities
-export function truncateText(text: string, maxLength: number): string {
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength).trim() + '...';
+// Category utilities
+export function getCategoryBadgeColor(category: string): string {
+  const colors: Record<string, string> = {
+    'technology': 'bg-blue-100 text-blue-800',
+    'business': 'bg-green-100 text-green-800',
+    'science': 'bg-purple-100 text-purple-800',
+    'health': 'bg-red-100 text-red-800',
+    'sports': 'bg-orange-100 text-orange-800',
+    'entertainment': 'bg-pink-100 text-pink-800',
+    'politics': 'bg-gray-100 text-gray-800',
+    'general': 'bg-gray-100 text-gray-800'
+  };
+  return colors[category.toLowerCase()] || colors['general'];
 }
 
-export function highlightSearchTerms(text: string, searchTerm: string): string {
-  if (!searchTerm) return text;
-  
-  const regex = new RegExp(`(${searchTerm})`, 'gi');
-  return text.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>');
+export function getCategoryLabel(category: string): string {
+  return category.charAt(0).toUpperCase() + category.slice(1);
 }
 
-// URL utilities
-export function isValidUrl(string: string): boolean {
-  try {
-    new URL(string);
-    return true;
-  } catch (_) {
-    return false;
-  }
+// Priority utilities
+export function getPriorityBadgeColor(priority: string): string {
+  const colors: Record<string, string> = {
+    'high': 'bg-red-100 text-red-800',
+    'medium': 'bg-yellow-100 text-yellow-800',
+    'low': 'bg-green-100 text-green-800'
+  };
+  return colors[priority.toLowerCase()] || colors['medium'];
 }
 
+export function getPriorityLabel(priority: string): string {
+  return priority.charAt(0).toUpperCase() + priority.slice(1);
+}
+
+// Audience utilities
+export function getAudienceBadgeColor(audience: string): string {
+  const colors: Record<string, string> = {
+    'general': 'bg-gray-100 text-gray-800',
+    'technical': 'bg-blue-100 text-blue-800',
+    'business': 'bg-green-100 text-green-800',
+    'academic': 'bg-purple-100 text-purple-800'
+  };
+  return colors[audience.toLowerCase()] || colors['general'];
+}
+
+export function getAudienceLabel(audience: string): string {
+  return audience.charAt(0).toUpperCase() + audience.slice(1);
+}
+
+// Domain extraction utility
 export function extractDomain(url: string): string {
   try {
-    return new URL(url).hostname;
-  } catch (_) {
+    const urlObj = new URL(url);
+    return urlObj.hostname.replace('www.', '');
+  } catch {
     return url;
   }
 }
 
-// Array utilities
-export function uniqueBy<T>(array: T[], key: keyof T): T[] {
-  const seen = new Set();
-  return array.filter(item => {
-    const value = item[key];
-    if (seen.has(value)) {
-      return false;
-    }
-    seen.add(value);
-    return true;
-  });
+// Score utilities
+export function getScoreColor(score: number): string {
+  if (score >= 80) return 'text-green-600';
+  if (score >= 60) return 'text-yellow-600';
+  if (score >= 40) return 'text-orange-600';
+  return 'text-red-600';
+}
+
+export function getScoreBackgroundColor(score: number): string {
+  if (score >= 80) return 'bg-green-100';
+  if (score >= 60) return 'bg-yellow-100';
+  if (score >= 40) return 'bg-orange-100';
+  return 'bg-red-100';
 }
 
 // Local storage utilities
@@ -205,8 +95,7 @@ export function getStoredValue<T>(key: string, defaultValue: T): T {
   try {
     const item = localStorage.getItem(key);
     return item ? JSON.parse(item) : defaultValue;
-  } catch (error) {
-    console.warn(`Error reading localStorage key "${key}":`, error);
+  } catch {
     return defaultValue;
   }
 }
@@ -214,23 +103,33 @@ export function getStoredValue<T>(key: string, defaultValue: T): T {
 export function setStoredValue<T>(key: string, value: T): void {
   try {
     localStorage.setItem(key, JSON.stringify(value));
-  } catch (error) {
-    console.warn(`Error setting localStorage key "${key}":`, error);
+  } catch {
+    // Ignore storage errors
   }
 }
 
-// Keyboard utilities
-export function isModifierKey(event: KeyboardEvent): boolean {
-  return event.ctrlKey || event.metaKey || event.altKey || event.shiftKey;
+// Keyboard shortcut utilities
+export function getKeyCombo(event: KeyboardEvent): string {
+  const parts: string[] = [];
+  if (event.ctrlKey) parts.push('Ctrl');
+  if (event.altKey) parts.push('Alt');
+  if (event.shiftKey) parts.push('Shift');
+  if (event.metaKey) parts.push('Meta');
+
+  const key = event.key;
+  if (!isModifierKey(key)) {
+    parts.push(key.toUpperCase());
+  }
+
+  return parts.join('+');
 }
 
-export function getKeyCombo(event: KeyboardEvent): string {
-  const modifiers: string[] = [];
-  
-  if (event.ctrlKey) modifiers.push('ctrl');
-  if (event.metaKey) modifiers.push('meta');
-  if (event.altKey) modifiers.push('alt');
-  if (event.shiftKey) modifiers.push('shift');
-  
-  return [...modifiers, event.key.toLowerCase()].join('+');
+export function isModifierKey(key: string): boolean {
+  return ['Control', 'Alt', 'Shift', 'Meta'].includes(key);
+}
+
+// Text truncation utility
+export function truncateText(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength).replace(/\s+\S*$/, '') + '...';
 }

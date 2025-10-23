@@ -1,6 +1,7 @@
 import React from 'react';
 import Icon from '../AppIcon';
 import Button from '../ui/Button';
+import DataTable from '../ui/DataTable';
 import { cn } from '../../utils/cn';
 
 const AccountTable = ({ 
@@ -32,23 +33,23 @@ const AccountTable = ({
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'connected': return 'text-success bg-success/10';
-      case 'error': return 'text-error bg-error/10';
-      case 'warning': return 'text-warning bg-warning/10';
-      case 'disconnected': return 'text-muted-foreground bg-muted';
-      case 'connecting': return 'text-primary bg-primary/10';
-      default: return 'text-muted-foreground bg-muted';
+      case 'connected': return 'bg-green-100 text-green-800';
+      case 'error': return 'bg-red-100 text-red-800';
+      case 'warning': return 'bg-yellow-100 text-yellow-800';
+      case 'disconnected': return 'bg-gray-100 text-gray-800';
+      case 'connecting': return 'bg-blue-100 text-blue-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStatusText = (status) => {
     switch (status) {
-      case 'connected': return 'Połączono';
-      case 'error': return 'Błąd';
-      case 'warning': return 'Ostrzeżenie';
-      case 'disconnected': return 'Rozłączono';
-      case 'connecting': return 'Łączenie...';
-      default: return 'Nieznany';
+      case 'connected': return 'Connected';
+      case 'error': return 'Error';
+      case 'warning': return 'Warning';
+      case 'disconnected': return 'Disconnected';
+      case 'connecting': return 'Connecting...';
+      default: return 'Unknown';
     }
   };
 
@@ -84,43 +85,22 @@ const AccountTable = ({
     return `${days} dni temu`;
   };
 
-  if (isLoading) {
+  if (accounts?.length === 0 && !isLoading) {
     return (
-      <div className="bg-card border border-border rounded-lg">
-        <div className="p-6">
-          <div className="animate-pulse space-y-4">
-            {Array.from({ length: 5 }, (_, i) => (
-              <div key={i} className="flex items-center space-x-4">
-                <div className="w-10 h-10 bg-muted rounded-full"></div>
-                <div className="flex-1">
-                  <div className="h-4 bg-muted rounded w-1/4 mb-2"></div>
-                  <div className="h-3 bg-muted rounded w-1/3"></div>
-                </div>
-                <div className="w-20 h-6 bg-muted rounded"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (accounts?.length === 0) {
-    return (
-      <div className="bg-card border border-border rounded-lg p-12">
+      <div className="bg-white rounded-lg border border-gray-200 p-12">
         <div className="text-center">
-          <Icon name="Users" size={48} className="mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-lg font-semibold text-foreground mb-2">
-            Brak kont
+          <Icon name="Users" size={48} className="mx-auto mb-4 text-gray-400" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            No Accounts
           </h3>
-          <p className="text-muted-foreground mb-6">
-            Nie znaleziono kont społecznościowych. Dodaj pierwsze konto, aby rozpocząć.
+          <p className="text-gray-600 mb-6">
+            No social media accounts found. Add the first account to get started.
           </p>
           <Button
             variant="default"
             iconName="Plus"
           >
-            Dodaj pierwsze konto
+            Add First Account
           </Button>
         </div>
       </div>
@@ -128,154 +108,177 @@ const AccountTable = ({
   }
 
   return (
-    <div className="bg-card border border-border rounded-lg overflow-hidden">
-      {/* Table Header */}
-      <div className="bg-muted/20 px-6 py-4 border-b border-border">
-        <div className="grid grid-cols-12 gap-4 text-sm font-medium text-muted-foreground">
-          <div className="col-span-3">Konto</div>
-          <div className="col-span-2">Platforma</div>
-          <div className="col-span-1">Status</div>
-          <div className="col-span-2">Ostatnia synchronizacja</div>
-          <div className="col-span-2">Limity API</div>
-          <div className="col-span-1">Stan</div>
-          <div className="col-span-1">Akcje</div>
-        </div>
-      </div>
-
-      {/* Table Body */}
-      <div className="divide-y divide-border">
-        {accounts?.map((account) => (
-          <div key={account?.id} className="px-6 py-4 hover:bg-muted/10 transition-colors">
-            <div className="grid grid-cols-12 gap-4 items-center">
-              {/* Account Info */}
-              <div className="col-span-3">
-                <div className="flex items-center space-x-3">
-                  <div className={cn("p-2 rounded-lg", getPlatformColor(account?.platform))}>
-                    <Icon name={getPlatformIcon(account?.platform)} size={16} className="text-white" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-foreground">
-                      {account?.displayName}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {account?.username}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {account?.followers?.toLocaleString()} obserwujących
-                    </div>
-                  </div>
+    <DataTable
+      columns={[
+        {
+          key: 'displayName',
+          label: 'Account',
+          sortable: true,
+          render: (value, row) => (
+            <div className="flex items-center space-x-3">
+              <div className={cn("p-2 rounded-lg", getPlatformColor(row.platform))}>
+                <Icon name={getPlatformIcon(row.platform)} size={16} className="text-white" />
+              </div>
+              <div>
+                <div className="font-medium text-gray-900">
+                  {row.displayName}
                 </div>
-              </div>
-
-              {/* Platform */}
-              <div className="col-span-2">
-                <span className="capitalize text-sm text-foreground">
-                  {account?.platform}
-                </span>
-              </div>
-
-              {/* Status */}
-              <div className="col-span-1">
-                <span className={cn(
-                  "px-2 py-1 rounded-full text-xs font-medium",
-                  getStatusColor(account?.status)
-                )}>
-                  {getStatusText(account?.status)}
-                </span>
-              </div>
-
-              {/* Last Sync */}
-              <div className="col-span-2">
-                <div className="text-sm text-foreground">
-                  {formatLastSync(account?.lastSync)}
+                <div className="text-sm text-gray-600">
+                  {row.username}
                 </div>
-                {account?.status === 'error' && account?.errorMessage && (
-                  <div className="text-xs text-error mt-1">
-                    {account?.errorMessage}
-                  </div>
-                )}
-                {account?.status === 'warning' && account?.warningMessage && (
-                  <div className="text-xs text-warning mt-1">
-                    {account?.warningMessage}
-                  </div>
-                )}
-              </div>
-
-              {/* API Rate Limits */}
-              <div className="col-span-2">
-                {account?.apiRateLimit && (
-                  <div className="text-sm">
-                    <div className={cn(
-                      "font-medium",
-                      getRateLimitColor(account?.apiRateLimit?.used, account?.apiRateLimit?.limit)
-                    )}>
-                      {account?.apiRateLimit?.used}/{account?.apiRateLimit?.limit}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Reset: {account?.apiRateLimit?.resetTime || 'N/A'}
-                    </div>
-                    <div className="w-full bg-muted rounded-full h-1 mt-1">
-                      <div 
-                        className={cn(
-                          "h-1 rounded-full transition-all",
-                          getRateLimitColor(account?.apiRateLimit?.used, account?.apiRateLimit?.limit)?.replace('text-', 'bg-')
-                        )}
-                        style={{ 
-                          width: `${(account?.apiRateLimit?.used / account?.apiRateLimit?.limit) * 100}%` 
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Health Status */}
-              <div className="col-span-1">
-                <div className="flex items-center space-x-1">
-                  <div className={cn(
-                    "w-2 h-2 rounded-full",
-                    getHealthColor(account?.connectionHealth)?.replace('text-', 'bg-')
-                  )}></div>
-                  <span className="text-xs text-muted-foreground capitalize">
-                    {account?.connectionHealth}
-                  </span>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="col-span-1">
-                <div className="flex items-center space-x-1">
-                  <Button
-                    variant="ghost"
-                    size="xs"
-                    iconName="Eye"
-                    onClick={() => onViewDetails?.(account)}
-                  >
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="xs"
-                    iconName="RefreshCw"
-                    onClick={() => onRefresh?.(account?.id)}
-                    disabled={account?.status === 'connecting'}
-                  >
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="xs"
-                    iconName="X"
-                    onClick={() => onDisconnect?.(account?.id)}
-                    disabled={account?.status === 'disconnected'}
-                    className="text-error hover:text-error"
-                  >
-                  </Button>
+                <div className="text-xs text-gray-500">
+                  {row.followers?.toLocaleString()} followers
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
-    </div>
+          )
+        },
+        {
+          key: 'platform',
+          label: 'Platform',
+          sortable: true,
+          render: (value) => (
+            <span className="capitalize text-sm text-gray-700">
+              {value}
+            </span>
+          )
+        },
+        {
+          key: 'status',
+          label: 'Status',
+          sortable: true,
+          render: (value) => (
+            <span className={cn(
+              "px-2 py-1 rounded-full text-xs font-medium",
+              getStatusColor(value)
+            )}>
+              {getStatusText(value)}
+            </span>
+          )
+        },
+        {
+          key: 'lastSync',
+          label: 'Last Sync',
+          sortable: true,
+          render: (value, row) => (
+            <div>
+              <div className="text-sm text-gray-700">
+                {formatLastSync(value)}
+              </div>
+              {row.status === 'error' && row.errorMessage && (
+                <div className="text-xs text-red-600 mt-1">
+                  {row.errorMessage}
+                </div>
+              )}
+              {row.status === 'warning' && row.warningMessage && (
+                <div className="text-xs text-yellow-600 mt-1">
+                  {row.warningMessage}
+                </div>
+              )}
+            </div>
+          )
+        },
+        {
+          key: 'apiRateLimit',
+          label: 'API Limits',
+          render: (value, row) => (
+            row.apiRateLimit ? (
+              <div className="text-sm">
+                <div className={cn(
+                  "font-medium",
+                  getRateLimitColor(row.apiRateLimit.used, row.apiRateLimit.limit)
+                )}>
+                  {row.apiRateLimit.used}/{row.apiRateLimit.limit}
+                </div>
+                <div className="text-xs text-gray-500">
+                  Reset: {row.apiRateLimit.resetTime || 'N/A'}
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
+                  <div
+                    className={cn(
+                      "h-1 rounded-full transition-all",
+                      getRateLimitColor(row.apiRateLimit.used, row.apiRateLimit.limit)?.replace('text-', 'bg-')
+                    )}
+                    style={{
+                      width: `${(row.apiRateLimit.used / row.apiRateLimit.limit) * 100}%`
+                    }}
+                  ></div>
+                </div>
+              </div>
+            ) : null
+          )
+        },
+        {
+          key: 'connectionHealth',
+          label: 'Health',
+          sortable: true,
+          render: (value) => (
+            <div className="flex items-center space-x-1">
+              <div className={cn(
+                "w-2 h-2 rounded-full",
+                getHealthColor(value)?.replace('text-', 'bg-')
+              )}></div>
+              <span className="text-xs text-gray-500 capitalize">
+                {value}
+              </span>
+            </div>
+          )
+        },
+        {
+          key: 'actions',
+          label: 'Actions',
+          className: 'text-right',
+          headerClassName: 'text-right',
+          render: (_, row) => (
+            <div className="flex items-center justify-end space-x-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                iconName="Eye"
+                iconSize={14}
+                onClick={() => onViewDetails?.(row)}
+                title="View details"
+                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                iconName="RefreshCw"
+                iconSize={14}
+                onClick={() => onRefresh?.(row.id)}
+                disabled={row.status === 'connecting'}
+                title="Refresh"
+                className="text-green-600 hover:text-green-700 hover:bg-green-50"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                iconName="X"
+                iconSize={14}
+                onClick={() => onDisconnect?.(row.id)}
+                disabled={row.status === 'disconnected'}
+                title="Disconnect"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              />
+            </div>
+          )
+        }
+      ]}
+      data={accounts || []}
+      keyField="id"
+      initialColumnWidths={{
+        displayName: 250,
+        platform: 120,
+        status: 120,
+        lastSync: 180,
+        apiRateLimit: 180,
+        connectionHealth: 120,
+        actions: 150
+      }}
+      storageKey="account-table-column-widths"
+      isLoading={isLoading}
+      emptyMessage="No social media accounts found"
+    />
   );
 };
 

@@ -1,0 +1,87 @@
+{
+  "mcpServers": {
+    "shadcn": {
+      "command": "npx",
+      "args": [
+        "shadcn@latest",
+        "mcp"
+      ],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    },
+    "playwright-test": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--browser", "chrome",
+        "--caps", "vision",
+        "--headless",
+        "--ignore-https-errors",
+        "--timeout-action", "10000",
+        "--timeout-navigation", "30000",
+        "--save-trace",
+        "--save-video", "1280x720",
+        "--output-dir", "./playwright-reports",
+        "--viewport-size", "1280x720",
+        "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
+      ],
+      "env": {
+        "NODE_ENV": "test"
+      }
+    },
+    "playwright-dev": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--browser", "chrome",
+        "--caps", "vision",
+        "--timeout-action", "10000",
+        "--timeout-navigation", "30000",
+        "--save-trace",
+        "--output-dir", "./playwright-reports",
+        "--viewport-size", "1920x1080",
+        "--allowed-hosts", "localhost,127.0.0.1",
+        "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
+      ],
+      "env": {
+        "NODE_ENV": "development"
+      }
+    },
+    "eslint": {
+			"command": "npx",
+			"args": ["@eslint/mcp@latest"],
+			"env": {}
+		},
+    "memory": {
+      "command": "npx",
+      "args": [
+          "-y",
+          "@modelcontextprotocol/server-memory"
+      ]
+    },
+    "firecrawl-mcp": {
+      "command": "npx",
+      "args": [
+          "-y",
+          "firecrawl-mcp"
+      ],
+      "env": {
+          "FIRECRAWL_API_KEY": "fc-22b10c77aabd4a29acbbd584a9ffc0ff"
+      }
+    },
+	"sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+	"mcp-compass": {
+      "command": "node",
+      "args": [
+         "/path/to/repo/build/index.js"
+      ]
+   }
+  }
+}

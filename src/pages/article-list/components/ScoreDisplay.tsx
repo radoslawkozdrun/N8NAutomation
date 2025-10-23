@@ -58,7 +58,7 @@ const ScoreDisplay = ({ scores, compact = false }) => {
     <div className="space-y-3">
       {/* Final Score */}
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-foreground">Ocena końcowa</span>
+        <span className="text-sm font-medium text-foreground">Final Score</span>
         <div className={`px-3 py-1 rounded-full text-sm font-semibold ${getScoreBackground(scores?.final)} ${getScoreColor(scores?.final)}`}>
           {scores?.final?.toFixed(1)}
         </div>

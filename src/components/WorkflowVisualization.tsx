@@ -83,44 +83,44 @@ const getNodeColor = (nodeType: string) => {
 const workflowPhases = [
   {
     id: 'rss-collection',
-    name: 'Zbieranie Treści RSS',
-    description: 'Automatyczne pobieranie artykułów z kanałów RSS',
-    nodes: ['Uruchom zasilanie RSS', 'Pobierz linki RSS', 'Waliduj URL', 'Pobierz dane RSS', 'Waliduj pobrane artykuły', 'Zapisz artykuły RSS do bazy'],
+    name: 'RSS Content Collection',
+    description: 'Automatic download of articles from RSS feeds',
+    nodes: ['Start RSS feed', 'Get RSS links', 'Validate URL', 'Download RSS data', 'Validate downloaded articles', 'Save RSS articles to database'],
     color: 'green'
   },
   {
     id: 'content-processing',
-    name: 'Przetwarzanie Treści',
-    description: 'Analiza i przetwarzanie pobranych artykułów przez AI',
-    nodes: ['Uruchom przetwarzanie artykułów RSS', 'Pobierz artykuly RSS', 'Oblicz HASH dla treści', 'Sprawdź czy artykuł nie był procesowany', '(AI) Napisz podsumowanie artykułu', 'Oblicz final score', 'Zapisz przetworzony artykuł do bazy'],
+    name: 'Content Processing',
+    description: 'Analysis and processing of downloaded articles by AI',
+    nodes: ['Start RSS articles processing', 'Get RSS articles', 'Calculate HASH for content', 'Check if article was not processed', '(AI) Write article summary', 'Calculate final score', 'Save processed article to database'],
     color: 'blue'
   },
   {
     id: 'review-notification',
-    name: 'Review i Powiadomienia',
-    description: 'Przegląd treści i powiadomienie o nowych artykułach',
-    nodes: ['Uruchom fazę powiadomienia o nowych tematach', 'Pobierz artykuły do review', 'Przygotuj treść maila o nowych artykułach', 'Send a message'],
+    name: 'Review and Notifications',
+    description: 'Content review and notification about new articles',
+    nodes: ['Start new topics notification phase', 'Get articles for review', 'Prepare email content about new articles', 'Send a message'],
     color: 'orange'
   },
   {
     id: 'decision-handling',
-    name: 'Obsługa Decyzji',
-    description: 'Webhook do obsługi decyzji użytkownika o treściach',
-    nodes: ['Informacja o decyzji na temat treści', 'Wyodrębnij status i id artykułu', 'Jeśli decyzja pozytywna', 'Zaktualizuj dane artykułu', 'Loguj akcje', 'Poinformuj o treści do wygenerowania'],
+    name: 'Decision Handling',
+    description: 'Webhook for handling user decisions about content',
+    nodes: ['Information about content decision', 'Extract status and article ID', 'If decision is positive', 'Update article data', 'Log actions', 'Inform about content to generate'],
     color: 'purple'
   },
   {
     id: 'research-phase',
-    name: 'Faza Research',
-    description: 'Dogłębny research tematów zaakceptowanych przez użytkownika',
-    nodes: ['Uruchom fazę research dla zaakceptowanych tematów', 'Pobierz artykuły do researchu', 'Zrób research na temat z artykułu', 'Generuj identyfikator wyszukiwania', 'Zapisz wyniki wyszukiwania na temat zagadnienia z artykułu', 'Zaktualizuj status w bazie artykułów', 'Wyślij powiadomienie o gotowym researchu'],
+    name: 'Research Phase',
+    description: 'In-depth research of topics accepted by the user',
+    nodes: ['Start research phase for accepted topics', 'Get articles for research', 'Do research on article topic', 'Generate search identifier', 'Save search results about article topic', 'Update status in articles database', 'Send notification about ready research'],
     color: 'indigo'
   },
   {
     id: 'content-generation',
-    name: 'Generowanie Treści',
-    description: 'Tworzenie finalnych postów na podstawie researchu',
-    nodes: ['Uruchom pisanie treści posta', 'Pobierz artykuł', 'Pobierz materiały dodatkowe dla artykułu', 'Scal artykuł z materiałami badawczymi'],
+    name: 'Content Generation',
+    description: 'Creating final posts based on research',
+    nodes: ['Start writing post content', 'Get article', 'Get additional materials for article', 'Merge article with research materials'],
     color: 'red'
   }
 ];
@@ -353,10 +353,10 @@ export function WorkflowVisualization() {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="skote-page-title">
             N8N Workflow Visualization
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-muted-foreground mt-2">
             {workflowData.name} • {workflowData.nodes.length} nodes
           </p>
         </div>

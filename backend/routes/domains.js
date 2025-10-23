@@ -5,7 +5,10 @@ const { authenticateToken, requireAdmin, auditLog, addUserFilter, addUserConstra
 const router = express.Router();
 
 // Get all domains with pagination and filtering
-router.get('/domains', authenticateToken, async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
+  console.log('🔍 Domains GET endpoint called');
+  console.log('Query params:', req.query);
+  console.log('User:', req.user);
   try {
     const {
       page = 1,
@@ -70,7 +73,8 @@ router.get('/domains', authenticateToken, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error getting domains:', error);
+    console.error('❌ Error getting domains:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
       message: 'Failed to get domains'
@@ -79,7 +83,7 @@ router.get('/domains', authenticateToken, async (req, res) => {
 });
 
 // Get single domain by ID
-router.get('/domains/:id', authenticateToken, async (req, res) => {
+router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -112,7 +116,7 @@ router.get('/domains/:id', authenticateToken, async (req, res) => {
 });
 
 // Create new domain (admin only)
-router.post('/domains', authenticateToken, requireAdmin, auditLog('CREATE_DOMAIN', 'domain'), async (req, res) => {
+router.post('/', authenticateToken, requireAdmin, auditLog('CREATE_DOMAIN', 'domain'), async (req, res) => {
   try {
     const { domain_id, domain_name, config, is_active = true } = req.body;
 
@@ -157,7 +161,7 @@ router.post('/domains', authenticateToken, requireAdmin, auditLog('CREATE_DOMAIN
 });
 
 // Update domain (admin only)
-router.put('/domains/:id', authenticateToken, requireAdmin, auditLog('UPDATE_DOMAIN', 'domain'), async (req, res) => {
+router.put('/:id', authenticateToken, requireAdmin, auditLog('UPDATE_DOMAIN', 'domain'), async (req, res) => {
   try {
     const { id } = req.params;
     const { domain_id, domain_name, config, is_active } = req.body;
@@ -244,7 +248,7 @@ router.put('/domains/:id', authenticateToken, requireAdmin, auditLog('UPDATE_DOM
 });
 
 // Toggle domain active status (admin only)
-router.patch('/domains/:id/toggle', authenticateToken, requireAdmin, auditLog('TOGGLE_DOMAIN', 'domain'), async (req, res) => {
+router.patch('/:id/toggle', authenticateToken, requireAdmin, auditLog('TOGGLE_DOMAIN', 'domain'), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -279,7 +283,7 @@ router.patch('/domains/:id/toggle', authenticateToken, requireAdmin, auditLog('T
 });
 
 // Delete domain (admin only)
-router.delete('/domains/:id', authenticateToken, requireAdmin, auditLog('DELETE_DOMAIN', 'domain'), async (req, res) => {
+router.delete('/:id', authenticateToken, requireAdmin, auditLog('DELETE_DOMAIN', 'domain'), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -319,7 +323,7 @@ router.delete('/domains/:id', authenticateToken, requireAdmin, auditLog('DELETE_
 });
 
 // Get domain statistics
-router.get('/domains/meta/stats', authenticateToken, async (req, res) => {
+router.get('/meta/stats', authenticateToken, async (req, res) => {
   try {
     const statsQuery = `
       SELECT 

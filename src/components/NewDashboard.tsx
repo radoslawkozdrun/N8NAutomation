@@ -36,23 +36,23 @@ export function NewDashboard() {
       id: 1,
       type: 'article_accepted',
       user: 'Piotr Nowak',
-      action: 'zaakceptował artykuł',
+      action: 'accepted article',
       target: 'React 18 - Nowe funkcje',
       timestamp: new Date(Date.now() - 300000)
     },
     {
       id: 2,
       type: 'article_rejected',
-      user: 'Maria Wiśniewska',
-      action: 'odrzucił artykuł',
-      target: 'Przestarzałe praktyki CSS',
+      user: 'Maria Wisniewska',
+      action: 'rejected article',
+      target: 'Outdated CSS practices',
       timestamp: new Date(Date.now() - 600000)
     },
     {
       id: 3,
       type: 'feed_added',
       user: 'Anna Kowalska',
-      action: 'dodał nowe źródło RSS',
+      action: 'added new RSS source',
       target: 'TechCrunch AI',
       timestamp: new Date(Date.now() - 900000)
     },
@@ -60,25 +60,25 @@ export function NewDashboard() {
       id: 4,
       type: 'bulk_operation',
       user: 'Tomasz Kowalczyk',
-      action: 'wykonał masową operację na',
-      target: '12 artykułach',
+      action: 'performed bulk operation on',
+      target: '12 articles',
       timestamp: new Date(Date.now() - 1200000)
     },
     {
       id: 5,
       type: 'user_login',
-      user: 'Katarzyna Zielińska',
-      action: 'zalogował się do systemu',
+      user: 'Katarzyna Zielinska',
+      action: 'logged into system',
       timestamp: new Date(Date.now() - 1800000)
     }
   ]);
 
   const [scoreDistribution] = useState([
-    { name: 'Trafność', value: 8.2 },
-    { name: 'Nowość', value: 7.5 },
-    { name: 'Wiralność', value: 6.8 },
-    { name: 'Wartość', value: 8.9 },
-    { name: 'Końcowy', value: 7.8 }
+    { name: 'Relevance', value: 8.2 },
+    { name: 'Novelty', value: 7.5 },
+    { name: 'Virality', value: 6.8 },
+    { name: 'Value', value: 8.9 },
+    { name: 'Final', value: 7.8 }
   ]);
 
   const [categoryDistribution] = useState([
@@ -87,7 +87,7 @@ export function NewDashboard() {
     { name: 'Mobile', value: 187 },
     { name: 'DevOps', value: 156 },
     { name: 'Security', value: 123 },
-    { name: 'Inne', value: 338 }
+    { name: 'Other', value: 338 }
   ]);
 
   const [feedStats] = useState({
@@ -100,14 +100,14 @@ export function NewDashboard() {
     {
       id: 1,
       feedName: 'TechCrunch RSS',
-      message: 'Timeout połączenia - przekroczono limit czasu',
+      message: 'Connection timeout - time limit exceeded',
       severity: 'high' as const,
       timestamp: new Date(Date.now() - 1800000)
     },
     {
       id: 2,
       feedName: 'Dev.to Feed',
-      message: 'Błąd parsowania XML - nieprawidłowa struktura',
+      message: 'XML parsing error - invalid structure',
       severity: 'medium' as const,
       timestamp: new Date(Date.now() - 3600000)
     }
@@ -119,37 +119,37 @@ export function NewDashboard() {
       case 'PENDING_REVIEW': 
       case 'NEEDS_MORE':
         // navigate(`/article-list?status=${action}`);
-        toast.success(`Przekierowanie do artykułów: ${action}`);
+        toast.success(`Redirecting to articles: ${action}`);
         break;
       case 'BULK_ACCEPT': 
-        toast.success('Przekierowanie do operacji masowych...');
+        toast.success('Redirecting to bulk operations...');
         // navigate('/article-list?bulk=true');
         break;
       case 'HIGH_PRIORITY': 
-        toast.success('Przekierowanie do wysokich priorytetów...');
+        toast.success('Redirecting to high priorities...');
         // navigate('/article-list?priority=P0_BREAKING,P1_TRENDING');
         break;
       case 'review_pending': 
-        toast.success('Przekierowanie do przeglądu oczekujących...');
+        toast.success('Redirecting to pending review...');
         // navigate('/article-list?status=PENDING_REVIEW');
         break;
       case 'bulk_operations': 
-        toast.success('Przekierowanie do operacji masowych...');
+        toast.success('Redirecting to bulk operations...');
         // navigate('/article-list?bulk=true');
         break;
       case 'add_feed': 
-        toast.success('Przekierowanie do dodawania źródeł RSS...');
+        toast.success('Redirecting to RSS sources management...');
         // navigate('/rss-feed-management?action=add');
         break;
       case 'manage_users': 
-        toast.success('Przekierowanie do zarządzania użytkownikami...');
+        toast.success('Redirecting to user management...');
         // navigate('/user-management');
         break;
       case 'export_data':
-        toast.success('Rozpoczęto eksport danych. Plik zostanie pobrany za chwilę.');
+        toast.success('Data export started. File will be downloaded shortly.');
         break;
       case 'system_settings': 
-        toast.success('Funkcja ustawień systemu będzie dostępna wkrótce.');
+        toast.success('System settings feature will be available soon.');
         break;
       default:
         break;
@@ -157,23 +157,23 @@ export function NewDashboard() {
   };
 
   const handleViewAllArticles = () => {
-    toast.success('Przekierowanie do wszystkich artykułów...');
+    toast.success('Redirecting to all articles...');
     // navigate('/article-list');
   };
 
   const handleViewFeedDetails = () => {
-    toast.success('Przekierowanie do zarządzania źródłami RSS...');
+    toast.success('Redirecting to RSS sources management...');
     // navigate('/rss-feed-management');
   };
 
   const handleStatCardClick = (type: string) => {
     switch (type) {
       case 'articles': 
-        toast.success('Przekierowanie do artykułów...');
+        toast.success('Redirecting to articles...');
         // navigate('/article-list');
         break;
       case 'feeds': 
-        toast.success('Przekierowanie do źródeł RSS...');
+        toast.success('Redirecting to RSS sources...');
         // navigate('/rss-feed-management');
         break;
       default:
@@ -187,11 +187,11 @@ export function NewDashboard() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">
-              Panel główny
+            <h1 className="skote-page-title">
+              Dashboard
             </h1>
-            <p className="text-muted-foreground mt-1">
-              Witaj ponownie, {user?.name}! Oto przegląd Twojej aktywności.
+            <p className="text-muted-foreground mt-2">
+              Welcome back, {user?.name}! Here's your activity overview.
             </p>
           </div>
           <div className="text-right">
@@ -207,34 +207,34 @@ export function NewDashboard() {
         {/* Key Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
-            title="Łączna liczba artykułów"
+            title="Total Articles Count"
             value={dashboardStats?.totalArticles?.toLocaleString('pl-PL')}
             change={dashboardStats?.weeklyGrowth}
             changeType="positive"
             icon="FileText"
-            description="Wszystkie artykuły w systemie"
+            description="All articles in the system"
             onClick={() => handleStatCardClick('articles')}
           />
           <StatCard
-            title="Oczekujące przeglądu"
+            title="Pending Review"
             value={dashboardStats?.pendingReview}
             icon="Clock"
-            description="Artykuły wymagające decyzji"
+            description="Articles requiring decisions"
             onClick={() => handleQuickAction('PENDING_REVIEW')}
           />
           <StatCard
-            title="Średni wynik AI"
+            title="Average AI Score"
             value={dashboardStats?.averageScore}
             change="+0.3"
             changeType="positive"
             icon="TrendingUp"
-            description="Średnia ocena jakości"
+            description="Average quality rating"
           />
           <StatCard
-            title="Aktywne źródła RSS"
+            title="Active RSS Sources"
             value={dashboardStats?.activeFeeds}
             icon="Rss"
-            description="Działające źródła artykułów"
+            description="Working article sources"
             onClick={() => handleStatCardClick('feeds')}
           />
         </div>
@@ -255,12 +255,12 @@ export function NewDashboard() {
               <ScoreDistributionChart
                 data={scoreDistribution}
                 type="bar"
-                title="Średnie wyniki AI"
+                title="Average AI Scores"
               />
               <ScoreDistributionChart
                 data={categoryDistribution}
                 type="pie"
-                title="Rozkład kategorii"
+                title="Category Distribution"
               />
             </div>
 
@@ -293,16 +293,16 @@ export function NewDashboard() {
             title="Przetworzone dzisiaj"
             value={dashboardStats?.todayProcessed}
             icon="CheckCircle"
-            description="Artykuły przejrzane dzisiaj"
+            description="Articles reviewed today"
           />
           <StatCard
-            title="Średni czas przeglądu"
+            title="Average Review Time"
             value="2.3 min"
             icon="Timer"
-            description="Czas na artykuł"
+            description="Time per article"
           />
           <StatCard
-            title="Wskaźnik akceptacji"
+            title="Acceptance Rate"
             value="78%"
             change="+5%"
             changeType="positive"

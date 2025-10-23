@@ -3,14 +3,14 @@ import Icon from '../../../components/AppIcon';
 
 const ArticleInsights = ({ article }) => {
   const insights = [
-    `Artykuł zawiera ${article?.content?.split(' ')?.length} słów i został opublikowany przez ${article?.author}`,
-    `Grupa docelowa: ${article?.targetAudience === 'developers' ? 'Deweloperzy' : 
-      article?.targetAudience === 'architects' ? 'Architekci' : 
-      article?.targetAudience === 'managers' ? 'Menedżerowie' : 
-      article?.targetAudience === 'beginners' ? 'Początkujący' : 
-      article?.targetAudience === 'experts' ? 'Eksperci' : 'Mieszana'}`,
-    `Wysokie wyniki w kategoriach: ${article?.aiScores?.relevance > 70 ? 'Relevance ' : ''}${article?.aiScores?.novelty > 70 ? 'Novelty ' : ''}${article?.aiScores?.viral > 70 ? 'Viral ' : ''}${article?.aiScores?.value > 70 ? 'Value' : ''}`,
-    `Źródło RSS: ${article?.source} - ostatnia aktualizacja ${new Date(article.publishedAt)?.toLocaleDateString('pl-PL')}`
+    `Article contains ${article?.content?.split(' ')?.length} words and was published by ${article?.author}`,
+    `Target audience: ${article?.targetAudience === 'developers' ? 'Developers' :
+      article?.targetAudience === 'architects' ? 'Architects' :
+      article?.targetAudience === 'managers' ? 'Managers' :
+      article?.targetAudience === 'beginners' ? 'Beginners' :
+      article?.targetAudience === 'experts' ? 'Experts' : 'Mixed'}`,
+    `High scores in categories: ${article?.aiScores?.relevance > 70 ? 'Relevance ' : ''}${article?.aiScores?.novelty > 70 ? 'Novelty ' : ''}${article?.aiScores?.viral > 70 ? 'Viral ' : ''}${article?.aiScores?.value > 70 ? 'Value' : ''}`,
+    `RSS source: ${article?.source} - last update ${new Date(article.publishedAt)?.toLocaleDateString('en-US')}`
   ];
 
   const keyTopics = article?.tags || ['React', 'JavaScript', 'Web Development', 'Frontend'];
@@ -19,13 +19,13 @@ const ArticleInsights = ({ article }) => {
     <div className="p-4 space-y-4">
       <div className="flex items-center space-x-2 mb-3">
         <Icon name="Lightbulb" size={16} className="text-primary" />
-        <h4 className="text-sm font-medium text-foreground">Kluczowe informacje AI</h4>
+        <h4 className="text-sm font-medium text-foreground">AI Key Information</h4>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* AI Insights */}
         <div className="space-y-2">
           <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-            Analiza AI
+            AI Analysis
           </h5>
           <ul className="space-y-1">
             {insights?.map((insight, index) => (
@@ -40,7 +40,7 @@ const ArticleInsights = ({ article }) => {
         {/* Key Topics */}
         <div className="space-y-2">
           <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-            Kluczowe tematy
+            Key Topics
           </h5>
           <div className="flex flex-wrap gap-2">
             {keyTopics?.map((topic, index) => (
@@ -57,7 +57,7 @@ const ArticleInsights = ({ article }) => {
       {/* Article Preview */}
       <div className="space-y-2">
         <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          Podgląd treści
+          Content Preview
         </h5>
         <p className="text-sm text-foreground leading-relaxed">
           {article?.content?.substring(0, 300)}...
@@ -67,7 +67,7 @@ const ArticleInsights = ({ article }) => {
       {article?.researchMaterials && article?.researchMaterials?.length > 0 && (
         <div className="space-y-2">
           <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-            Materiały badawcze
+            Research Materials
           </h5>
           <div className="space-y-1">
             {article?.researchMaterials?.map((material, index) => (

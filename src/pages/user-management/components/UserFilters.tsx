@@ -12,25 +12,25 @@ const UserFilters = ({
   totalUsers 
 }) => {
   const roleOptions = [
-    { value: '', label: 'Wszystkie role' },
+    { value: '', label: 'All roles' },
     { value: 'ADMIN', label: 'Administrator' },
-    { value: 'USER', label: 'Użytkownik' },
+    { value: 'USER', label: 'User' },
     { value: 'DEMO', label: 'Demo' }
   ];
 
   const statusOptions = [
-    { value: '', label: 'Wszystkie statusy' },
-    { value: 'ACTIVE', label: 'Aktywny' },
-    { value: 'INACTIVE', label: 'Nieaktywny' }
+    { value: '', label: 'All statuses' },
+    { value: 'ACTIVE', label: 'Active' },
+    { value: 'INACTIVE', label: 'Inactive' }
   ];
 
   const bulkActionOptions = [
-    { value: '', label: 'Wybierz akcję...' },
-    { value: 'activate', label: 'Aktywuj zaznaczonych' },
-    { value: 'deactivate', label: 'Dezaktywuj zaznaczonych' },
-    { value: 'change_role_user', label: 'Zmień rolę na USER' },
-    { value: 'change_role_demo', label: 'Zmień rolę na DEMO' },
-    { value: 'export', label: 'Eksportuj zaznaczonych' }
+    { value: '', label: 'Select action...' },
+    { value: 'activate', label: 'Activate selected' },
+    { value: 'deactivate', label: 'Deactivate selected' },
+    { value: 'change_role_user', label: 'Change role to USER' },
+    { value: 'change_role_demo', label: 'Change role to DEMO' },
+    { value: 'export', label: 'Export selected' }
   ];
 
   const handleBulkAction = (action) => {
@@ -45,21 +45,21 @@ const UserFilters = ({
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Input
           type="search"
-          placeholder="Szukaj użytkowników..."
+          placeholder="Search users..."
           value={filters?.search}
           onChange={(e) => onFilterChange('search', e?.target?.value)}
           className="md:col-span-2"
         />
         
         <Select
-          placeholder="Filtruj po roli"
+          placeholder="Filter by role"
           options={roleOptions}
           value={filters?.role}
           onChange={(value) => onFilterChange('role', value)}
         />
         
         <Select
-          placeholder="Filtruj po statusie"
+          placeholder="Filter by status"
           options={statusOptions}
           value={filters?.status}
           onChange={(value) => onFilterChange('status', value)}
@@ -69,7 +69,7 @@ const UserFilters = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <p className="text-sm text-muted-foreground">
-            Znaleziono {totalUsers} użytkowników
+            Found {totalUsers} users
             {selectedUsers?.length > 0 && (
               <span className="ml-2 text-primary">
                 ({selectedUsers?.length} zaznaczonych)
@@ -80,7 +80,7 @@ const UserFilters = ({
           {selectedUsers?.length > 0 && (
             <div className="flex items-center space-x-2">
               <Select
-                placeholder="Akcje masowe"
+                placeholder="Bulk actions"
                 options={bulkActionOptions}
                 value=""
                 onChange={handleBulkAction}
@@ -97,7 +97,7 @@ const UserFilters = ({
             iconName="X"
             iconSize={16}
           >
-            Wyczyść filtry
+            Clear Filters
           </Button>
         </div>
       </div>

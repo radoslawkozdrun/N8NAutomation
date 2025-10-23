@@ -13,6 +13,10 @@ interface ToastContextType {
   toasts: Toast[];
   addToast: (toast: Omit<Toast, 'id'>) => void;
   removeToast: (id: string) => void;
+  success: (title: string, message?: string) => void;
+  error: (title: string, message?: string) => void;
+  warning: (title: string, message?: string) => void;
+  info: (title: string, message?: string) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -43,11 +47,96 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     setToasts(prev => prev.filter(toast => toast.id !== id));
   }, []);
 
+  const success = useCallback((title: string, message?: string) => {
+    addToast({ type: 'success', title, message });
+  }, [addToast]);
+
+  const error = useCallback((title: string, message?: string) => {
+    addToast({ type: 'error', title, message });
+  }, [addToast]);
+
+  const warning = useCallback((title: string, message?: string) => {
+    addToast({ type: 'warning', title, message });
+  }, [addToast]);
+
+  const info = useCallback((title: string, message?: string) => {
+    addToast({ type: 'info', title, message });
+  }, [addToast]);
+
   return (
-    <ToastContext.Provider value={{ toasts, addToast, removeToast }}>
+    <ToastContext.Provider value={{ toasts, addToast, removeToast, success, error, warning, info }}>
       {children}
       <ToastContainer />
     </ToastContext.Provider>
+  );
+}
+
+// Simple Toast component for direct usage (as expected by N8NConfigModal)
+interface SimpleToastProps {
+  message: string;
+  type: 'success' | 'error' | 'warning' | 'info';
+  onClose: () => void;
+  duration?: number;
+}
+
+export default function SimpleToast({ message, type, onClose, duration = 5000 }: SimpleToastProps) {
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, duration);
+
+    return () => clearTimeout(timer);
+  }, [duration, onClose]);
+
+  const getIcon = () => {
+    switch (type) {
+      case 'success':
+        return <CheckCircle className="w-5 h-5 text-green-600" />;
+      case 'error':
+        return <XCircle className="w-5 h-5 text-red-600" />;
+      case 'warning':
+        return <AlertCircle className="w-5 h-5 text-yellow-600" />;
+      default:
+        return <AlertCircle className="w-5 h-5 text-blue-600" />;
+    }
+  };
+
+  const getBackgroundColor = () => {
+    switch (type) {
+      case 'success':
+        return 'bg-green-50 border-green-200';
+      case 'error':
+        return 'bg-red-50 border-red-200';
+      case 'warning':
+        return 'bg-yellow-50 border-yellow-200';
+      default:
+        return 'bg-blue-50 border-blue-200';
+    }
+  };
+
+  return (
+    <div className="fixed top-4 right-4 z-50 max-w-xs">
+      <div className={`w-full border rounded-lg shadow-lg p-3 ${getBackgroundColor()}`}>
+        <div className="flex items-start">
+          <div className="flex-shrink-0">
+            {getIcon()}
+          </div>
+          <div className="ml-2 flex-1 min-w-0">
+            <p className="skote-body-text font-medium text-gray-900 break-words">
+              {message}
+            </p>
+          </div>
+          <div className="ml-2 flex-shrink-0">
+            <button
+              onClick={onClose}
+              className="inline-flex text-gray-400 hover:text-gray-500 focus:outline-none"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -83,27 +172,27 @@ export function ToastContainer() {
   };
 
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-2">
+    <div className="fixed top-4 right-4 z-50 space-y-2 max-w-xs">
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className={`max-w-sm w-full border rounded-lg shadow-lg p-4 ${getBackgroundColor(toast.type)}`}
+          className={`w-full border rounded-lg shadow-lg p-3 ${getBackgroundColor(toast.type)}`}
         >
           <div className="flex items-start">
             <div className="flex-shrink-0">
               {getIcon(toast.type)}
             </div>
-            <div className="ml-3 w-0 flex-1">
-              <p className="text-sm font-medium text-gray-900">
+            <div className="ml-2 flex-1 min-w-0">
+              <p className="skote-body-text font-medium text-gray-900 break-words">
                 {toast.title}
               </p>
               {toast.message && (
-                <p className="mt-1 text-sm text-gray-700">
+                <p className="mt-1 skote-body-text text-gray-700 break-words">
                   {toast.message}
                 </p>
               )}
             </div>
-            <div className="ml-4 flex-shrink-0 flex">
+            <div className="ml-2 flex-shrink-0">
               <button
                 onClick={() => removeToast(toast.id)}
                 className="inline-flex text-gray-400 hover:text-gray-500 focus:outline-none"

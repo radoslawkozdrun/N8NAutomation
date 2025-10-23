@@ -31,7 +31,7 @@ export default function Select({
   return (
     <div className="space-y-2">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label className="block skote-body-text font-medium text-foreground">
           {label}
         </label>
       )}
@@ -41,11 +41,11 @@ export default function Select({
           onChange={(e) => onChange?.(e.target.value)}
           disabled={disabled}
           className={cn(
-            "block w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm",
-            "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100",
-            "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+            "block w-full px-3 py-2 pr-10 border border-border rounded-md shadow-sm",
+            "bg-background text-foreground appearance-none",
+            "focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary",
             "disabled:opacity-50 disabled:cursor-not-allowed",
-            error && "border-red-300 dark:border-red-600",
+            error && "border-destructive",
             className
           )}
         >
@@ -61,11 +61,11 @@ export default function Select({
           ))}
         </select>
         <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-          <ChevronDown className="h-5 w-5 text-gray-400" />
+          <ChevronDown className="h-5 w-5 text-muted-foreground" />
         </div>
       </div>
       {error && (
-        <p className="text-sm text-red-600 dark:text-red-400">
+        <p className="skote-body-text text-destructive">
           {error}
         </p>
       )}

@@ -18,6 +18,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import Button from './ui/Button';
+import DataTable, { Column } from './ui/DataTable';
 import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/utils';
 import { api } from '@/lib/api';
@@ -267,10 +268,10 @@ export function DomainManagement() {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="skote-page-title">
             Domain Management
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-muted-foreground mt-2">
             Manage content domains and their configurations
           </p>
         </div>
@@ -360,19 +361,21 @@ export function DomainManagement() {
       </div>
 
       {/* Domains Table */}
-      <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-        {loading && domains.length === 0 ? (
-          <div className="flex items-center justify-center p-12">
+      {loading && domains.length === 0 ? (
+        <div className="bg-white rounded-lg border border-gray-200 p-12">
+          <div className="flex items-center justify-center">
             <RefreshCw className="w-8 h-8 animate-spin text-blue-600 mr-3" />
-            <span className="text-gray-600 dark:text-gray-400">Loading domains...</span>
+            <span className="text-gray-600">Loading domains...</span>
           </div>
-        ) : domains.length === 0 ? (
-          <div className="flex flex-col items-center justify-center p-12 text-center">
+        </div>
+      ) : domains.length === 0 ? (
+        <div className="bg-white rounded-lg border border-gray-200 p-12">
+          <div className="flex flex-col items-center justify-center text-center">
             <Globe className="w-16 h-16 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
               No domains found
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-gray-600 mb-4">
               Get started by adding your first domain configuration.
             </p>
             <Button onClick={() => setShowAddModal(true)}>
@@ -380,114 +383,131 @@ export function DomainManagement() {
               Add First Domain
             </Button>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Domain
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Version
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Last Updated
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {domains.map((domain) => (
-                  <tr key={domain.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                    <td className="px-6 py-4">
-                      <div className="max-w-sm">
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {domain.domain_name}
-                        </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
-                          {domain.domain_id}
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                          {domain.config.target_persona}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <Badge className={getStatusBadgeColor(domain.is_active)}>
-                        {domain.is_active ? 'Active' : 'Inactive'}
-                      </Badge>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                      v{domain.version}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                      {new Date(domain.updated_at).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-center space-x-2">
-                        <button
-                          onClick={() => toggleDomain(domain.id)}
-                          className={cn(
-                            'p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700',
-                            domain.is_active ? 'text-green-600' : 'text-gray-400'
-                          )}
-                          title={domain.is_active ? 'Deactivate domain' : 'Activate domain'}
-                        >
-                          {domain.is_active ? (
-                            <Power className="w-4 h-4" />
-                          ) : (
-                            <PowerOff className="w-4 h-4" />
-                          )}
-                        </button>
-                        
-                        <button
-                          onClick={() => {
-                            console.log('View button clicked for domain:', domain.id, domain.domain_name);
-                            openViewModal(domain);
-                          }}
-                          className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-blue-600"
-                          title="View configuration"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            console.log('Edit button clicked for domain:', domain.id, domain.domain_name);
-                            openEditModal(domain);
-                          }}
-                          className="p-1 rounded hover:bg-green-100 dark:hover:bg-green-900/20 text-green-600 border border-transparent hover:border-green-300"
-                          title="Edit this domain"
-                          style={{ pointerEvents: 'auto', zIndex: 10 }}
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-
-                        <button
-                          onClick={() => deleteDomain(domain.id, domain.domain_name)}
-                          className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600"
-                          title="Delete domain"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <DataTable
+          columns={[
+            {
+              key: 'domain_name',
+              label: 'Domain',
+              sortable: true,
+              render: (value, row) => (
+                <div className="max-w-sm">
+                  <div className="text-sm font-medium text-gray-900">
+                    {row.domain_name}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {row.domain_id}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {row.config.target_persona}
+                  </div>
+                </div>
+              )
+            },
+            {
+              key: 'is_active',
+              label: 'Status',
+              sortable: true,
+              render: (value) => (
+                <span className={cn(
+                  'px-2 py-1 text-xs font-medium rounded-full',
+                  value ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                )}>
+                  {value ? 'Active' : 'Inactive'}
+                </span>
+              )
+            },
+            {
+              key: 'version',
+              label: 'Version',
+              sortable: true,
+              render: (value) => (
+                <span className="text-sm text-gray-700">v{value}</span>
+              )
+            },
+            {
+              key: 'updated_at',
+              label: 'Last Updated',
+              sortable: true,
+              render: (value) => (
+                <span className="text-sm text-gray-700">
+                  {new Date(value).toLocaleDateString('en-US', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                  })}
+                </span>
+              )
+            },
+            {
+              key: 'actions',
+              label: 'Actions',
+              className: 'text-center',
+              headerClassName: 'text-center',
+              render: (_, row) => (
+                <div className="flex items-center justify-center space-x-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleDomain(row.id)}
+                    iconName={row.is_active ? 'Power' : 'PowerOff'}
+                    iconSize={14}
+                    title={row.is_active ? 'Deactivate domain' : 'Activate domain'}
+                    className={row.is_active ? 'text-green-600 hover:text-green-700 hover:bg-green-50' : 'text-gray-400 hover:text-gray-500 hover:bg-gray-50'}
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      console.log('View button clicked for domain:', row.id, row.domain_name);
+                      openViewModal(row);
+                    }}
+                    iconName="Eye"
+                    iconSize={14}
+                    title="View configuration"
+                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Edit button clicked for domain:', row.id, row.domain_name);
+                      openEditModal(row);
+                    }}
+                    iconName="Edit2"
+                    iconSize={14}
+                    title="Edit domain"
+                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => deleteDomain(row.id, row.domain_name)}
+                    iconName="Trash2"
+                    iconSize={14}
+                    title="Delete domain"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  />
+                </div>
+              )
+            }
+          ]}
+          data={domains}
+          keyField="id"
+          initialColumnWidths={{
+            domain_name: 300,
+            is_active: 120,
+            version: 100,
+            updated_at: 150,
+            actions: 200
+          }}
+          storageKey="domain-management-column-widths"
+          emptyMessage="No domains found"
+        />
+      )}
 
       {/* Pagination */}
       {totalPages > 1 && (

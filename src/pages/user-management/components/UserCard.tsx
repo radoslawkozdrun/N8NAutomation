@@ -41,7 +41,7 @@ const UserCard = ({ user, onEdit, onToggleStatus, onDelete, onViewActivity }) =>
             <Icon name="User" size={20} className="text-muted-foreground" />
           </div>
           <div>
-            <h3 className="font-semibold text-card-foreground">{user?.name}</h3>
+            <h3 className="font-semibold text-card-foreground">{user?.username}</h3>
             <p className="text-sm text-muted-foreground">{user?.email}</p>
           </div>
         </div>
@@ -49,24 +49,24 @@ const UserCard = ({ user, onEdit, onToggleStatus, onDelete, onViewActivity }) =>
           <span className={`px-2 py-1 text-xs font-medium rounded-full ${getRoleColor(user?.role)}`}>
             {user?.role}
           </span>
-          <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(user?.status)}`}>
-            {user?.status === 'ACTIVE' ? 'Aktywny' : 'Nieaktywny'}
+          <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(user?.is_active ? 'ACTIVE' : 'INACTIVE')}`}>
+            {user?.is_active ? 'Active' : 'Inactive'}
           </span>
         </div>
       </div>
       {/* User Stats */}
       <div className="grid grid-cols-2 gap-4">
         <div className="text-center">
-          <p className="text-lg font-semibold text-card-foreground">{user?.articleReviews}</p>
-          <p className="text-xs text-muted-foreground">Przeglądy artykułów</p>
+          <p className="skote-card-title text-card-foreground">{user?.articleReviews}</p>
+          <p className="skote-small-text text-muted-foreground">Article Reviews</p>
         </div>
         <div className="text-center">
-          <p className="text-lg font-semibold text-card-foreground">{user?.loginCount}</p>
-          <p className="text-xs text-muted-foreground">Logowania</p>
+          <p className="skote-card-title text-card-foreground">{user?.loginCount}</p>
+          <p className="skote-small-text text-muted-foreground">Logins</p>
         </div>
       </div>
       {/* Last Login */}
-      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+      <div className="flex items-center space-x-2 skote-body-text text-muted-foreground">
         <Icon name="Clock" size={16} />
         <span>Ostatnie logowanie: {formatLastLogin(user?.lastLogin)}</span>
       </div>
@@ -80,7 +80,7 @@ const UserCard = ({ user, onEdit, onToggleStatus, onDelete, onViewActivity }) =>
             iconName="Edit"
             iconSize={16}
           >
-            Edytuj
+            Edit
           </Button>
           <Button
             variant="ghost"
@@ -89,18 +89,18 @@ const UserCard = ({ user, onEdit, onToggleStatus, onDelete, onViewActivity }) =>
             iconName="Activity"
             iconSize={16}
           >
-            Aktywność
+            Activity
           </Button>
         </div>
         <div className="flex items-center space-x-2">
           <Button
-            variant={user?.status === 'ACTIVE' ? 'warning' : 'success'}
+            variant={user?.is_active ? 'warning' : 'success'}
             size="sm"
             onClick={() => onToggleStatus(user)}
-            iconName={user?.status === 'ACTIVE' ? 'UserX' : 'UserCheck'}
+            iconName={user?.is_active ? 'UserX' : 'UserCheck'}
             iconSize={16}
           >
-            {user?.status === 'ACTIVE' ? 'Dezaktywuj' : 'Aktywuj'}
+            {user?.is_active ? 'Dezaktywuj' : 'Aktywuj'}
           </Button>
           <Button
             variant="destructive"
@@ -109,7 +109,7 @@ const UserCard = ({ user, onEdit, onToggleStatus, onDelete, onViewActivity }) =>
             iconName="Trash2"
             iconSize={16}
           >
-            Usuń
+            Delete
           </Button>
         </div>
       </div>

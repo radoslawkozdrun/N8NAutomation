@@ -15,23 +15,23 @@ const EditUserModal = ({ isOpen, onClose, onUpdateUser, user }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const roleOptions = [
-    { value: 'USER', label: 'Użytkownik', description: 'Podstawowe uprawnienia do przeglądania i recenzowania artykułów' },
-    { value: 'ADMIN', label: 'Administrator', description: 'Pełne uprawnienia do zarządzania systemem' },
-    { value: 'DEMO', label: 'Demo', description: 'Ograniczone uprawnienia demonstracyjne' }
+    { value: 'USER', label: 'User', description: 'Basic permissions for viewing and reviewing articles' },
+    { value: 'ADMIN', label: 'Administrator', description: 'Full system management permissions' },
+    { value: 'DEMO', label: 'Demo', description: 'Limited demonstration permissions' }
   ];
 
   const statusOptions = [
-    { value: 'ACTIVE', label: 'Aktywny' },
-    { value: 'INACTIVE', label: 'Nieaktywny' }
+    { value: 'ACTIVE', label: 'Active' },
+    { value: 'INACTIVE', label: 'Inactive' }
   ];
 
   useEffect(() => {
     if (user) {
       setFormData({
-        name: user?.name || '',
+        name: user?.username || '',
         email: user?.email || '',
         role: user?.role || 'USER',
-        status: user?.status || 'ACTIVE'
+        status: user?.is_active ? 'ACTIVE' : 'INACTIVE'
       });
     }
   }, [user]);
@@ -40,13 +40,13 @@ const EditUserModal = ({ isOpen, onClose, onUpdateUser, user }) => {
     const newErrors = {};
 
     if (!formData?.name?.trim()) {
-      newErrors.name = 'Nazwa użytkownika jest wymagana';
+      newErrors.name = 'Username is required';
     }
 
     if (!formData?.email?.trim()) {
-      newErrors.email = 'Adres email jest wymagany';
+      newErrors.email = 'Email address is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/?.test(formData?.email)) {
-      newErrors.email = 'Nieprawidłowy format adresu email';
+      newErrors.email = 'Invalid email address format';
     }
 
     setErrors(newErrors);
@@ -70,7 +70,7 @@ const EditUserModal = ({ isOpen, onClose, onUpdateUser, user }) => {
       await onUpdateUser(updatedUser);
       handleClose();
     } catch (error) {
-      setErrors({ submit: 'Wystąpił błąd podczas aktualizacji użytkownika' });
+      setErrors({ submit: 'Error occurred while updating user' });
     } finally {
       setIsLoading(false);
     }
@@ -96,7 +96,7 @@ const EditUserModal = ({ isOpen, onClose, onUpdateUser, user }) => {
       <div className="relative bg-card border border-border rounded-lg shadow-modal w-full max-w-md mx-4">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
-          <h2 className="text-lg font-semibold text-card-foreground">Edytuj użytkownika</h2>
+          <h2 className="text-lg font-semibold text-card-foreground">Edit User</h2>
           <Button
             variant="ghost"
             size="icon"
@@ -109,9 +109,9 @@ const EditUserModal = ({ isOpen, onClose, onUpdateUser, user }) => {
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <Input
-            label="Nazwa użytkownika"
+            label="Username"
             type="text"
-            placeholder="Wprowadź nazwę użytkownika"
+            placeholder="Enter username"
             value={formData?.name}
             onChange={(e) => handleInputChange('name', e?.target?.value)}
             error={errors?.name}
@@ -119,7 +119,7 @@ const EditUserModal = ({ isOpen, onClose, onUpdateUser, user }) => {
           />
 
           <Input
-            label="Adres email"
+            label="Email Address"
             type="email"
             placeholder="user@example.com"
             value={formData?.email}
@@ -129,15 +129,15 @@ const EditUserModal = ({ isOpen, onClose, onUpdateUser, user }) => {
           />
 
           <Select
-            label="Rola użytkownika"
+            label="User Role"
             options={roleOptions}
             value={formData?.role}
             onChange={(value) => handleInputChange('role', value)}
-            description="Wybierz odpowiedni poziom uprawnień"
+            description="Select appropriate permission level"
           />
 
           <Select
-            label="Status konta"
+            label="Account Status"
             options={statusOptions}
             value={formData?.status}
             onChange={(value) => handleInputChange('status', value)}
@@ -145,14 +145,14 @@ const EditUserModal = ({ isOpen, onClose, onUpdateUser, user }) => {
 
           {/* User Stats */}
           <div className="bg-muted rounded-lg p-4 space-y-2">
-            <h4 className="text-sm font-medium text-card-foreground">Statystyki użytkownika</h4>
+            <h4 className="text-sm font-medium text-card-foreground">User Statistics</h4>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="text-muted-foreground">Przeglądy artykułów:</span>
+                <span className="text-muted-foreground">Article Reviews:</span>
                 <span className="ml-2 font-medium text-card-foreground">{user?.articleReviews}</span>
               </div>
               <div>
-                <span className="text-muted-foreground">Logowania:</span>
+                <span className="text-muted-foreground">Logins:</span>
                 <span className="ml-2 font-medium text-card-foreground">{user?.loginCount}</span>
               </div>
             </div>
@@ -173,7 +173,7 @@ const EditUserModal = ({ isOpen, onClose, onUpdateUser, user }) => {
               onClick={handleClose}
               disabled={isLoading}
             >
-              Anuluj
+              Cancel
             </Button>
             <Button
               type="submit"
@@ -181,7 +181,7 @@ const EditUserModal = ({ isOpen, onClose, onUpdateUser, user }) => {
               iconName="Save"
               iconPosition="left"
             >
-              Zapisz zmiany
+              Save Changes
             </Button>
           </div>
         </form>

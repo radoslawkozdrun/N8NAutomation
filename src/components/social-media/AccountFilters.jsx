@@ -19,11 +19,11 @@ const AccountFilters = ({
   ];
 
   const statusOptions = [
-    { value: 'all', label: 'Wszystkie statusy', color: 'text-muted-foreground' },
-    { value: 'connected', label: 'Połączone', color: 'text-success' },
-    { value: 'error', label: 'Błędy', color: 'text-error' },
-    { value: 'warning', label: 'Ostrzeżenia', color: 'text-warning' },
-    { value: 'disconnected', label: 'Rozłączone', color: 'text-muted-foreground' }
+    { value: 'all', label: 'All statuses', color: 'text-muted-foreground' },
+    { value: 'connected', label: 'Connected', color: 'text-success' },
+    { value: 'error', label: 'Errors', color: 'text-error' },
+    { value: 'warning', label: 'Warnings', color: 'text-warning' },
+    { value: 'disconnected', label: 'Disconnected', color: 'text-muted-foreground' }
   ];
 
   return (
@@ -35,7 +35,7 @@ const AccountFilters = ({
         </div>
         <input
           type="text"
-          placeholder="Szukaj kont..."
+          placeholder="Search accounts..."
           value={searchQuery}
           onChange={(e) => onSearchChange?.(e?.target?.value)}
           className={cn(
@@ -102,7 +102,7 @@ const AccountFilters = ({
           className="flex items-center space-x-1 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <Icon name="X" size={14} />
-          <span>Wyczyść filtry</span>
+          <span>Clear filters</span>
         </button>
       )}
     </div>

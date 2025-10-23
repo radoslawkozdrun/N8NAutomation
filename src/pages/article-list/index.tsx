@@ -1,73 +1,91 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMockNavigate } from '../../utils/mockNavigation';
-
+import { api } from '../../lib/api';
+import { Article, ArticleFilters } from '../../types';
+import { useToast } from '../../components/ui/Toast';
 import Button from '../../components/ui/Button';
-import Header from '../../components/ui/Header';
-import Sidebar from '../../components/ui/Sidebar';
-import { useToast, ToastContainer } from '../../components/ui/Toast';
-import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import Icon from '../../components/AppIcon';
 import FilterToolbar from './components/FilterToolbar';
-import ArticleTable from './components/ArticleTable';
 import BulkActions from './components/BulkActions';
+import ArticleTable from './components/ArticleTable';
 import Pagination from './components/Pagination';
+import { ToastContainer } from '../../components/ui/Toast';
+import { 
+  Search, 
+  Filter, 
+  MoreVertical, 
+  Eye, 
+  Edit3, 
+  Trash2, 
+  RefreshCw,
+  TrendingUp,
+  Clock,
+  User,
+  Tag,
+  Star,
+  Calendar,
+  BarChart3,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Zap,
+  Globe,
+  FileText,
+  ChevronDown,
+  ChevronRight,
+  Plus
+} from 'lucide-react';
 
 const ArticleList = () => {
   const navigate = useMockNavigate();
-  const { toasts, success, error, warning, removeToast } = useToast();
+  const { success, error, warning } = useToast();
   
-  // UI State
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isProcessing, setIsProcessing] = useState(false);
-  
-  // Data State
-  const [articles, setArticles] = useState([]);
-  const [selectedArticles, setSelectedArticles] = useState([]);
-  const [expandedRows, setExpandedRows] = useState([]);
-  
-  // Filter State
-  const [filters, setFilters] = useState({
-    search: '',
-    status: '',
-    category: '',
-    priority: '',
-    targetAudience: '',
-    scoreRange: {
-      finalMin: '',
-      finalMax: '',
-      relevanceMin: '',
-      noveltyMin: '',
-      viralMin: ''
-    },
-    dateFrom: '',
-    dateTo: ''
-  });
-  
-  // Pagination State
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedArticles, setSelectedArticles] = useState<number[]>([]);
+  const [filters, setFilters] = useState<ArticleFilters>({});
+  const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(25);
-  
-  // Sort State
-  const [sortConfig, setSortConfig] = useState({
-    field: 'publishedAt',
-    direction: 'desc'
-  });
+  const [totalPages, setTotalPages] = useState(1);
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+  const [showFilters, setShowFilters] = useState(false);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [totalArticles, setTotalArticles] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [sortConfig, setSortConfig] = useState({ field: 'created_at', direction: 'desc' as 'asc' | 'desc' });
+  const [expandedRows, setExpandedRows] = useState<number[]>([]);
 
-  // Mock User Data
-  const currentUser = {
-    id: 1,
-    name: "Anna Kowalska",
-    email: "anna.kowalska@opix.pl",
-    role: "Content Manager"
+
+  // Load articles from API
+  const loadArticles = async () => {
+    try {
+      setIsLoading(true);
+      const apiFilters = {
+        ...filters,
+        sort_by: sortConfig.field,
+        sort_order: sortConfig.direction
+      };
+      
+      const response = await api.getArticles(apiFilters, currentPage, itemsPerPage);
+      setArticles(response.data);
+      setTotalArticles(response.pagination.total);
+      setTotalPages(response.pagination.total_pages);
+    } catch (err) {
+      console.error('Failed to load articles:', err);
+      error('Failed to load articles');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Mock Articles Data
+  // Mock Articles Data (fallback)
   const mockArticles = [
     {
       id: 1,
-      title: "Nowe funkcje React 18: Concurrent Features i Suspense",
-      content: `React 18 wprowadza rewolucyjne zmiany w sposobie renderowania komponentów. Concurrent Features pozwalają na przerwanie renderowania w celu obsługi pilniejszych zadań, co znacznie poprawia responsywność aplikacji.\n\nSuspense został rozszerzony o nowe możliwości, umożliwiając lepsze zarządzanie asynchronicznym ładowaniem danych. Te zmiany fundamentalnie wpływają na architekturę nowoczesnych aplikacji React.`,
-      author: "Michał Nowak",
+      title: "New React 18 Features: Concurrent Features and Suspense",
+      content: `React 18 introduces revolutionary changes in component rendering. Concurrent Features allow interrupting rendering to handle more urgent tasks, significantly improving application responsiveness.\n\nSuspense has been extended with new capabilities, enabling better management of asynchronous data loading. These changes fundamentally impact the architecture of modern React applications.`,
+      author: "Michael Nowak",
       source: "React Blog",
       category: "WEB_DEV",
       priority: "P1_TRENDING",
@@ -92,9 +110,9 @@ const ArticleList = () => {
     },
     {
       id: 2,
-      title: "Sztuczna Inteligencja w analizie danych: Przyszłość Data Science",
-      content: `Zastosowanie AI w analizie danych rewolucjonizuje sposób, w jaki organizacje podejmują decyzje biznesowe. Machine Learning i Deep Learning umożliwiają automatyzację procesów analitycznych na niespotykaną dotąd skalę.\n\nNarzędzia takie jak AutoML democratyzują dostęp do zaawansowanych technik analitycznych, pozwalając nawet nietechnicznym użytkownikom na tworzenie skutecznych modeli predykcyjnych.`,
-      author: "Dr Katarzyna Wiśniewska",
+      title: "Artificial Intelligence in Data Analysis: The Future of Data Science",
+      content: `The application of AI in data analysis revolutionizes the way organizations make business decisions. Machine Learning and Deep Learning enable automation of analytical processes on an unprecedented scale.\n\nTools like AutoML democratize access to advanced analytical techniques, allowing even non-technical users to create effective predictive models.`,
+      author: "Dr Catherine Wisniewski",
       source: "AI Research Journal",
       category: "AI_ML",
       priority: "P2_TIMELY",
@@ -113,9 +131,9 @@ const ArticleList = () => {
     },
     {
       id: 3,
-      title: "Bezpieczeństwo aplikacji mobilnych: Najlepsze praktyki 2025",
-      content: `Bezpieczeństwo aplikacji mobilnych staje się coraz bardziej krytyczne w dobie rosnących zagrożeń cybernetycznych. Deweloperzy muszą implementować wielowarstwowe mechanizmy ochrony już na etapie projektowania.\n\nOd szyfrowania danych po zabezpieczenia komunikacji API - każdy aspekt aplikacji wymaga szczególnej uwagi. Nowe standardy branżowe wymagają compliance z regulacjami GDPR i innymi przepisami o ochronie danych.`,
-      author: "Piotr Kowalczyk",
+      title: "Mobile Application Security: Best Practices 2025",
+      content: `Mobile application security is becoming increasingly critical in the era of growing cyber threats. Developers must implement multi-layered protection mechanisms from the design stage.\n\nFrom data encryption to API communication security - every aspect of the application requires special attention. New industry standards require compliance with GDPR regulations and other data protection laws.`,
+      author: "Peter Kowalczyk",
       source: "Mobile Security Today",
       category: "SECURITY",
       priority: "P0_BREAKING",
@@ -140,9 +158,9 @@ const ArticleList = () => {
     },
     {
       id: 4,
-      title: "DevOps w chmurze: Automatyzacja procesów CI/CD z Kubernetes",
-      content: `Kubernetes stał się de facto standardem dla orkiestracji kontenerów w środowiskach chmurowych. Integracja z narzędziami CI/CD umożliwia pełną automatyzację procesów deployment i skalowania aplikacji.\n\nNowoczesne pipeline'y DevOps wykorzystują GitOps i Infrastructure as Code do zapewnienia powtarzalności i niezawodności wdrożeń. Monitoring i observability stają się kluczowe dla utrzymania wysokiej dostępności systemów.`,
-      author: "Tomasz Zieliński",
+      title: "Cloud DevOps: CI/CD Process Automation with Kubernetes",
+      content: `Kubernetes has become the de facto standard for container orchestration in cloud environments. Integration with CI/CD tools enables full automation of deployment and application scaling processes.\n\nModern DevOps pipelines use GitOps and Infrastructure as Code to ensure repeatability and reliability of deployments. Monitoring and observability become key to maintaining high system availability.`,
+      author: "Thomas Zielinski",
       source: "Cloud Native Computing",
       category: "DEVOPS",
       priority: "P2_TIMELY",
@@ -161,9 +179,9 @@ const ArticleList = () => {
     },
     {
       id: 5,
-      title: "Blockchain w finansach: DeFi i przyszłość bankowości",
-      content: `Decentralized Finance (DeFi) rewolucjonizuje tradycyjny sektor bankowy poprzez eliminację pośredników i automatyzację procesów finansowych za pomocą smart contracts.\n\nProtokóły DeFi oferują nowe możliwości inwestycyjne i pożyczkowe, ale wiążą się również z nowymi rodzajami ryzyka. Regulatorzy na całym świecie pracują nad ramami prawnymi dla tej rozwijającej się technologii.`,
-      author: "Magdalena Lewandowska",
+      title: "Blockchain in Finance: DeFi and the Future of Banking",
+      content: `Decentralized Finance (DeFi) revolutionizes the traditional banking sector by eliminating intermediaries and automating financial processes through smart contracts.\n\nDeFi protocols offer new investment and lending opportunities, but also come with new types of risks. Regulators worldwide are working on legal frameworks for this emerging technology.`,
+      author: "Magdalene Lewandowski",
       source: "FinTech Weekly",
       category: "BLOCKCHAIN",
       priority: "P3_EVERGREEN",
@@ -182,9 +200,9 @@ const ArticleList = () => {
     },
     {
       id: 6,
-      title: "Internet of Things: Inteligentne miasta przyszłości",
-      content: `IoT transformuje sposób funkcjonowania miast poprzez integrację sensorów, urządzeń i systemów zarządzania w jeden spójny ekosystem. Smart cities wykorzystują dane w czasie rzeczywistym do optymalizacji ruchu, zarządzania energią i poprawy jakości życia mieszkańców.\n\nWyzwania związane z prywatnością, bezpieczeństwem i interoperacyjnością wymagają holistycznego podejścia do projektowania systemów IoT w środowisku miejskim.`,
-      author: "Jakub Wójcik",
+      title: "Internet of Things: Smart Cities of the Future",
+      content: `IoT transforms the way cities function by integrating sensors, devices, and management systems into one cohesive ecosystem. Smart cities use real-time data to optimize traffic, energy management, and improve residents' quality of life.\n\nChallenges related to privacy, security, and interoperability require a holistic approach to designing IoT systems in urban environments.`,
+      author: "Jacob Wojcik",
       source: "Smart City Journal",
       category: "IOT",
       priority: "P4_FILLER",
@@ -205,111 +223,14 @@ const ArticleList = () => {
 
   // Initialize data
   useEffect(() => {
-    const loadArticles = async () => {
-      setIsLoading(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setArticles(mockArticles);
-      setIsLoading(false);
-    };
-
     loadArticles();
-  }, []);
+  }, [currentPage, itemsPerPage, filters, sortConfig]);
 
-  // Filter and sort articles
-  const filteredAndSortedArticles = useMemo(() => {
-    let filtered = [...articles];
-
-    // Apply filters
-    if (filters?.search) {
-      const searchLower = filters?.search?.toLowerCase();
-      filtered = filtered?.filter(article =>
-        article?.title?.toLowerCase()?.includes(searchLower) ||
-        article?.content?.toLowerCase()?.includes(searchLower) ||
-        article?.author?.toLowerCase()?.includes(searchLower) ||
-        article?.tags?.some(tag => tag?.toLowerCase()?.includes(searchLower))
-      );
-    }
-
-    if (filters?.status) {
-      filtered = filtered?.filter(article => article?.status === filters?.status);
-    }
-
-    if (filters?.category) {
-      filtered = filtered?.filter(article => article?.category === filters?.category);
-    }
-
-    if (filters?.priority) {
-      filtered = filtered?.filter(article => article?.priority === filters?.priority);
-    }
-
-    if (filters?.targetAudience) {
-      filtered = filtered?.filter(article => article?.targetAudience === filters?.targetAudience);
-    }
-
-    // Score range filters
-    if (filters?.scoreRange?.finalMin) {
-      filtered = filtered?.filter(article => article?.aiScores?.final >= parseFloat(filters?.scoreRange?.finalMin));
-    }
-    if (filters?.scoreRange?.finalMax) {
-      filtered = filtered?.filter(article => article?.aiScores?.final <= parseFloat(filters?.scoreRange?.finalMax));
-    }
-    if (filters?.scoreRange?.relevanceMin) {
-      filtered = filtered?.filter(article => article?.aiScores?.relevance >= parseFloat(filters?.scoreRange?.relevanceMin));
-    }
-    if (filters?.scoreRange?.noveltyMin) {
-      filtered = filtered?.filter(article => article?.aiScores?.novelty >= parseFloat(filters?.scoreRange?.noveltyMin));
-    }
-    if (filters?.scoreRange?.viralMin) {
-      filtered = filtered?.filter(article => article?.aiScores?.viral >= parseFloat(filters?.scoreRange?.viralMin));
-    }
-
-    // Date filters
-    if (filters?.dateFrom) {
-      filtered = filtered?.filter(article => new Date(article.publishedAt) >= new Date(filters.dateFrom));
-    }
-    if (filters?.dateTo) {
-      filtered = filtered?.filter(article => new Date(article.publishedAt) <= new Date(filters.dateTo));
-    }
-
-    // Apply sorting
-    filtered?.sort((a, b) => {
-      let aValue = a?.[sortConfig?.field];
-      let bValue = b?.[sortConfig?.field];
-
-      // Handle nested properties (like aiScores.final)
-      if (sortConfig?.field === 'finalScore') {
-        aValue = a?.aiScores?.final;
-        bValue = b?.aiScores?.final;
-      }
-
-      // Handle dates
-      if (sortConfig?.field === 'publishedAt') {
-        aValue = new Date(aValue);
-        bValue = new Date(bValue);
-      }
-
-      if (aValue < bValue) {
-        return sortConfig?.direction === 'asc' ? -1 : 1;
-      }
-      if (aValue > bValue) {
-        return sortConfig?.direction === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-
-    return filtered;
-  }, [articles, filters, sortConfig]);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredAndSortedArticles?.length / itemsPerPage);
-  const paginatedArticles = filteredAndSortedArticles?.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  // Articles are already filtered and paginated by API
+  const paginatedArticles = articles;
 
   // Event Handlers
-  const handleFiltersChange = (newFilters) => {
+  const handleFiltersChange = (newFilters: ArticleFilters) => {
     setFilters(newFilters);
     setCurrentPage(1); // Reset to first page when filters change
   };
@@ -317,34 +238,28 @@ const ArticleList = () => {
   const handleClearFilters = () => {
     setFilters({
       search: '',
-      status: '',
-      category: '',
-      priority: '',
-      targetAudience: '',
-      scoreRange: {
-        finalMin: '',
-        finalMax: '',
-        relevanceMin: '',
-        noveltyMin: '',
-        viralMin: ''
-      },
-      dateFrom: '',
-      dateTo: ''
+      status: undefined,
+      category: undefined,
+      priority: undefined,
+      target_audience: undefined,
+      score_min: undefined,
+      score_max: undefined,
+      tags: []
     });
     setCurrentPage(1);
   };
 
-  const handleSelectionChange = (articleId, isSelected) => {
+  const handleSelectionChange = (articleId: number, isSelected: boolean) => {
     if (isSelected) {
       setSelectedArticles(prev => [...prev, articleId]);
     } else {
-      setSelectedArticles(prev => prev?.filter(id => id !== articleId));
+      setSelectedArticles(prev => prev.filter(id => id !== articleId));
     }
   };
 
-  const handleSelectAll = (e) => {
-    if (e?.target?.checked) {
-      setSelectedArticles(paginatedArticles?.map(article => article?.id));
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedArticles(paginatedArticles.map(article => article.id));
     } else {
       setSelectedArticles([]);
     }
@@ -354,222 +269,291 @@ const ArticleList = () => {
     setSelectedArticles([]);
   };
 
-  const handleQuickAction = async (articleId, action) => {
+  const handleQuickAction = async (articleId: number, action: 'accept' | 'reject' | 'needs_more') => {
     setIsProcessing(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await api.updateArticleStatus(articleId, { action, notes: '' });
       
-      // Update article status
-      setArticles(prev => prev?.map(article => {
-        if (article?.id === articleId) {
-          let newStatus = action === 'accept' ? 'ACCEPTED' : 'REJECTED';
-          return { ...article, status: newStatus };
-        }
-        return article;
-      }));
-
-      const actionText = action === 'accept' ? 'zaakceptowany' : 'odrzucony';
-      success(`Artykuł został ${actionText}`);
+      const actionText = action === 'accept' ? 'accepted' : 'rejected';
+      success(`Article has been ${actionText}`);
+      
+      // Reload articles to reflect changes
+      await loadArticles();
     } catch (err) {
-      error('Wystąpił błąd podczas wykonywania akcji');
+      console.error('Failed to update article:', err);
+      error('An error occurred while performing the action');
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const handleBulkAction = async (action) => {
-    if (selectedArticles?.length === 0) return;
+  const handleBulkAction = async (action: string) => {
+    if (selectedArticles.length === 0) return;
+
+    // Show confirmation for delete action
+    if (action === 'delete') {
+      const confirmed = window.confirm(
+        `Are you sure you want to delete ${selectedArticles.length} articles? This operation is irreversible!`
+      );
+      if (!confirmed) return;
+    }
 
     setIsProcessing(true);
-    
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Update articles status
-      setArticles(prev => prev?.map(article => {
-        if (selectedArticles?.includes(article?.id)) {
-          let newStatus = article?.status;
-          switch (action) {
-            case 'accept':
-              newStatus = 'ACCEPTED';
-              break;
-            case 'reject':
-              newStatus = 'REJECTED';
-              break;
-            case 'archive':
-              newStatus = 'ARCHIVED';
-              break;
-            case 'needs_more':
-              newStatus = 'NEEDS_MORE';
-              break;
-            case 'research_done':
-              newStatus = 'RESEARCH_DONE';
-              break;
-          }
-          return { ...article, status: newStatus };
+      if (action === 'delete') {
+        const response = await api.bulkDeleteArticles(selectedArticles);
+        success(`${response.data.deleted_count} articles have been deleted`);
+
+        if (response.data.not_found_count > 0) {
+          warning(`${response.data.not_found_count} articles were not found or you don't have permissions`);
         }
-        return article;
-      }));
+      } else {
+        await api.bulkUpdateArticles({
+          articleIds: selectedArticles,
+          action: action === 'accept' ? 'accept' : 'reject',
+          notes: ''
+        });
 
-      const actionTexts = {
-        accept: 'zaakceptowane',
-        reject: 'odrzucone',
-        archive: 'zarchiwizowane',
-        needs_more: 'oznaczone jako wymagające więcej informacji',
-        research_done: 'oznaczone jako zbadane'
-      };
+        const actionTexts = {
+          accept: 'accepted',
+          reject: 'rejected'
+        };
 
-      success(`${selectedArticles?.length} artykułów zostało ${actionTexts?.[action]}`);
+        success(`${selectedArticles.length} articles have been ${actionTexts[action as keyof typeof actionTexts]}`);
+      }
+
       setSelectedArticles([]);
+
+      // Reload articles to reflect changes
+      await loadArticles();
     } catch (err) {
-      error('Wystąpił błąd podczas wykonywania akcji grupowej');
+      console.error('Failed to bulk action articles:', err);
+      error('An error occurred while performing bulk action');
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const handleViewDetails = (articleId) => {
+  const handleViewDetails = (articleId: number) => {
     navigate(`/article-details?id=${articleId}`);
   };
 
-  const handleSort = (newSortConfig) => {
+  const handleSort = (newSortConfig: {field: string, direction: 'asc' | 'desc'}) => {
     setSortConfig(newSortConfig);
   };
 
-  const handleToggleExpand = (articleId) => {
+  const handleToggleExpand = (articleId: number) => {
     setExpandedRows(prev => 
-      prev?.includes(articleId)
-        ? prev?.filter(id => id !== articleId)
+      prev.includes(articleId)
+        ? prev.filter(id => id !== articleId)
         : [...prev, articleId]
     );
   };
 
-  const handlePageChange = (page) => {
+  const handlePageChange = (page: number) => {
     setCurrentPage(page);
     setSelectedArticles([]); // Clear selection when changing pages
   };
 
-  const handleItemsPerPageChange = (newItemsPerPage) => {
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
     setItemsPerPage(newItemsPerPage);
     setCurrentPage(1);
     setSelectedArticles([]);
   };
 
-  const handleLogout = () => {
-    navigate('/login');
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header user={currentUser} onLogout={handleLogout} />
-        <Sidebar 
-          isCollapsed={sidebarCollapsed}
-          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-          user={currentUser}
-          onLogout={handleLogout}
-        />
-        <main className={`transition-smooth ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-60'} pt-16`}>
-          <div className="p-6">
-            <LoadingSpinner size="lg" text="Ładowanie artykułów..." className="h-64" />
-          </div>
-        </main>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header user={currentUser} onLogout={handleLogout} />
-      <Sidebar 
-        isCollapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-        user={currentUser}
-        onLogout={handleLogout}
-      />
-      <main className={`transition-smooth ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-60'} pt-16`}>
-        <div className="p-6">
-          {/* Page Header */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Lista artykułów</h1>
-                <p className="text-muted-foreground mt-1">
-                  Zarządzaj i przeglądaj artykuły RSS z ocenami AI
-                </p>
+    <div className="h-full flex flex-col p-6 space-y-6">
+          {/* Skote-style Page Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="skote-page-title">Articles</h1>
+              <p className="text-muted-foreground mt-2">
+                Manage and review articles from RSS feeds
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => {
+                  loadArticles();
+                  success('All articles have been refreshed');
+                }}
+                disabled={isLoading}
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white skote-body-text font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 transition-colors"
+              >
+                <RefreshCw
+                  size={16}
+                  className={`mr-2 ${isLoading ? 'animate-spin' : ''}`}
+                />
+                Refresh
+              </button>
+            </div>
+          </div>
+
+          {/* Skote-style Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="skote-body-text font-medium text-gray-500 uppercase tracking-wide">Total Articles</p>
+                  <p className="skote-page-title font-bold text-gray-900 mt-2">{totalArticles}</p>
+                  <p className="skote-body-text text-gray-500 mt-1">+2.1% from last month</p>
+                </div>
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
+                    <FileText className="w-6 h-6 text-blue-600" />
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center space-x-3">
-                <Button
-                  variant="outline"
-                  onClick={() => window.location?.reload()}
-                  iconName="RefreshCw"
-                  iconPosition="left"
-                  disabled={isProcessing}
-                >
-                  Odśwież
-                </Button>
-                <Button
-                  variant="default"
-                  onClick={() => navigate('/rss-feed-management')}
-                  iconName="Rss"
-                  iconPosition="left"
-                >
-                  Zarządzaj źródłami
-                </Button>
+            </div>
+
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="skote-body-text font-medium text-gray-500 uppercase tracking-wide">Accepted</p>
+                  <p className="skote-page-title font-bold text-gray-900 mt-2">{articles.filter(a => a.status === 'ACCEPTED').length}</p>
+                  <p className="skote-body-text text-green-600 mt-1">+5.4% from last week</p>
+                </div>
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center">
+                    <CheckCircle className="w-6 h-6 text-green-600" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="skote-body-text font-medium text-gray-500 uppercase tracking-wide">Pending Review</p>
+                  <p className="skote-page-title font-bold text-gray-900 mt-2">{articles.filter(a => a.status === 'PENDING_REVIEW').length}</p>
+                  <p className="skote-body-text text-yellow-600 mt-1">Needs attention</p>
+                </div>
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-yellow-50 rounded-lg flex items-center justify-center">
+                    <Clock className="w-6 h-6 text-yellow-600" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="skote-body-text font-medium text-gray-500 uppercase tracking-wide">Avg AI Score</p>
+                  <p className="skote-page-title font-bold text-gray-900 mt-2">{Math.round(articles.reduce((acc, a) => acc + (a.aiScores?.final || 0), 0) / articles.length) || 0}</p>
+                  <p className="skote-body-text text-purple-600 mt-1">Quality metric</p>
+                </div>
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center">
+                    <BarChart3 className="w-6 h-6 text-purple-600" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Filter Toolbar */}
-          <FilterToolbar
-            filters={filters}
-            onFiltersChange={handleFiltersChange}
-            onClearFilters={handleClearFilters}
-            totalArticles={articles?.length}
-            filteredCount={filteredAndSortedArticles?.length}
-          />
+          {/* Skote-style Filters Panel */}
+          <div className="bg-white rounded-lg border border-gray-200">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <h2 className="skote-card-title">Article Management</h2>
+                  {selectedArticles.length > 0 && (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full skote-small-text font-medium bg-blue-100 text-blue-800">
+                      {selectedArticles.length} selected
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setViewMode(viewMode === 'cards' ? 'table' : 'cards')}
+                    className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm skote-body-text leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    {viewMode === 'cards' ? <BarChart3 size={16} className="mr-1" /> : <FileText size={16} className="mr-1" />}
+                    {viewMode === 'cards' ? 'Table' : 'Cards'}
+                  </button>
+                </div>
+              </div>
+            </div>
 
-          {/* Bulk Actions */}
-          <BulkActions
-            selectedCount={selectedArticles?.length}
-            onBulkAction={handleBulkAction}
-            onClearSelection={handleClearSelection}
-            isProcessing={isProcessing}
-          />
+            <div className="px-6 py-4">
+              <FilterToolbar
+                filters={filters}
+                onFiltersChange={handleFiltersChange}
+                onClearFilters={handleClearFilters}
+                totalArticles={totalArticles}
+                filteredCount={totalArticles}
+                selectedArticles={selectedArticles}
+                onBulkAction={handleBulkAction}
+              />
 
-          {/* Articles Table */}
-          <ArticleTable
-            articles={paginatedArticles}
-            selectedArticles={selectedArticles}
-            onSelectionChange={handleSelectionChange}
-            onSelectAll={handleSelectAll}
-            onQuickAction={handleQuickAction}
-            onViewDetails={handleViewDetails}
-            sortConfig={sortConfig}
-            onSort={handleSort}
-            expandedRows={expandedRows}
-            onToggleExpand={handleToggleExpand}
-          />
+              {selectedArticles.length > 0 && (
+                <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-md">
+                  <BulkActions
+                    selectedCount={selectedArticles.length}
+                    onBulkAction={handleBulkAction}
+                    onClearSelection={handleClearSelection}
+                    isProcessing={isProcessing}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
 
-          {/* Pagination */}
-          <div className="mt-6">
+          {/* Skote-style Articles Table */}
+          <div className="bg-white rounded-lg border border-gray-200">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="skote-card-title">Articles List</h2>
+                  <p className="skote-body-text text-gray-500 mt-1">
+                    Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalArticles)} of {totalArticles} results
+                  </p>
+                </div>
+                {isLoading && (
+                  <div className="flex items-center text-gray-500">
+                    <RefreshCw size={16} className="animate-spin mr-2" />
+                    <span className="skote-body-text">Loading...</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <ArticleTable
+                articles={paginatedArticles}
+                selectedArticles={selectedArticles}
+                onSelectionChange={handleSelectionChange}
+                onSelectAll={handleSelectAll}
+                onQuickAction={handleQuickAction}
+                onViewDetails={handleViewDetails}
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                expandedRows={expandedRows}
+                onToggleExpand={handleToggleExpand}
+                isLoading={isLoading}
+              />
+            </div>
+          </div>
+
+          {/* Skote-style Pagination */}
+          <div className="bg-white rounded-lg border border-gray-200 px-6 py-4">
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
-              totalItems={filteredAndSortedArticles?.length}
+              totalItems={totalArticles}
               itemsPerPage={itemsPerPage}
               onPageChange={handlePageChange}
               onItemsPerPageChange={handleItemsPerPageChange}
             />
           </div>
+
+          {/* Toast Notifications */}
+          <ToastContainer />
         </div>
-      </main>
-      {/* Toast Notifications */}
-      <ToastContainer toasts={toasts} removeToast={removeToast} />
-    </div>
   );
 };
 

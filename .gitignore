@@ -133,3 +133,9 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# Playwright test reports and artifacts
+playwright-reports/
+playwright-report/
+test-results/
+.playwright/

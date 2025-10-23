@@ -16,48 +16,48 @@ const QuickActions: React.FC<QuickActionsProps> = ({
   const actions = [
     {
       key: 'review_pending',
-      label: 'Przejrzyj oczekujące',
-      description: 'Sprawdź artykuły wymagające przeglądu',
+      label: 'Review Pending',
+      description: 'Check articles requiring review',
       icon: 'Eye',
       variant: 'default',
       roles: ['ADMIN', 'USER']
     },
     {
       key: 'bulk_operations',
-      label: 'Operacje masowe',
-      description: 'Wykonaj działania na wielu artykułach',
+      label: 'Bulk Operations',
+      description: 'Perform actions on multiple articles',
       icon: 'Package',
       variant: 'outline',
       roles: ['ADMIN', 'USER']
     },
     {
       key: 'add_feed',
-      label: 'Dodaj źródło RSS',
-      description: 'Skonfiguruj nowe źródło artykułów',
+      label: 'Add RSS Source',
+      description: 'Configure new article source',
       icon: 'Plus',
       variant: 'outline',
       roles: ['ADMIN']
     },
     {
       key: 'manage_users',
-      label: 'Zarządzaj użytkownikami',
-      description: 'Administruj kontami użytkowników',
+      label: 'Manage Users',
+      description: 'Administer user accounts',
       icon: 'Users',
       variant: 'outline',
       roles: ['ADMIN']
     },
     {
       key: 'export_data',
-      label: 'Eksportuj dane',
-      description: 'Pobierz raporty i statystyki',
+      label: 'Export Data',
+      description: 'Download reports and statistics',
       icon: 'Download',
       variant: 'ghost',
       roles: ['ADMIN', 'USER']
     },
     {
       key: 'system_settings',
-      label: 'Ustawienia systemu',
-      description: 'Konfiguruj parametry aplikacji',
+      label: 'System Settings',
+      description: 'Configure application parameters',
       icon: 'Settings',
       variant: 'ghost',
       roles: ['ADMIN']
@@ -72,10 +72,10 @@ const QuickActions: React.FC<QuickActionsProps> = ({
     <div className={`bg-card border border-border rounded-lg ${className}`}>
       <div className="p-6 border-b border-border">
         <h3 className="text-lg font-semibold text-card-foreground">
-          Szybkie działania
+          Quick Actions
         </h3>
         <p className="text-sm text-muted-foreground mt-1">
-          Najczęściej używane funkcje
+          Most frequently used functions
         </p>
       </div>
       <div className="p-6">
@@ -111,10 +111,10 @@ const QuickActions: React.FC<QuickActionsProps> = ({
               </div>
               <div>
                 <p className="text-sm font-medium text-warning">
-                  Konto demonstracyjne
+                  Demo Account
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Niektóre funkcje są ograniczone w trybie demo. Skontaktuj się z administratorem, aby uzyskać pełny dostęp.
+                  Some features are limited in demo mode. Contact the administrator for full access.
                 </p>
               </div>
             </div>

@@ -9,35 +9,35 @@ const UserActivityModal = ({ isOpen, onClose, user }) => {
     {
       id: 1,
       type: 'LOGIN',
-      description: 'Zalogowanie do systemu',
+      description: 'System login',
       timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
       details: 'IP: 192.168.1.100'
     },
     {
       id: 2,
       type: 'ARTICLE_REVIEW',
-      description: 'Przegląd artykułu: "Nowe trendy w React 18"',
+      description: 'Article review: "New trends in React 18"',
       timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
-      details: 'Status: ACCEPTED, Ocena: 8.5/10'
+      details: 'Status: ACCEPTED, Score: 8.5/10'
     },
     {
       id: 3,
       type: 'ARTICLE_REVIEW',
-      description: 'Przegląd artykułu: "TypeScript w praktyce"',
+      description: 'Article review: "TypeScript in practice"',
       timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000),
-      details: 'Status: NEEDS_MORE, Notatka: Wymaga więcej przykładów'
+      details: 'Status: NEEDS_MORE, Note: Requires more examples'
     },
     {
       id: 4,
       type: 'LOGIN',
-      description: 'Zalogowanie do systemu',
+      description: 'System login',
       timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
       details: 'IP: 192.168.1.100'
     },
     {
       id: 5,
       type: 'BULK_ACTION',
-      description: 'Masowa akceptacja 5 artykułów',
+      description: 'Bulk acceptance of 5 articles',
       timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
       details: 'Kategoria: AI_ML'
     }
@@ -70,7 +70,7 @@ const UserActivityModal = ({ isOpen, onClose, user }) => {
   };
 
   const formatTimestamp = (timestamp) => {
-    return timestamp?.toLocaleDateString('pl-PL', {
+    return timestamp?.toLocaleDateString('en-US', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -80,9 +80,9 @@ const UserActivityModal = ({ isOpen, onClose, user }) => {
   };
 
   const formatLastLogin = (timestamp) => {
-    if (!timestamp) return 'Nigdy';
+    if (!timestamp) return 'Never';
     const date = new Date(timestamp);
-    return date?.toLocaleDateString('pl-PL', {
+    return date?.toLocaleDateString('en-US', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -102,8 +102,8 @@ const UserActivityModal = ({ isOpen, onClose, user }) => {
               <Icon name="User" size={20} className="text-muted-foreground" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-card-foreground">Aktywność użytkownika</h2>
-              <p className="text-sm text-muted-foreground">{user?.name} ({user?.email})</p>
+              <h2 className="text-lg font-semibold text-card-foreground">User Activity</h2>
+              <p className="text-sm text-muted-foreground">{user?.username} ({user?.email})</p>
             </div>
           </div>
           <Button
@@ -120,30 +120,30 @@ const UserActivityModal = ({ isOpen, onClose, user }) => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
               <p className="text-2xl font-bold text-card-foreground">{user?.articleReviews}</p>
-              <p className="text-sm text-muted-foreground">Przeglądy artykułów</p>
+              <p className="text-sm text-muted-foreground">Article Reviews</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-card-foreground">{user?.loginCount}</p>
-              <p className="text-sm text-muted-foreground">Logowania</p>
+              <p className="text-sm text-muted-foreground">Logins</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-card-foreground">
                 {user?.role === 'ADMIN' ? '∞' : '50'}
               </p>
-              <p className="text-sm text-muted-foreground">Dzienny limit</p>
+              <p className="text-sm text-muted-foreground">Daily Limit</p>
             </div>
             <div className="text-center">
               <p className="text-sm font-medium text-card-foreground">
                 {formatLastLogin(user?.lastLogin)}
               </p>
-              <p className="text-sm text-muted-foreground">Ostatnie logowanie</p>
+              <p className="text-sm text-muted-foreground">Last Login</p>
             </div>
           </div>
         </div>
 
         {/* Activity Timeline */}
         <div className="p-6 overflow-y-auto max-h-96">
-          <h3 className="text-sm font-semibold text-card-foreground mb-4">Historia aktywności</h3>
+          <h3 className="text-sm font-semibold text-card-foreground mb-4">Activity History</h3>
           <div className="space-y-4">
             {activityData?.map((activity) => (
               <div key={activity?.id} className="flex items-start space-x-3">
@@ -174,13 +174,13 @@ const UserActivityModal = ({ isOpen, onClose, user }) => {
             iconName="Download"
             iconPosition="left"
           >
-            Eksportuj raport
+            Export Report
           </Button>
           <Button
             variant="default"
             onClick={onClose}
           >
-            Zamknij
+            Close
           </Button>
         </div>
       </div>

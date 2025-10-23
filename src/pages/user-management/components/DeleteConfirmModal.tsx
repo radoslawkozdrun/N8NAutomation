@@ -15,7 +15,7 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, user, isLoading }) => 
             <div className="w-10 h-10 bg-error/10 rounded-full flex items-center justify-center">
               <Icon name="AlertTriangle" size={20} className="text-error" />
             </div>
-            <h2 className="text-lg font-semibold text-card-foreground">Potwierdź usunięcie</h2>
+            <h2 className="text-lg font-semibold text-card-foreground">Confirm Deletion</h2>
           </div>
           <Button
             variant="ghost"
@@ -29,18 +29,18 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, user, isLoading }) => 
         {/* Content */}
         <div className="p-6 space-y-4">
           <p className="text-sm text-muted-foreground">
-            Czy na pewno chcesz usunąć użytkownika <strong className="text-card-foreground">{user?.name}</strong>?
+            Are you sure you want to delete user <strong className="text-card-foreground">{user?.username}</strong>?
           </p>
           
           <div className="bg-error/5 border border-error/20 rounded-lg p-4">
             <div className="flex items-start space-x-3">
               <Icon name="AlertCircle" size={16} className="text-error mt-0.5" />
               <div className="text-sm">
-                <p className="font-medium text-error mb-1">Ta akcja jest nieodwracalna</p>
+                <p className="font-medium text-error mb-1">This action is irreversible</p>
                 <ul className="text-error/80 space-y-1">
-                  <li>• Wszystkie dane użytkownika zostaną usunięte</li>
-                  <li>• Historia przeglądów artykułów zostanie zachowana</li>
-                  <li>• Użytkownik straci dostęp do systemu</li>
+                  <li>• All user data will be deleted</li>
+                  <li>• Article review history will be preserved</li>
+                  <li>• User will lose access to the system</li>
                 </ul>
               </div>
             </div>
@@ -48,22 +48,22 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, user, isLoading }) => 
 
           {/* User Info */}
           <div className="bg-muted rounded-lg p-4">
-            <h4 className="text-sm font-medium text-card-foreground mb-2">Informacje o użytkowniku</h4>
+            <h4 className="text-sm font-medium text-card-foreground mb-2">User Information</h4>
             <div className="space-y-1 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Email:</span>
                 <span className="text-card-foreground">{user?.email}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Rola:</span>
+                <span className="text-muted-foreground">Role:</span>
                 <span className="text-card-foreground">{user?.role}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Przeglądy artykułów:</span>
+                <span className="text-muted-foreground">Article Reviews:</span>
                 <span className="text-card-foreground">{user?.articleReviews}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Logowania:</span>
+                <span className="text-muted-foreground">Logins:</span>
                 <span className="text-card-foreground">{user?.loginCount}</span>
               </div>
             </div>
@@ -77,7 +77,7 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, user, isLoading }) => 
             onClick={onClose}
             disabled={isLoading}
           >
-            Anuluj
+            Cancel
           </Button>
           <Button
             variant="destructive"
@@ -86,7 +86,7 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, user, isLoading }) => 
             iconName="Trash2"
             iconPosition="left"
           >
-            Usuń użytkownika
+            Delete User
           </Button>
         </div>
       </div>

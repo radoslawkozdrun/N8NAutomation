@@ -169,20 +169,221 @@ export interface KeyboardShortcut {
 
 // View types
 export type ViewType =
-  | 'articles'
   | 'all-articles'
   | 'account'
   | 'feeds'
-  | 'post-review'
-  | 'users'
   | 'domains'
   | 'new-dashboard'
-  | 'new-post-creation'
   | 'new-social-media-accounts'
   | 'dashboard'
   | 'article-list-page'
   | 'article-details'
   | 'rss-feeds'
   | 'user-management'
-  | 'post-creation'
-  | 'social-media-management';
+  | 'content-adaptation'
+  | 'config-properties'
+  | 'master-content'
+  | 'master-content-edit'
+  | 'social-platforms';
+
+// n8n Types
+export interface N8nWorkflow {
+  id: string;
+  name: string;
+  active: boolean;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+  nodes: N8nNode[];
+  connections: any;
+  settings?: any;
+  staticData?: any;
+}
+
+export interface N8nNode {
+  id: string;
+  name: string;
+  type: string;
+  parameters: any;
+  position: [number, number];
+  credentials?: any;
+}
+
+export interface N8nExecution {
+  id: string;
+  workflowId: string;
+  mode: string;
+  status: 'success' | 'error' | 'running' | 'waiting';
+  startedAt: string;
+  finishedAt?: string;
+  data?: any;
+  error?: string;
+}
+
+// Config Property Types
+export interface ConfigProperty {
+  id: number;
+  key: string;
+  value: string | null;
+  description: string | null;
+  data_type: 'string' | 'integer' | 'boolean' | 'json' | 'text';
+  is_encrypted: boolean;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  created_by: number | null;
+  updated_by: number | null;
+}
+
+export interface ConfigPropertyFilters {
+  search?: string;
+  data_type?: string;
+  is_active?: boolean;
+  is_encrypted?: boolean;
+}
+
+export interface CreateConfigPropertyRequest {
+  key: string;
+  value?: string;
+  description?: string;
+  data_type?: 'string' | 'integer' | 'boolean' | 'json' | 'text';
+  is_encrypted?: boolean;
+  is_active?: boolean;
+}
+
+export interface UpdateConfigPropertyRequest {
+  key?: string;
+  value?: string;
+  description?: string;
+  data_type?: 'string' | 'integer' | 'boolean' | 'json' | 'text';
+  is_encrypted?: boolean;
+  is_active?: boolean;
+}
+
+// Master Content Types
+export interface MasterContent {
+  id: number;
+  article_id: number;
+  title: string;
+  content: string;
+  summary: string;
+  key_points: string[];
+  tags: string[];
+  category: ArticleCategory;
+  target_audience: TargetAudience;
+  tone: ContentTone;
+  research_data?: ResearchData[];
+  status: MasterContentStatus;
+  created_at: string;
+  updated_at: string;
+  created_by: number;
+  updated_by?: number;
+  article?: Article; // Populated article details
+}
+
+export type MasterContentStatus = 
+  | 'DRAFT'
+  | 'READY_FOR_REVIEW'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'PROCESSING';
+
+export type ContentTone = 
+  | 'professional'
+  | 'casual'
+  | 'friendly'
+  | 'authoritative'
+  | 'educational'
+  | 'conversational';
+
+export interface ResearchData {
+  id: number;
+  source: string;
+  url: string;
+  title: string;
+  summary: string;
+  relevance_score: number;
+  created_at: string;
+}
+
+export interface MasterContentFilters {
+  status?: MasterContentStatus;
+  category?: ArticleCategory;
+  target_audience?: TargetAudience;
+  tone?: ContentTone;
+  search?: string;
+  created_by?: number;
+  date_from?: string;
+  date_to?: string;
+}
+
+// Social Platform Content Types
+export interface PlatformContent {
+  id: number;
+  master_content_id: number;
+  platform: SocialPlatform;
+  content: string;
+  hashtags: string[];
+  mentions: string[];
+  media_urls?: string[];
+  scheduled_for?: string;
+  status: PlatformContentStatus;
+  decision: PublishDecision;
+  target_accounts: number[]; // IDs of social media accounts
+  created_at: string;
+  updated_at: string;
+  published_at?: string;
+  master_content?: MasterContent;
+}
+
+export type SocialPlatform = 
+  | 'TWITTER'
+  | 'LINKEDIN'
+  | 'FACEBOOK'
+  | 'INSTAGRAM'
+  | 'TIKTOK';
+
+export type PlatformContentStatus = 
+  | 'DRAFT'
+  | 'READY_FOR_REVIEW'
+  | 'SCHEDULED'
+  | 'PUBLISHED'
+  | 'FAILED'
+  | 'POSTPONED'
+  | 'DECLINED';
+
+export type PublishDecision = 
+  | 'PUBLISH'
+  | 'POSTPONE'
+  | 'DECLINE'
+  | 'PUBLISH_ON_SCHEDULE'
+  | 'PENDING';
+
+export interface PublishDecisionData {
+  decision: PublishDecision;
+  scheduled_for?: string; // For PUBLISH_ON_SCHEDULE
+  target_accounts: number[]; // Selected social media account IDs
+  notes?: string;
+  user_id: number;
+}
+
+export interface SocialMediaAccount {
+  id: number;
+  platform: SocialPlatform;
+  username: string;
+  display_name: string;
+  is_active: boolean;
+  api_credentials?: any;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PlatformContentFilters {
+  platform?: SocialPlatform;
+  status?: PlatformContentStatus;
+  decision?: PublishDecision;
+  master_content_id?: number;
+  scheduled_from?: string;
+  scheduled_to?: string;
+  search?: string;
+}

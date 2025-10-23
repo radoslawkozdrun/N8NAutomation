@@ -31,7 +31,7 @@ const FeedHealthMonitor: React.FC<FeedHealthMonitorProps> = ({
   const healthItems = [
     {
       key: 'active',
-      label: 'Aktywne źródła',
+      label: 'Active Sources',
       count: feedStats?.active || 0,
       color: 'text-success',
       bgColor: 'bg-success/10',
@@ -39,7 +39,7 @@ const FeedHealthMonitor: React.FC<FeedHealthMonitorProps> = ({
     },
     {
       key: 'errors',
-      label: 'Błędy połączenia',
+      label: 'Connection Errors',
       count: feedStats?.errors || 0,
       color: 'text-error',
       bgColor: 'bg-error/10',
@@ -84,13 +84,13 @@ const FeedHealthMonitor: React.FC<FeedHealthMonitorProps> = ({
       <div className="p-6 border-b border-border">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-card-foreground">
-            Monitorowanie źródeł RSS
+            RSS Sources Monitoring
           </h3>
           <button
             onClick={onViewDetails}
             className="text-sm text-primary hover:text-primary/80 transition-hover"
           >
-            Zobacz szczegóły
+            View Details
           </button>
         </div>
       </div>
@@ -120,13 +120,13 @@ const FeedHealthMonitor: React.FC<FeedHealthMonitorProps> = ({
         {/* Recent Errors */}
         <div className="border-t border-border pt-6">
           <h4 className="text-sm font-medium text-card-foreground mb-4">
-            Ostatnie błędy
+            Recent Errors
           </h4>
           {recentErrors.length === 0 ? (
             <div className="text-center py-4">
               <Icon name="CheckCircle" size={32} className="text-success mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">
-                Brak ostatnich błędów
+                No recent errors
               </p>
             </div>
           ) : (
@@ -157,7 +157,7 @@ const FeedHealthMonitor: React.FC<FeedHealthMonitorProps> = ({
                   onClick={onViewDetails}
                   className="w-full text-center text-sm text-primary hover:text-primary/80 transition-hover py-2"
                 >
-                  Zobacz wszystkie błędy ({recentErrors.length - 3} więcej)
+                  View all errors ({recentErrors.length - 3} more)
                 </button>
               )}
             </div>

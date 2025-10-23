@@ -9,172 +9,73 @@ import EditUserModal from './components/EditUserModal';
 import UserActivityModal from './components/UserActivityModal';
 import DeleteConfirmModal from './components/DeleteConfirmModal';
 import UserFilters from './components/UserFilters';
+import { User, UserFilters as UserFiltersType } from '../../types';
+import { api } from '../../lib/api';
 
 const UserManagement = () => {
   const { success, error, warning } = useToast();
-  const [users, setUsers] = useState([]);
-  const [filteredUsers, setFilteredUsers] = useState([]);
-  const [selectedUsers, setSelectedUsers] = useState([]);
-  const [viewMode, setViewMode] = useState('table');
+  const [users, setUsers] = useState<User[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
   const [isLoading, setIsLoading] = useState(true);
-  const [sortField, setSortField] = useState('name');
-  const [sortDirection, setSortDirection] = useState('asc');
+  const [sortField, setSortField] = useState('username');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const limit = 20;
 
   // Modal states
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showActivityModal, setShowActivityModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Filter states
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<UserFiltersType>({
     search: '',
-    role: '',
-    status: ''
+    role: undefined,
+    active: undefined
   });
 
-  // Mock users data
-  const mockUsers = [
-    {
-      id: 1,
-      name: "Anna Kowalska",
-      email: "anna.kowalska@opix.pl",
-      role: "ADMIN",
-      status: "ACTIVE",
-      lastLogin: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      articleReviews: 245,
-      loginCount: 89,
-      createdAt: "2024-01-15T10:30:00Z"
-    },
-    {
-      id: 2,
-      name: "Piotr Nowak",
-      email: "piotr.nowak@opix.pl",
-      role: "USER",
-      status: "ACTIVE",
-      lastLogin: new Date(Date.now() - 4 * 60 * 60 * 1000),
-      articleReviews: 156,
-      loginCount: 67,
-      createdAt: "2024-02-20T14:15:00Z"
-    },
-    {
-      id: 3,
-      name: "Maria Wiśniewska",
-      email: "maria.wisniewska@opix.pl",
-      role: "USER",
-      status: "ACTIVE",
-      lastLogin: new Date(Date.now() - 6 * 60 * 60 * 1000),
-      articleReviews: 98,
-      loginCount: 45,
-      createdAt: "2024-03-10T09:45:00Z"
-    },
-    {
-      id: 4,
-      name: "Tomasz Zieliński",
-      email: "tomasz.zielinski@opix.pl",
-      role: "DEMO",
-      status: "INACTIVE",
-      lastLogin: new Date(Date.now() - 24 * 60 * 60 * 1000),
-      articleReviews: 23,
-      loginCount: 12,
-      createdAt: "2024-04-05T16:20:00Z"
-    },
-    {
-      id: 5,
-      name: "Katarzyna Lewandowska",
-      email: "katarzyna.lewandowska@opix.pl",
-      role: "USER",
-      status: "ACTIVE",
-      lastLogin: new Date(Date.now() - 12 * 60 * 60 * 1000),
-      articleReviews: 187,
-      loginCount: 78,
-      createdAt: "2024-01-28T11:10:00Z"
-    },
-    {
-      id: 6,
-      name: "Michał Dąbrowski",
-      email: "michal.dabrowski@opix.pl",
-      role: "USER",
-      status: "ACTIVE",
-      lastLogin: new Date(Date.now() - 8 * 60 * 60 * 1000),
-      articleReviews: 134,
-      loginCount: 56,
-      createdAt: "2024-02-14T13:30:00Z"
-    }
-  ];
-
-  useEffect(() => {
-    // Simulate loading
-    setTimeout(() => {
-      setUsers(mockUsers);
-      setFilteredUsers(mockUsers);
+  // Fetch users from API
+  const fetchUsers = async () => {
+    setIsLoading(true);
+    try {
+      const response = await api.getUsers(filters, page, limit);
+      setUsers(response.data);
+      setFilteredUsers(response.data);
+      setTotalPages(response.pagination.total_pages);
+      setTotalUsers(response.pagination.total);
+    } catch (err: any) {
+      console.error('Error fetching users:', err);
+      error(err.message || 'Error loading users');
+    } finally {
       setIsLoading(false);
-    }, 1000);
-  }, []);
+    }
+  };
 
   useEffect(() => {
-    applyFilters();
-  }, [users, filters, sortField, sortDirection]);
-
-  const applyFilters = () => {
-    let filtered = [...users];
-
-    // Search filter
-    if (filters?.search) {
-      const searchTerm = filters?.search?.toLowerCase();
-      filtered = filtered?.filter(user => 
-        user?.name?.toLowerCase()?.includes(searchTerm) ||
-        user?.email?.toLowerCase()?.includes(searchTerm)
-      );
-    }
-
-    // Role filter
-    if (filters?.role) {
-      filtered = filtered?.filter(user => user?.role === filters?.role);
-    }
-
-    // Status filter
-    if (filters?.status) {
-      filtered = filtered?.filter(user => user?.status === filters?.status);
-    }
-
-    // Sort
-    filtered?.sort((a, b) => {
-      let aValue = a?.[sortField];
-      let bValue = b?.[sortField];
-
-      if (sortField === 'lastLogin') {
-        aValue = aValue ? new Date(aValue)?.getTime() : 0;
-        bValue = bValue ? new Date(bValue)?.getTime() : 0;
-      }
-
-      if (typeof aValue === 'string') {
-        aValue = aValue?.toLowerCase();
-        bValue = bValue?.toLowerCase();
-      }
-
-      if (sortDirection === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
-
-    setFilteredUsers(filtered);
-  };
+    fetchUsers();
+  }, [page, filters]);
 
   const handleFilterChange = (field, value) => {
     setFilters(prev => ({ ...prev, [field]: value }));
+    setPage(1); // Reset to first page when filters change
   };
 
   const handleClearFilters = () => {
     setFilters({
       search: '',
-      role: '',
-      status: ''
+      role: undefined,
+      active: undefined
     });
+    setPage(1);
   };
 
   const handleSort = (field) => {
@@ -186,9 +87,15 @@ const UserManagement = () => {
     }
   };
 
-  const handleAddUser = async (newUser) => {
-    setUsers(prev => [...prev, newUser]);
-    success('Użytkownik został pomyślnie dodany');
+  const handleAddUser = async (userData) => {
+    try {
+      await api.createUser(userData);
+      success('User successfully added');
+      fetchUsers(); // Refresh the list
+    } catch (err: any) {
+      console.error('Error creating user:', err);
+      error(err.message || 'Error creating user');
+    }
   };
 
   const handleEditUser = (user) => {
@@ -196,22 +103,29 @@ const UserManagement = () => {
     setShowEditModal(true);
   };
 
-  const handleUpdateUser = async (updatedUser) => {
-    setUsers(prev => prev?.map(user => 
-      user?.id === updatedUser?.id ? updatedUser : user
-    ));
-    success('Dane użytkownika zostały zaktualizowane');
+  const handleUpdateUser = async (userData) => {
+    try {
+      if (selectedUser) {
+        await api.updateUser(selectedUser.id, userData);
+        success('User data has been updated');
+        fetchUsers(); // Refresh the list
+      }
+    } catch (err: any) {
+      console.error('Error updating user:', err);
+      error(err.message || 'Error updating user');
+    }
   };
 
   const handleToggleStatus = async (user) => {
-    const newStatus = user?.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
-    const updatedUser = { ...user, status: newStatus };
-    
-    setUsers(prev => prev?.map(u => 
-      u?.id === user?.id ? updatedUser : u
-    ));
-    
-    success(`Użytkownik ${user?.name} został ${newStatus === 'ACTIVE' ? 'aktywowany' : 'dezaktywowany'}`);
+    try {
+      await api.toggleUserStatus(user.id);
+      const newStatus = user?.is_active ? 'deactivated' : 'activated';
+      success(`User ${user?.username} has been ${newStatus}`);
+      fetchUsers(); // Refresh the list
+    } catch (err: any) {
+      console.error('Error toggling user status:', err);
+      error(err.message || 'Error changing user status');
+    }
   };
 
   const handleDeleteUser = (user) => {
@@ -221,14 +135,18 @@ const UserManagement = () => {
 
   const handleConfirmDelete = async () => {
     setDeleteLoading(true);
-    
+
     try {
-      setUsers(prev => prev?.filter(user => user?.id !== selectedUser?.id));
-      success(`Użytkownik ${selectedUser?.name} został usunięty`);
-      setShowDeleteModal(false);
-      setSelectedUser(null);
-    } catch (err) {
-      error('Wystąpił błąd podczas usuwania użytkownika');
+      if (selectedUser) {
+        await api.deleteUser(selectedUser.id);
+        success(`User ${selectedUser?.username} has been deleted`);
+        fetchUsers(); // Refresh the list
+        setShowDeleteModal(false);
+        setSelectedUser(null);
+      }
+    } catch (err: any) {
+      console.error('Error deleting user:', err);
+      error(err.message || 'An error occurred while deleting the user');
     } finally {
       setDeleteLoading(false);
     }
@@ -241,69 +159,80 @@ const UserManagement = () => {
 
   const handleBulkAction = async (action, userIds) => {
     const selectedUserObjects = users?.filter(user => userIds?.includes(user?.id));
-    
-    switch (action) {
-      case 'activate':
-        setUsers(prev => prev?.map(user => 
-          userIds?.includes(user?.id) ? { ...user, status: 'ACTIVE' } : user
-        ));
-        success(`Aktywowano ${userIds?.length} użytkowników`);
-        break;
-        
-      case 'deactivate':
-        setUsers(prev => prev?.map(user => 
-          userIds?.includes(user?.id) ? { ...user, status: 'INACTIVE' } : user
-        ));
-        warning(`Dezaktywowano ${userIds?.length} użytkowników`);
-        break;
-        
-      case 'change_role_user':
-        setUsers(prev => prev?.map(user => 
-          userIds?.includes(user?.id) ? { ...user, role: 'USER' } : user
-        ));
-        success(`Zmieniono rolę ${userIds?.length} użytkowników na USER`);
-        break;
-        
-      case 'change_role_demo':
-        setUsers(prev => prev?.map(user => 
-          userIds?.includes(user?.id) ? { ...user, role: 'DEMO' } : user
-        ));
-        success(`Zmieniono rolę ${userIds?.length} użytkowników na DEMO`);
-        break;
-        
-      case 'export':
-        success(`Eksportowano dane ${userIds?.length} użytkowników`);
-        break;
-        
-      default:
-        break;
+
+    try {
+      switch (action) {
+        case 'activate':
+          // Since there's no bulk API, we'll handle individually
+          for (const userId of userIds) {
+            const user = users.find(u => u.id === userId);
+            if (user && !user.is_active) {
+              await api.toggleUserStatus(userId);
+            }
+          }
+          success(`Users activated`);
+          break;
+
+        case 'deactivate':
+          for (const userId of userIds) {
+            const user = users.find(u => u.id === userId);
+            if (user && user.is_active) {
+              await api.toggleUserStatus(userId);
+            }
+          }
+          warning(`Users deactivated`);
+          break;
+
+        case 'change_role_user':
+          for (const userId of userIds) {
+            await api.updateUser(userId, { role: 'USER' });
+          }
+          success(`Changed user role to USER`);
+          break;
+
+        case 'change_role_demo':
+          for (const userId of userIds) {
+            await api.updateUser(userId, { role: 'DEMO' });
+          }
+          success(`Changed user role to DEMO`);
+          break;
+
+        case 'export':
+          success(`Exported data for ${userIds?.length} users`);
+          break;
+
+        default:
+          break;
+      }
+
+      fetchUsers(); // Refresh the list
+    } catch (err: any) {
+      console.error('Error performing bulk action:', err);
+      error(err.message || 'Error performing operation');
     }
-    
+
     setSelectedUsers([]);
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background pt-16">
-        <div className="flex items-center justify-center h-96">
-          <div className="text-center">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Ładowanie użytkowników...</p>
-          </div>
+      <div className="h-full flex flex-col items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading users...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background pt-16">
-      <div className="container mx-auto px-6 py-8">
+    <div className="h-full flex flex-col p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Zarządzanie użytkownikami</h1>
+            <h1 className="skote-page-title">User Management</h1>
             <p className="text-muted-foreground mt-2">
-              Zarządzaj kontami użytkowników, rolami i uprawnieniami w systemie OPIX
+              Manage user accounts, roles and permissions
             </p>
           </div>
           <div className="flex items-center space-x-3">
@@ -316,7 +245,7 @@ const UserManagement = () => {
                 iconName="Table"
                 iconSize={16}
               >
-                Tabela
+                Table
               </Button>
               <Button
                 variant={viewMode === 'cards' ? 'default' : 'ghost'}
@@ -325,7 +254,7 @@ const UserManagement = () => {
                 iconName="Grid3X3"
                 iconSize={16}
               >
-                Karty
+                Cards
               </Button>
             </div>
             
@@ -334,7 +263,7 @@ const UserManagement = () => {
               iconName="UserPlus"
               iconPosition="left"
             >
-              Dodaj użytkownika
+              Add User
             </Button>
           </div>
         </div>
@@ -346,7 +275,7 @@ const UserManagement = () => {
           onClearFilters={handleClearFilters}
           onBulkAction={handleBulkAction}
           selectedUsers={selectedUsers}
-          totalUsers={filteredUsers?.length}
+          totalUsers={totalUsers}
         />
 
         {/* Content */}
@@ -354,11 +283,11 @@ const UserManagement = () => {
           {filteredUsers?.length === 0 ? (
             <div className="bg-card border border-border rounded-lg p-12 text-center">
               <Icon name="Users" size={48} className="text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-card-foreground mb-2">
-                Brak użytkowników
+              <h3 className="skote-card-title font-semibold text-card-foreground mb-2">
+                No Users
               </h3>
               <p className="text-muted-foreground mb-4">
-                Nie znaleziono użytkowników spełniających kryteria wyszukiwania.
+                No users found matching the search criteria.
               </p>
               <Button
                 variant="outline"
@@ -366,7 +295,7 @@ const UserManagement = () => {
                 iconName="RefreshCw"
                 iconPosition="left"
               >
-                Wyczyść filtry
+                Clear Filters
               </Button>
             </div>
           ) : (
@@ -400,6 +329,38 @@ const UserManagement = () => {
           )}
         </div>
 
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-6 flex items-center justify-between">
+            <div className="flex items-center skote-body-text text-muted-foreground">
+              <span>
+                Page {page} of {totalPages} ({totalUsers} users)
+              </span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(page - 1)}
+                disabled={page <= 1}
+              >
+                Previous
+              </Button>
+              <span className="skote-body-text text-muted-foreground">
+                {page} / {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(page + 1)}
+                disabled={page >= totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Modals */}
         <AddUserModal
           isOpen={showAddModal}
@@ -427,7 +388,6 @@ const UserManagement = () => {
           user={selectedUser}
           isLoading={deleteLoading}
         />
-      </div>
     </div>
   );
 };

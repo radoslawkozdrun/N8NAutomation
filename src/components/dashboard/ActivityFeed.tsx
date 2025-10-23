@@ -50,14 +50,14 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities = [], className 
     <div className={`bg-card border border-border rounded-lg ${className}`}>
       <div className="p-6 border-b border-border">
         <h3 className="text-lg font-semibold text-card-foreground">
-          Ostatnia aktywność
+          Recent Activity
         </h3>
       </div>
       <div className="p-6">
         {activities.length === 0 ? (
           <div className="text-center py-8">
             <Icon name="Activity" size={48} className="text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">Brak ostatniej aktywności</p>
+            <p className="text-muted-foreground">No recent activity</p>
           </div>
         ) : (
           <div className="space-y-4">

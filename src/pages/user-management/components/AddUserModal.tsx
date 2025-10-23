@@ -17,27 +17,27 @@ const AddUserModal = ({ isOpen, onClose, onAddUser }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const roleOptions = [
-    { value: 'USER', label: 'Użytkownik', description: 'Podstawowe uprawnienia do przeglądania i recenzowania artykułów' },
-    { value: 'ADMIN', label: 'Administrator', description: 'Pełne uprawnienia do zarządzania systemem' },
-    { value: 'DEMO', label: 'Demo', description: 'Ograniczone uprawnienia demonstracyjne' }
+    { value: 'USER', label: 'User', description: 'Basic permissions for viewing and reviewing articles' },
+    { value: 'ADMIN', label: 'Administrator', description: 'Full system management permissions' },
+    { value: 'DEMO', label: 'Demo', description: 'Limited demonstration permissions' }
   ];
 
   const statusOptions = [
-    { value: 'ACTIVE', label: 'Aktywny' },
-    { value: 'INACTIVE', label: 'Nieaktywny' }
+    { value: 'ACTIVE', label: 'Active' },
+    { value: 'INACTIVE', label: 'Inactive' }
   ];
 
   const validateForm = () => {
     const newErrors = {};
 
     if (!formData?.name?.trim()) {
-      newErrors.name = 'Nazwa użytkownika jest wymagana';
+      newErrors.name = 'Username is required';
     }
 
     if (!formData?.email?.trim()) {
-      newErrors.email = 'Adres email jest wymagany';
+      newErrors.email = 'Email address is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/?.test(formData?.email)) {
-      newErrors.email = 'Nieprawidłowy format adresu email';
+      newErrors.email = 'Invalid email address format';
     }
 
     setErrors(newErrors);
@@ -64,7 +64,7 @@ const AddUserModal = ({ isOpen, onClose, onAddUser }) => {
       await onAddUser(newUser);
       handleClose();
     } catch (error) {
-      setErrors({ submit: 'Wystąpił błąd podczas dodawania użytkownika' });
+      setErrors({ submit: 'Error occurred while adding user' });
     } finally {
       setIsLoading(false);
     }
@@ -97,7 +97,7 @@ const AddUserModal = ({ isOpen, onClose, onAddUser }) => {
       <div className="relative bg-card border border-border rounded-lg shadow-modal w-full max-w-md mx-4">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
-          <h2 className="text-lg font-semibold text-card-foreground">Dodaj nowego użytkownika</h2>
+          <h2 className="text-lg font-semibold text-card-foreground">Add New User</h2>
           <Button
             variant="ghost"
             size="icon"
@@ -110,9 +110,9 @@ const AddUserModal = ({ isOpen, onClose, onAddUser }) => {
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <Input
-            label="Nazwa użytkownika"
+            label="Username"
             type="text"
-            placeholder="Wprowadź nazwę użytkownika"
+            placeholder="Enter username"
             value={formData?.name}
             onChange={(e) => handleInputChange('name', e?.target?.value)}
             error={errors?.name}
@@ -120,7 +120,7 @@ const AddUserModal = ({ isOpen, onClose, onAddUser }) => {
           />
 
           <Input
-            label="Adres email"
+            label="Email Address"
             type="email"
             placeholder="user@example.com"
             value={formData?.email}
@@ -130,23 +130,23 @@ const AddUserModal = ({ isOpen, onClose, onAddUser }) => {
           />
 
           <Select
-            label="Rola użytkownika"
+            label="User Role"
             options={roleOptions}
             value={formData?.role}
             onChange={(value) => handleInputChange('role', value)}
-            description="Wybierz odpowiedni poziom uprawnień"
+            description="Select appropriate permission level"
           />
 
           <Select
-            label="Status konta"
+            label="Account Status"
             options={statusOptions}
             value={formData?.status}
             onChange={(value) => handleInputChange('status', value)}
           />
 
           <Checkbox
-            label="Wyślij powiadomienie email"
-            description="Użytkownik otrzyma email z danymi dostępu"
+            label="Send email notification"
+            description="User will receive email with access credentials"
             checked={formData?.sendNotification}
             onChange={(e) => handleInputChange('sendNotification', e?.target?.checked)}
           />
@@ -166,7 +166,7 @@ const AddUserModal = ({ isOpen, onClose, onAddUser }) => {
               onClick={handleClose}
               disabled={isLoading}
             >
-              Anuluj
+              Cancel
             </Button>
             <Button
               type="submit"
@@ -174,7 +174,7 @@ const AddUserModal = ({ isOpen, onClose, onAddUser }) => {
               iconName="UserPlus"
               iconPosition="left"
             >
-              Dodaj użytkownika
+              Add User
             </Button>
           </div>
         </form>

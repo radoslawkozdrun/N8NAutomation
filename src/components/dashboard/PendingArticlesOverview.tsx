@@ -32,7 +32,7 @@ const PendingArticlesOverview: React.FC<PendingArticlesOverviewProps> = ({
     },
     {
       key: 'PENDING_REVIEW',
-      label: 'Oczekujące',
+      label: 'Pending',
       count: pendingCounts?.PENDING_REVIEW || 0,
       color: 'text-warning',
       bgColor: 'bg-warning/10',
@@ -40,7 +40,7 @@ const PendingArticlesOverview: React.FC<PendingArticlesOverviewProps> = ({
     },
     {
       key: 'NEEDS_MORE',
-      label: 'Wymaga więcej',
+      label: 'Needs More',
       count: pendingCounts?.NEEDS_MORE || 0,
       color: 'text-accent',
       bgColor: 'bg-accent/10',
@@ -55,7 +55,7 @@ const PendingArticlesOverview: React.FC<PendingArticlesOverviewProps> = ({
       <div className="p-6 border-b border-border">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-card-foreground">
-            Przegląd oczekujących artykułów
+            Pending Articles Review
           </h3>
           <Button 
             variant="outline" 
@@ -92,7 +92,7 @@ const PendingArticlesOverview: React.FC<PendingArticlesOverviewProps> = ({
         <div className="flex items-center justify-between pt-4 border-t border-border">
           <div>
             <p className="text-sm text-muted-foreground">
-              Łącznie oczekujących artykułów
+              Total Pending Articles
             </p>
             <p className="text-xl font-semibold text-card-foreground">
               {totalPending}

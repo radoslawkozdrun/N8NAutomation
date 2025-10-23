@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useMockNavigate } from '../../utils/mockNavigation';
+import { useAuth } from '../../contexts/AuthContext';
+import { api } from '../../lib/api';
 import LoginForm from './components/LoginForm';
 import LoginHeader from './components/LoginHeader';
 import DemoCredentials from './components/DemoCredentials';
 import LoginFooter from './components/LoginFooter';
 
 const Login = () => {
-  const navigate = useMockNavigate();
+  const { refreshUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
@@ -15,12 +16,12 @@ const Login = () => {
     rememberMe: false
   });
 
-  // Mock user data for authentication
+  // Mock user data for authentication (fallback when API fails)
   const mockUsers = [
     {
       id: 1,
-      email: 'admin@opix.pl',
-      password: 'admin123',
+      email: 'admin',
+      password: '1qaz@WSX',
       role: 'ADMIN',
       name: 'Administrator Systemu',
       isActive: true,
@@ -49,102 +50,78 @@ const Login = () => {
       email: 'inactive@opix.pl',
       password: 'inactive123',
       role: 'USER',
-      name: 'Nieaktywny Użytkownik',
+      name: 'Inactive User',
       isActive: false,
       lastLogin: null
     }
   ];
 
-  useEffect(() => {
-    // Check if user is already logged in
-    const token = localStorage.getItem('authToken');
-    const userData = localStorage.getItem('userData');
-    
-    if (token && userData) {
-      try {
-        const user = JSON.parse(userData);
-        if (user && user?.isActive) {
-          navigate('/dashboard');
-        }
-      } catch (error) {
-        // Clear invalid data
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userData');
-      }
-    }
-  }, [navigate]);
+  // No need for this useEffect - AuthContext handles redirect
 
   const handleLogin = async (loginData) => {
     setIsLoading(true);
     setError('');
 
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Try real API first
+      const response = await api.login({
+        email: loginData.email,
+        password: loginData.password
+      });
 
-      // Find user by email and password
-      const user = mockUsers?.find(
-        u => u?.email === loginData?.email && u?.password === loginData?.password
-      );
+      if (response.success && response.data) {
+        // Store authentication data from API response
+        localStorage.setItem('authToken', response.data.token);
+        localStorage.setItem('userData', JSON.stringify(response.data.user));
 
-      if (!user) {
-        throw new Error('Nieprawidłowy adres email lub hasło');
+        if (loginData?.rememberMe) {
+          localStorage.setItem('rememberMe', 'true');
+        }
+
+        // Refresh user in AuthContext - this will trigger redirect to dashboard
+        await refreshUser();
+        return;
       }
+    } catch (apiError) {
+      console.log('API login failed, trying mock login:', apiError);
+      
+      try {
+        // Fallback to mock authentication if API fails
+        // Find user by email and password
+        const user = mockUsers?.find(
+          u => u?.email === loginData?.email && u?.password === loginData?.password
+        );
 
-      if (!user?.isActive) {
-        throw new Error('Konto zostało dezaktywowane. Skontaktuj się z administratorem.');
+        if (!user) {
+          throw new Error('Invalid email or password');
+        }
+
+        if (!user?.isActive) {
+          throw new Error('Account has been deactivated. Contact the administrator.');
+        }
+
+        // Generate mock JWT token
+        const token = `mock-jwt-token-${user?.id}-${Date.now()}`;
+        
+        // Update user's last login
+        const updatedUser = {
+          ...user,
+          lastLogin: new Date()?.toISOString()
+        };
+
+        // Store authentication data
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('userData', JSON.stringify(updatedUser));
+
+        if (loginData?.rememberMe) {
+          localStorage.setItem('rememberMe', 'true');
+        }
+
+        // Refresh user in AuthContext - this will trigger redirect to dashboard
+        await refreshUser();
+      } catch (err) {
+        setError(err?.message || 'Login error');
       }
-
-      // Generate mock JWT token
-      const token = `mock-jwt-token-${user?.id}-${Date.now()}`;
-      
-      // Update user's last login
-      const updatedUser = {
-        ...user,
-        lastLogin: new Date()?.toISOString()
-      };
-
-      // Store authentication data
-      localStorage.setItem('authToken', token);
-      localStorage.setItem('userData', JSON.stringify(updatedUser));
-      
-      if (loginData?.rememberMe) {
-        localStorage.setItem('rememberMe', 'true');
-      }
-
-      // Track login activity (mock)
-      const loginActivity = {
-        userId: user?.id,
-        timestamp: new Date()?.toISOString(),
-        ipAddress: '192.168.1.1', // Mock IP
-        userAgent: navigator.userAgent,
-        success: true
-      };
-      
-      const existingActivity = JSON.parse(localStorage.getItem('loginActivity') || '[]');
-      existingActivity?.push(loginActivity);
-      localStorage.setItem('loginActivity', JSON.stringify(existingActivity?.slice(-50))); // Keep last 50 entries
-
-      // Navigate to dashboard
-      navigate('/dashboard');
-
-    } catch (err) {
-      setError(err?.message);
-      
-      // Track failed login attempt
-      const failedActivity = {
-        email: loginData?.email,
-        timestamp: new Date()?.toISOString(),
-        ipAddress: '192.168.1.1',
-        userAgent: navigator.userAgent,
-        success: false,
-        error: err?.message
-      };
-      
-      const existingActivity = JSON.parse(localStorage.getItem('loginActivity') || '[]');
-      existingActivity?.push(failedActivity);
-      localStorage.setItem('loginActivity', JSON.stringify(existingActivity?.slice(-50)));
-      
     } finally {
       setIsLoading(false);
     }
@@ -160,34 +137,22 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="bg-card rounded-2xl shadow-modal border border-border p-8">
+        <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-8">
           <LoginHeader />
-          
+
           <LoginForm
             onSubmit={handleLogin}
             isLoading={isLoading}
             error={error}
             initialData={formData}
           />
-          
+
+          {/* Demo Credentials - For easy testing */}
           <DemoCredentials onUseCredentials={handleUseCredentials} />
-          
+
           <LoginFooter />
-        </div>
-        
-        {/* Additional Info Card */}
-        <div className="mt-6 bg-card/50 rounded-lg border border-border p-4 text-center">
-          <p className="text-sm text-muted-foreground">
-            Potrzebujesz pomocy? Skontaktuj się z{' '}
-            <a
-              href="mailto:support@opix.pl"
-              className="text-primary hover:text-primary/80 transition-hover"
-            >
-              support@opix.pl
-            </a>
-          </p>
         </div>
       </div>
     </div>

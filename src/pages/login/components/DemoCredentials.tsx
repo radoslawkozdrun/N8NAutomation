@@ -8,21 +8,21 @@ const DemoCredentials = ({ onUseCredentials }) => {
   const demoAccounts = [
     {
       role: 'ADMIN',
-      email: 'admin@opix.pl',
-      password: 'admin123',
-      description: 'Pełny dostęp do systemu'
+      email: 'admin',
+      password: '1qaz@WSX',
+      description: 'Full system access'
     },
     {
       role: 'USER',
       email: 'user@opix.pl',
       password: 'user123',
-      description: 'Dostęp do przeglądania i oceny artykułów'
+      description: 'Access to browsing and rating articles (Mock)'
     },
     {
       role: 'DEMO',
       email: 'demo@opix.pl',
       password: 'demo123',
-      description: 'Ograniczony dostęp demonstracyjny'
+      description: 'Limited demo access (Mock)'
     }
   ];
 
@@ -48,7 +48,7 @@ const DemoCredentials = ({ onUseCredentials }) => {
       >
         <div className="flex items-center space-x-2">
           <Icon name="TestTube" size={16} className="text-primary" />
-          <span className="text-sm font-medium">Konta demonstracyjne</span>
+          <span className="skote-body-text font-medium">Demo Accounts</span>
         </div>
         <Icon 
           name={isExpanded ? "ChevronUp" : "ChevronDown"} 
@@ -58,8 +58,8 @@ const DemoCredentials = ({ onUseCredentials }) => {
       </Button>
       {isExpanded && (
         <div className="mt-4 space-y-3">
-          <p className="text-xs text-muted-foreground mb-3">
-            Użyj poniższych danych do testowania systemu:
+          <p className="skote-small-text text-muted-foreground mb-3">
+            Use the following credentials to test the system:
           </p>
           
           {demoAccounts?.map((account, index) => (
@@ -68,29 +68,29 @@ const DemoCredentials = ({ onUseCredentials }) => {
               className="p-3 bg-card rounded-lg border border-border space-y-2"
             >
               <div className="flex items-center justify-between">
-                <span className={`px-2 py-1 text-xs font-medium rounded border ${getRoleBadgeColor(account?.role)}`}>
+                <span className={`px-2 py-1 skote-small-text font-medium rounded border ${getRoleBadgeColor(account?.role)}`}>
                   {account?.role}
                 </span>
                 <Button
                   variant="outline"
                   size="xs"
                   onClick={() => onUseCredentials(account?.email, account?.password)}
-                  className="text-xs"
+                  className="skote-small-text"
                 >
-                  Użyj
+                  Use
                 </Button>
               </div>
               
               <div className="space-y-1">
                 <div className="flex items-center space-x-2">
                   <Icon name="Mail" size={12} className="text-muted-foreground" />
-                  <span className="text-xs font-mono text-foreground">{account?.email}</span>
+                  <span className="skote-small-text font-mono text-foreground">{account?.email}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Icon name="Key" size={12} className="text-muted-foreground" />
-                  <span className="text-xs font-mono text-foreground">{account?.password}</span>
+                  <span className="skote-small-text font-mono text-foreground">{account?.password}</span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="skote-small-text text-muted-foreground mt-1">
                   {account?.description}
                 </p>
               </div>

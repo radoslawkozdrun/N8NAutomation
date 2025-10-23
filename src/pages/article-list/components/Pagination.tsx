@@ -12,10 +12,10 @@ const Pagination = ({
   onItemsPerPageChange 
 }) => {
   const pageSizeOptions = [
-    { value: 10, label: '10 na stronę' },
-    { value: 25, label: '25 na stronę' },
-    { value: 50, label: '50 na stronę' },
-    { value: 100, label: '100 na stronę' }
+    { value: '10', label: '10 per page' },
+    { value: '25', label: '25 per page' },
+    { value: '50', label: '50 per page' },
+    { value: '100', label: '100 per page' }
   ];
 
   const getVisiblePages = () => {
@@ -59,13 +59,13 @@ const Pagination = ({
         {/* Items Info */}
         <div className="flex items-center space-x-4">
           <div className="text-sm text-muted-foreground">
-            Wyświetlane {startItem}-{endItem} z {totalItems} artykułów
+            Showing {startItem}-{endItem} of {totalItems} articles
           </div>
           
           <Select
             options={pageSizeOptions}
-            value={itemsPerPage}
-            onChange={onItemsPerPageChange}
+            value={itemsPerPage?.toString()}
+            onChange={(value) => onItemsPerPageChange(parseInt(value, 10))}
             className="w-40"
           />
         </div>
@@ -81,7 +81,7 @@ const Pagination = ({
             iconName="ChevronLeft"
             iconPosition="left"
           >
-            Poprzednia
+            Previous
           </Button>
 
           {/* Page Numbers */}
@@ -107,7 +107,7 @@ const Pagination = ({
           {/* Mobile Page Info */}
           <div className="md:hidden flex items-center space-x-2">
             <span className="text-sm text-muted-foreground">
-              Strona {currentPage} z {totalPages}
+              Page {currentPage} of {totalPages}
             </span>
           </div>
 
@@ -120,7 +120,7 @@ const Pagination = ({
             iconName="ChevronRight"
             iconPosition="right"
           >
-            Następna
+            Next
           </Button>
         </div>
       </div>

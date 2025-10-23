@@ -161,35 +161,42 @@ router.get('/articles', authenticateToken, addUserFilter, async (req, res) => {
     }
 
     // Get total count
-    const countQuery = `SELECT COUNT(*) FROM content ${whereClause}`;
+    const countQuery = `SELECT COUNT(*) FROM article ${whereClause}`;
     const countResult = await query(countQuery, params);
     const total = parseInt(countResult.rows[0].count);
 
-    // Get articles
+    // Get articles - map basic article fields to expected structure
     const articlesQuery = `
       SELECT
         id,
         title,
-        author,
+        creator as author,
         link,
-        summary,
+        LEFT(COALESCE(content, ''), 200) as summary,
         content,
-        category,
-        subcategory,
-        tags,
-        priority,
-        target_audience,
-        relevance_score,
-        novelty_score,
-        viral_score,
-        value_score,
-        final_score,
-        key_takeways,
-        reasoning,
-        status,
-        review_justification,
-        created_date
-      FROM content
+        'OTHER' as category,
+        '' as subcategory,
+        CASE
+          WHEN categories IS NOT NULL AND categories != ''
+          THEN string_to_array(categories, ',')
+          ELSE ARRAY[]::text[]
+        END as tags,
+        COALESCE(priority, 'P3_EVERGREEN') as priority,
+        COALESCE(target_audience, 'mixed') as target_audience,
+        COALESCE(relevance_score, 0) as relevance_score,
+        COALESCE(novelty_score, 0) as novelty_score,
+        COALESCE(viral_score, 0) as viral_score,
+        COALESCE(value_score, 0) as value_score,
+        COALESCE(final_score, 0) as final_score,
+        CASE
+          WHEN key_takeaways IS NOT NULL AND key_takeaways != ''
+          THEN string_to_array(key_takeaways, '|||')
+          ELSE ARRAY[]::text[]
+        END as key_takeaways,
+        COALESCE(reasoning, '') as reasoning,
+        COALESCE(status, 'pending') as status,
+        created_at as created_date
+      FROM article
       ${whereClause}
       ${orderBy}
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
@@ -240,11 +247,36 @@ router.get('/articles/:id', authenticateToken, requireOwnershipOrAdmin('article'
 
     const result = await query(`
       SELECT
-        id, title, author, link, summary, content, category, subcategory,
-        tags, priority, target_audience, relevance_score, novelty_score,
-        viral_score, value_score, final_score, key_takeways, reasoning,
-        status, review_justification, created_date
-      FROM content
+        id,
+        title,
+        creator as author,
+        link,
+        LEFT(COALESCE(content, ''), 200) as summary,
+        content,
+        'OTHER' as category,
+        '' as subcategory,
+        CASE
+          WHEN categories IS NOT NULL AND categories != ''
+          THEN string_to_array(categories, ',')
+          ELSE ARRAY[]::text[]
+        END as tags,
+        COALESCE(priority, 'P3_EVERGREEN') as priority,
+        COALESCE(target_audience, 'mixed') as target_audience,
+        COALESCE(relevance_score, 0) as relevance_score,
+        COALESCE(novelty_score, 0) as novelty_score,
+        COALESCE(viral_score, 0) as viral_score,
+        COALESCE(value_score, 0) as value_score,
+        COALESCE(final_score, 0) as final_score,
+        CASE
+          WHEN key_takeaways IS NOT NULL AND key_takeaways != ''
+          THEN string_to_array(key_takeaways, '|||')
+          ELSE ARRAY[]::text[]
+        END as key_takeaways,
+        COALESCE(reasoning, '') as reasoning,
+        COALESCE(status, 'pending') as status,
+        '' as review_justification,
+        created_at as created_date
+      FROM article
       WHERE id = $1
     `, [articleId]);
 
@@ -313,7 +345,7 @@ router.post('/articles/:id/decision', authenticateToken, requireOwnershipOrAdmin
 
     // Update article with justification
     const updateResult = await query(`
-      UPDATE content
+      UPDATE article
       SET status = $1, review_justification = $2
       WHERE id = $3
       RETURNING *
@@ -327,11 +359,7 @@ router.post('/articles/:id/decision', authenticateToken, requireOwnershipOrAdmin
       });
     }
 
-    const updatedArticle = {
-      ...updateResult.rows[0],
-      tags: parseArrayField(updateResult.rows[0].tags),
-      key_takeaways: parseArrayField(updateResult.rows[0].key_takeways),
-    };
+    const updatedArticle = updateResult.rows[0];
 
     console.log(`✅ Article ${articleId} ${action}ed successfully`);
 
@@ -541,6 +569,108 @@ router.get('/articles/:id/research', authenticateToken, requireOwnershipOrAdmin(
       success: false, 
       message: 'Failed to fetch research materials',
       error: error.message 
+    });
+  }
+});
+
+// DELETE /api/articles/:id
+router.delete('/articles/:id', authenticateToken, requireOwnershipOrAdmin('article'), async (req, res) => {
+  try {
+    const articleId = parseInt(req.params.id);
+    console.log(`🗑️ Deleting article ${articleId}`);
+
+    // Check if article exists
+    const checkResult = await query('SELECT id FROM content WHERE id = $1', [articleId]);
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Article not found',
+        code: 'ARTICLE_NOT_FOUND'
+      });
+    }
+
+    // Delete the article
+    await query('DELETE FROM content WHERE id = $1', [articleId]);
+
+    console.log(`✅ Article ${articleId} deleted successfully`);
+
+    res.json({
+      success: true,
+      message: 'Article deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('❌ Article deletion error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete article',
+      code: 'ARTICLE_DELETE_ERROR'
+    });
+  }
+});
+
+// POST /api/articles/bulk-delete
+router.post('/articles/bulk-delete', authenticateToken, addUserFilter, async (req, res) => {
+  try {
+    const { articleIds } = req.body;
+
+    console.log(`🗑️ Processing bulk delete for ${articleIds.length} articles`);
+
+    // Validate input
+    if (!Array.isArray(articleIds) || articleIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'articleIds must be a non-empty array',
+        code: 'INVALID_INPUT'
+      });
+    }
+
+    // Build placeholders for IN clause and add user filter
+    const placeholders = articleIds.map((_, index) => `$${index + 1}`).join(',');
+
+    let whereClause = `id IN (${placeholders})`;
+    let params = [...articleIds];
+
+    // Add user filter for non-admin users
+    if (req.userFilter.user_id) {
+      whereClause += ` AND user_id = $${params.length + 1}`;
+      params.push(req.userFilter.user_id);
+    }
+
+    // First, get the articles that will be deleted to count them
+    const checkResult = await query(`
+      SELECT id FROM content WHERE ${whereClause}
+    `, params);
+
+    const foundIds = checkResult.rows.map(row => row.id);
+    const deletedCount = foundIds.length;
+    const notFoundCount = articleIds.length - deletedCount;
+
+    // Delete the articles
+    if (deletedCount > 0) {
+      await query(`DELETE FROM content WHERE ${whereClause}`, params);
+    }
+
+    console.log(`✅ Bulk delete: ${deletedCount} deleted, ${notFoundCount} not found/no permission`);
+
+    res.json({
+      success: true,
+      data: {
+        deleted_count: deletedCount,
+        not_found_count: notFoundCount,
+        not_found_ids: notFoundCount > 0 ? articleIds.filter(id =>
+          !foundIds.includes(id)
+        ) : []
+      },
+      message: `${deletedCount} articles deleted successfully`
+    });
+
+  } catch (error) {
+    console.error('❌ Bulk delete error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete articles',
+      code: 'BULK_DELETE_ERROR'
     });
   }
 });

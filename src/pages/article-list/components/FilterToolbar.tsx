@@ -3,247 +3,198 @@ import React, { useState } from 'react';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
+import Icon from '../../../components/AppIcon';
 
 const FilterToolbar = ({ 
   filters, 
   onFiltersChange, 
   onClearFilters,
   totalArticles,
-  filteredCount 
+  filteredCount,
+  selectedArticles,
+  onBulkAction 
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
 
   const statusOptions = [
-    { value: '', label: 'Wszystkie statusy' },
-    { value: 'NEW', label: 'Nowe' },
-    { value: 'PENDING_REVIEW', label: 'Oczekuje przeglądu' },
-    { value: 'ACCEPTED', label: 'Zaakceptowane' },
-    { value: 'REJECTED', label: 'Odrzucone' },
-    { value: 'ARCHIVED', label: 'Zarchiwizowane' },
-    { value: 'NEEDS_MORE', label: 'Wymaga więcej' },
-    { value: 'RESEARCH_DONE', label: 'Badania zakończone' }
+    { value: '', label: 'All statuses' },
+    { value: 'NEW', label: 'New' },
+    { value: 'PENDING_REVIEW', label: 'Pending Review' },
+    { value: 'ACCEPTED', label: 'Accepted' },
+    { value: 'REJECTED', label: 'Rejected' },
+    { value: 'ARCHIVED', label: 'Archived' },
+    { value: 'NEEDS_MORE', label: 'Needs More' },
+    { value: 'RESEARCH_DONE', label: 'Research Done' }
   ];
 
   const categoryOptions = [
-    { value: '', label: 'Wszystkie kategorie' },
-    { value: 'AI_ML', label: 'AI/ML' },
-    { value: 'WEB_DEV', label: 'Rozwój Web' },
-    { value: 'MOBILE_DEV', label: 'Rozwój Mobile' },
+    { value: '', label: 'All categories' },
+    { value: 'AI_ML', label: 'AI & Machine Learning' },
+    { value: 'WEB_DEV', label: 'Web Development' },
+    { value: 'MOBILE_DEV', label: 'Mobile Development' },
     { value: 'DATA_SCIENCE', label: 'Data Science' },
     { value: 'DEVOPS', label: 'DevOps' },
-    { value: 'SECURITY', label: 'Bezpieczeństwo' },
-    { value: 'CLOUD', label: 'Chmura' },
+    { value: 'SECURITY', label: 'Security' },
+    { value: 'CLOUD', label: 'Cloud Computing' },
     { value: 'BLOCKCHAIN', label: 'Blockchain' },
-    { value: 'IOT', label: 'IoT' },
-    { value: 'OTHER', label: 'Inne' }
+    { value: 'IOT', label: 'Internet of Things' },
+    { value: 'OTHER', label: 'Other' }
   ];
 
   const priorityOptions = [
-    { value: '', label: 'Wszystkie priorytety' },
-    { value: 'P0_BREAKING', label: 'P0 - Pilne' },
-    { value: 'P1_TRENDING', label: 'P1 - Trendy' },
-    { value: 'P2_TIMELY', label: 'P2 - Aktualne' },
-    { value: 'P3_EVERGREEN', label: 'P3 - Ponadczasowe' },
-    { value: 'P4_FILLER', label: 'P4 - Wypełniacz' }
+    { value: '', label: 'All priorities' },
+    { value: 'P0_BREAKING', label: 'P0 - Breaking' },
+    { value: 'P1_TRENDING', label: 'P1 - Trending' },
+    { value: 'P2_TIMELY', label: 'P2 - Timely' },
+    { value: 'P3_EVERGREEN', label: 'P3 - Evergreen' },
+    { value: 'P4_FILLER', label: 'P4 - Filler' }
   ];
 
   const targetAudienceOptions = [
-    { value: '', label: 'Wszystkie grupy' },
-    { value: 'developers', label: 'Deweloperzy' },
-    { value: 'architects', label: 'Architekci' },
-    { value: 'managers', label: 'Menedżerowie' },
-    { value: 'beginners', label: 'Początkujący' },
-    { value: 'experts', label: 'Eksperci' },
-    { value: 'mixed', label: 'Mieszane' }
+    { value: '', label: 'All audiences' },
+    { value: 'developers', label: 'Developers' },
+    { value: 'architects', label: 'Architects' },
+    { value: 'managers', label: 'Managers' },
+    { value: 'beginners', label: 'Beginners' },
+    { value: 'experts', label: 'Experts' },
+    { value: 'mixed', label: 'Mixed' }
   ];
+
 
   const handleFilterChange = (key, value) => {
     onFiltersChange({
       ...filters,
-      [key]: value
+      [key]: value === '' ? undefined : value
     });
   };
 
-  const handleScoreRangeChange = (type, value) => {
-    onFiltersChange({
-      ...filters,
-      scoreRange: {
-        ...filters?.scoreRange,
-        [type]: parseFloat(value) || 0
-      }
-    });
-  };
+
 
   return (
-    <div className="bg-card border border-border rounded-lg p-4 mb-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-4">
-          <h3 className="text-lg font-semibold text-foreground">Filtry artykułów</h3>
-          <div className="text-sm text-muted-foreground">
-            Wyświetlane: {filteredCount} z {totalArticles} artykułów
-          </div>
+    <div className="bg-card border border-border rounded-lg p-4 space-y-4">
+      {/* Search */}
+      <div className="grid grid-cols-1 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-1">
+            Search
+          </label>
+          <Input
+            type="search"
+            placeholder="Search in titles, content, authors and tags..."
+            value={filters?.search}
+            onChange={(e) => handleFilterChange('search', e?.target?.value)}
+            className="w-full"
+          />
         </div>
-        <div className="flex items-center space-x-2">
+      </div>
+      {/* Filter Controls */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-1">
+            Category
+          </label>
+          <Select
+            placeholder="All categories"
+            options={categoryOptions}
+            value={filters?.category}
+            onChange={(value) => handleFilterChange('category', value)}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-1">
+            Status
+          </label>
+          <Select
+            placeholder="All statuses"
+            options={statusOptions}
+            value={filters?.status}
+            onChange={(value) => handleFilterChange('status', value)}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-1">
+            Priority
+          </label>
+          <Select
+            placeholder="All priorities"
+            options={priorityOptions}
+            value={filters?.priority}
+            onChange={(value) => handleFilterChange('priority', value)}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-1">
+            Actions
+          </label>
           <Button
             variant="outline"
-            size="sm"
             onClick={onClearFilters}
-            iconName="X"
-            iconPosition="left"
+            className="w-full h-[42px] py-2"
           >
-            Wyczyść filtry
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsExpanded(!isExpanded)}
-            iconName={isExpanded ? "ChevronUp" : "ChevronDown"}
-            iconPosition="right"
-          >
-            {isExpanded ? 'Zwiń' : 'Rozwiń'}
+            <Icon name="X" size={14} className="mr-2" />
+            Clear Filters
           </Button>
         </div>
       </div>
-      {/* Search */}
-      <div className="mb-4">
-        <Input
-          type="search"
-          placeholder="Szukaj w tytułach, treści, autorach i tagach..."
-          value={filters?.search}
-          onChange={(e) => handleFilterChange('search', e?.target?.value)}
-          className="max-w-md"
-        />
-      </div>
-      {/* Basic Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        <Select
-          label="Status"
-          options={statusOptions}
-          value={filters?.status}
-          onChange={(value) => handleFilterChange('status', value)}
-        />
-        
-        <Select
-          label="Kategoria"
-          options={categoryOptions}
-          value={filters?.category}
-          onChange={(value) => handleFilterChange('category', value)}
-        />
-        
-        <Select
-          label="Priorytet"
-          options={priorityOptions}
-          value={filters?.priority}
-          onChange={(value) => handleFilterChange('priority', value)}
-        />
-        
-        <Select
-          label="Grupa docelowa"
-          options={targetAudienceOptions}
-          value={filters?.targetAudience}
-          onChange={(value) => handleFilterChange('targetAudience', value)}
-        />
-      </div>
-      {/* Advanced Filters */}
-      {isExpanded && (
-        <div className="border-t border-border pt-4">
-          <h4 className="text-sm font-medium text-foreground mb-3">Zaawansowane filtry</h4>
+      {/* Active Filters Display */}
+      {(filters?.search || filters?.status || filters?.category || filters?.priority) && (
+        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border">
+          <span className="text-sm text-muted-foreground">Active filters:</span>
           
-          {/* Score Range Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Ocena końcowa (min)
-              </label>
-              <Input
-                type="number"
-                min="0"
-                max="100"
-                step="0.1"
-                placeholder="0"
-                value={filters?.scoreRange?.finalMin}
-                onChange={(e) => handleScoreRangeChange('finalMin', e?.target?.value)}
-              />
+          {filters?.search && (
+            <div className="flex items-center space-x-1 bg-primary/10 text-primary px-2 py-1 rounded-full text-xs">
+              <Icon name="Search" size={12} />
+              <span>"{filters?.search}"</span>
+              <button
+                onClick={() => handleFilterChange('search', '')}
+                className="hover:text-primary/80"
+              >
+                <Icon name="X" size={12} />
+              </button>
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Ocena końcowa (max)
-              </label>
-              <Input
-                type="number"
-                min="0"
-                max="100"
-                step="0.1"
-                placeholder="100"
-                value={filters?.scoreRange?.finalMax}
-                onChange={(e) => handleScoreRangeChange('finalMax', e?.target?.value)}
-              />
+          )}
+          
+          {filters?.status && (
+            <div className="flex items-center space-x-1 bg-primary/10 text-primary px-2 py-1 rounded-full text-xs">
+              <Icon name="Activity" size={12} />
+              <span>{statusOptions?.find(opt => opt?.value === filters?.status)?.label}</span>
+              <button
+                onClick={() => handleFilterChange('status', '')}
+                className="hover:text-primary/80"
+              >
+                <Icon name="X" size={12} />
+              </button>
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Relevance (min)
-              </label>
-              <Input
-                type="number"
-                min="0"
-                max="100"
-                step="0.1"
-                placeholder="0"
-                value={filters?.scoreRange?.relevanceMin}
-                onChange={(e) => handleScoreRangeChange('relevanceMin', e?.target?.value)}
-              />
+          )}
+          
+          {filters?.category && (
+            <div className="flex items-center space-x-1 bg-primary/10 text-primary px-2 py-1 rounded-full text-xs">
+              <Icon name="Tag" size={12} />
+              <span>{categoryOptions?.find(opt => opt?.value === filters?.category)?.label}</span>
+              <button
+                onClick={() => handleFilterChange('category', '')}
+                className="hover:text-primary/80"
+              >
+                <Icon name="X" size={12} />
+              </button>
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Novelty (min)
-              </label>
-              <Input
-                type="number"
-                min="0"
-                max="100"
-                step="0.1"
-                placeholder="0"
-                value={filters?.scoreRange?.noveltyMin}
-                onChange={(e) => handleScoreRangeChange('noveltyMin', e?.target?.value)}
-              />
+          )}
+          
+          {filters?.priority && (
+            <div className="flex items-center space-x-1 bg-primary/10 text-primary px-2 py-1 rounded-full text-xs">
+              <Icon name="AlertTriangle" size={12} />
+              <span>{priorityOptions?.find(opt => opt?.value === filters?.priority)?.label}</span>
+              <button
+                onClick={() => handleFilterChange('priority', '')}
+                className="hover:text-primary/80"
+              >
+                <Icon name="X" size={12} />
+              </button>
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Viral (min)
-              </label>
-              <Input
-                type="number"
-                min="0"
-                max="100"
-                step="0.1"
-                placeholder="0"
-                value={filters?.scoreRange?.viralMin}
-                onChange={(e) => handleScoreRangeChange('viralMin', e?.target?.value)}
-              />
-            </div>
-          </div>
-
-          {/* Date Range */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              type="date"
-              label="Data od"
-              value={filters?.dateFrom}
-              onChange={(e) => handleFilterChange('dateFrom', e?.target?.value)}
-            />
-            
-            <Input
-              type="date"
-              label="Data do"
-              value={filters?.dateTo}
-              onChange={(e) => handleFilterChange('dateTo', e?.target?.value)}
-            />
-          </div>
+          )}
+          
         </div>
       )}
     </div>

@@ -5,7 +5,7 @@ async function createDefaultAdmin() {
   try {
     // Check if admin already exists
     const existingAdmin = await query(
-      "SELECT id FROM \"user\" WHERE role = 'admin' LIMIT 1"
+      "SELECT id FROM \"user\" WHERE role = 'ADMIN' LIMIT 1"
     );
 
     if (existingAdmin.rows.length > 0) {
@@ -17,7 +17,7 @@ async function createDefaultAdmin() {
     const username = 'admin';
     const email = 'admin@example.com';
     const password = '1qaz@WSX';
-    const role = 'admin';
+    const role = 'ADMIN';
 
     console.log('Creating default admin user...');
     console.log('Username:', username);

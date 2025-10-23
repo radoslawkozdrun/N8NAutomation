@@ -48,7 +48,12 @@ app.use('/api', require('./routes/articles'));
 app.use('/api', require('./routes/dashboard'));
 app.use('/api', require('./routes/feeds'));
 app.use('/api', require('./routes/users'));
-app.use('/api', require('./routes/domains'));
+app.use('/api/domains', require('./routes/domains'));
+app.use('/api/n8n', require('./routes/n8n'));
+app.use('/api/social-media', require('./routes/social-media'));
+app.use('/api/master-content', require('./routes/master-content'));
+app.use('/api/platform-content', require('./routes/platform-content'));
+app.use('/api/webhook', require('./routes/webhook-trigger'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

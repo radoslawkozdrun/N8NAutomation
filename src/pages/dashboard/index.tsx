@@ -1,304 +1,316 @@
 import React, { useState, useEffect } from 'react';
-import StatCard from './components/StatCard';
-import ActivityFeed from './components/ActivityFeed';
-import PendingArticlesOverview from './components/PendingArticlesOverview';
-import ScoreDistributionChart from './components/ScoreDistributionChart';
-import FeedHealthMonitor from './components/FeedHealthMonitor';
-import QuickActions from './components/QuickActions';
-import { useToast } from '../../components/ui/Toast';
+import {
+  TrendingUp,
+  Users,
+  ShoppingCart,
+  BarChart3,
+  ArrowUpRight,
+  ArrowDownRight,
+  FileText,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  Star,
+  Activity,
+  DollarSign,
+  Eye
+} from 'lucide-react';
 
 const Dashboard = () => {
-  // Mock navigate function - in real app this would switch views
-  const navigate = (path: string) => {
-    console.log('Navigate to:', path);
-    // In a real implementation, this would call a view change handler
-  };
-  const { addToast } = useToast();
-  
-  // Helper functions for toast notifications
-  const success = (message: string) => addToast({ type: 'success', title: message });
-  const error = (message: string) => addToast({ type: 'error', title: message });
-  const info = (message: string) => addToast({ type: 'info', title: message });
-  const [user] = useState({
-    id: 1,
-    name: 'Anna Kowalska',
-    email: 'anna.kowalska@opix.pl',
-    role: 'ADMIN'
-  });
+  const [timeRange, setTimeRange] = useState('today');
 
-  // Mock data for dashboard statistics
-  const [dashboardStats] = useState({
-    totalArticles: 1247,
-    pendingReview: 23,
-    averageScore: 7.8,
-    activeFeeds: 15,
-    todayProcessed: 45,
-    weeklyGrowth: '+12%'
-  });
+  // Sample data - in real app this would come from API
+  const stats = [
+    {
+      title: 'Total Articles',
+      value: '2,456',
+      change: '+5.4%',
+      trend: 'up',
+      icon: FileText,
+      color: 'blue'
+    },
+    {
+      title: 'Pending Review',
+      value: '45',
+      change: '-2.1%',
+      trend: 'down',
+      icon: Clock,
+      color: 'yellow'
+    },
+    {
+      title: 'Accepted Today',
+      value: '28',
+      change: '+8.2%',
+      trend: 'up',
+      icon: CheckCircle,
+      color: 'green'
+    },
+    {
+      title: 'Average AI Score',
+      value: '87.5',
+      change: '+1.2%',
+      trend: 'up',
+      icon: Star,
+      color: 'purple'
+    }
+  ];
 
-  const [pendingCounts] = useState({
-    NEW: 8,
-    PENDING_REVIEW: 15,
-    NEEDS_MORE: 5
-  });
-
-  const [recentActivities] = useState([
+  const recentActivity = [
     {
       id: 1,
-      type: 'article_accepted',
-      user: 'Piotr Nowak',
-      action: 'zaakceptował artykuł',
-      target: 'React 18 - Nowe funkcje',
-      timestamp: new Date(Date.now() - 300000)
+      action: 'Article accepted',
+      article: 'React 18 Concurrent Features Guide',
+      user: 'John Doe',
+      time: '2 minutes ago',
+      type: 'success'
     },
     {
       id: 2,
-      type: 'article_rejected',
-      user: 'Maria Wiśniewska',
-      action: 'odrzucił artykuł',
-      target: 'Przestarzałe praktyki CSS',
-      timestamp: new Date(Date.now() - 600000)
+      action: 'New article submitted',
+      article: 'Vue 3 Composition API Best Practices',
+      user: 'Jane Smith',
+      time: '15 minutes ago',
+      type: 'info'
     },
     {
       id: 3,
-      type: 'feed_added',
-      user: 'Anna Kowalska',
-      action: 'dodał nowe źródło RSS',
-      target: 'TechCrunch AI',
-      timestamp: new Date(Date.now() - 900000)
+      action: 'Article rejected',
+      article: 'Outdated jQuery Techniques',
+      user: 'Mike Johnson',
+      time: '1 hour ago',
+      type: 'error'
     },
     {
       id: 4,
-      type: 'bulk_operation',
-      user: 'Tomasz Kowalczyk',
-      action: 'wykonał masową operację na',
-      target: '12 artykułach',
-      timestamp: new Date(Date.now() - 1200000)
-    },
-    {
-      id: 5,
-      type: 'user_login',
-      user: 'Katarzyna Zielińska',
-      action: 'zalogował się do systemu',
-      timestamp: new Date(Date.now() - 1800000)
+      action: 'Article needs review',
+      article: 'TypeScript 5.0 New Features',
+      user: 'Sarah Wilson',
+      time: '2 hours ago',
+      type: 'warning'
     }
-  ]);
+  ];
 
-  const [scoreDistribution] = useState([
-    { name: 'Trafność', value: 8.2 },
-    { name: 'Nowość', value: 7.5 },
-    { name: 'Wiralność', value: 6.8 },
-    { name: 'Wartość', value: 8.9 },
-    { name: 'Końcowy', value: 7.8 }
-  ]);
-
-  const [categoryDistribution] = useState([
-    { name: 'AI/ML', value: 145 },
-    { name: 'Web Dev', value: 298 },
-    { name: 'Mobile', value: 187 },
-    { name: 'DevOps', value: 156 },
-    { name: 'Security', value: 123 },
-    { name: 'Inne', value: 338 }
-  ]);
-
-  const [feedStats] = useState({
-    active: 15,
-    errors: 2,
-    inactive: 3
-  });
-
-  const [recentErrors] = useState([
+  const topPerformingArticles = [
     {
       id: 1,
-      feedName: 'TechCrunch RSS',
-      message: 'Timeout połączenia - przekroczono limit czasu',
-      severity: 'high',
-      timestamp: new Date(Date.now() - 1800000)
+      title: 'Advanced React Patterns and Performance',
+      score: 95.8,
+      views: '12.4k',
+      status: 'Published'
     },
     {
       id: 2,
-      feedName: 'Dev.to Feed',
-      message: 'Błąd parsowania XML - nieprawidłowa struktura',
-      severity: 'medium',
-      timestamp: new Date(Date.now() - 3600000)
+      title: 'Node.js Security Best Practices 2024',
+      score: 92.3,
+      views: '8.7k',
+      status: 'Published'
+    },
+    {
+      id: 3,
+      title: 'Modern CSS Layout Techniques',
+      score: 89.1,
+      views: '6.2k',
+      status: 'Published'
+    },
+    {
+      id: 4,
+      title: 'Database Optimization Strategies',
+      score: 87.5,
+      views: '4.8k',
+      status: 'Published'
     }
-  ]);
+  ];
 
-  const handleQuickAction = (action) => {
-    switch (action) {
-      case 'NEW': case'PENDING_REVIEW': case'NEEDS_MORE':
-        navigate(`/article-list?status=${action}`);
-        break;
-      case 'BULK_ACCEPT': info('Przekierowanie do operacji masowych...');
-        navigate('/article-list?bulk=true');
-        break;
-      case 'HIGH_PRIORITY': navigate('/article-list?priority=P0_BREAKING,P1_TRENDING');
-        break;
-      case 'review_pending': navigate('/article-list?status=PENDING_REVIEW');
-        break;
-      case 'bulk_operations': navigate('/article-list?bulk=true');
-        break;
-      case 'add_feed': navigate('/rss-feed-management?action=add');
-        break;
-      case 'manage_users': navigate('/user-management');
-        break;
-      case 'export_data':
-        success('Rozpoczęto eksport danych. Plik zostanie pobrany za chwilę.');
-        break;
-      case 'system_settings': info('Funkcja ustawień systemu będzie dostępna wkrótce.');
-        break;
-      default:
-        break;
-    }
+  const getStatColor = (color: string) => {
+    const colors = {
+      blue: 'bg-blue-50 text-blue-600',
+      yellow: 'bg-yellow-50 text-yellow-600',
+      green: 'bg-green-50 text-green-600',
+      purple: 'bg-purple-50 text-purple-600'
+    };
+    return colors[color] || colors.blue;
   };
 
-  const handleViewAllArticles = () => {
-    navigate('/article-list');
+  const getTrendIcon = (trend: string) => {
+    return trend === 'up' ? ArrowUpRight : ArrowDownRight;
   };
 
-  const handleViewFeedDetails = () => {
-    navigate('/rss-feed-management');
+  const getTrendColor = (trend: string) => {
+    return trend === 'up' ? 'text-green-600' : 'text-red-600';
   };
 
-  const handleStatCardClick = (type) => {
+  const getActivityIcon = (type: string) => {
     switch (type) {
-      case 'articles': navigate('/article-list');
-        break;
-      case 'feeds': navigate('/rss-feed-management');
-        break;
-      default:
-        break;
+      case 'success': return 'bg-green-100 text-green-600';
+      case 'error': return 'bg-red-100 text-red-600';
+      case 'warning': return 'bg-yellow-100 text-yellow-600';
+      default: return 'bg-blue-100 text-blue-600';
     }
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">
-              Panel główny
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Witaj ponownie, {user?.name}! Oto przegląd Twojej aktywności.
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-sm text-muted-foreground">
-              Ostatnia aktualizacja
-            </p>
-            <p className="text-sm font-medium text-foreground">
-              {new Date()?.toLocaleString('pl-PL')}
-            </p>
-          </div>
+    <div className="h-full flex flex-col p-6 space-y-6">
+      {/* Page Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="skote-page-title">Dashboard</h1>
+          <p className="text-muted-foreground mt-2">
+            Overview of system performance and activities
+          </p>
         </div>
-
-        {/* Key Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard
-            title="Łączna liczba artykułów"
-            value={dashboardStats?.totalArticles?.toLocaleString('pl-PL')}
-            change={dashboardStats?.weeklyGrowth}
-            changeType="positive"
-            icon="FileText"
-            description="Wszystkie artykuły w systemie"
-            onClick={() => handleStatCardClick('articles')}
-          />
-          <StatCard
-            title="Oczekujące przeglądu"
-            value={dashboardStats?.pendingReview}
-            icon="Clock"
-            description="Artykuły wymagające decyzji"
-            onClick={() => navigate('/article-list?status=PENDING_REVIEW')}
-          />
-          <StatCard
-            title="Średni wynik AI"
-            value={dashboardStats?.averageScore}
-            change="+0.3"
-            changeType="positive"
-            icon="TrendingUp"
-            description="Średnia ocena jakości"
-          />
-          <StatCard
-            title="Aktywne źródła RSS"
-            value={dashboardStats?.activeFeeds}
-            icon="Rss"
-            description="Działające źródła artykułów"
-            onClick={() => handleStatCardClick('feeds')}
-          />
+        <div className="flex items-center gap-3">
+          <select
+            value={timeRange}
+            onChange={(e) => setTimeRange(e.target.value)}
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+          </select>
         </div>
+      </div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Pending Articles Overview */}
-            <PendingArticlesOverview
-              pendingCounts={pendingCounts}
-              onViewAll={handleViewAllArticles}
-              onQuickAction={handleQuickAction}
-            />
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        {stats.map((stat, index) => {
+          const IconComponent = stat.icon;
+          const TrendIcon = getTrendIcon(stat.trend);
 
-            {/* Charts Row */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              <ScoreDistributionChart
-                data={scoreDistribution}
-                type="bar"
-                title="Średnie wyniki AI"
-              />
-              <ScoreDistributionChart
-                data={categoryDistribution}
-                type="pie"
-                title="Rozkład kategorii"
-              />
+          return (
+            <div key={index} className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="skote-body-text font-medium text-gray-500 uppercase tracking-wide">{stat.title}</p>
+                  <p className="skote-page-title font-bold text-gray-900 mt-2">{stat.value}</p>
+                  <div className={`flex items-center mt-2 skote-body-text ${getTrendColor(stat.trend)}`}>
+                    <TrendIcon className="w-4 h-4 mr-1" />
+                    <span>{stat.change} from last period</span>
+                  </div>
+                </div>
+                <div className="flex-shrink-0">
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${getStatColor(stat.color)}`}>
+                    <IconComponent className="w-6 h-6" />
+                  </div>
+                </div>
+              </div>
             </div>
+          );
+        })}
+      </div>
 
-            {/* Feed Health Monitor */}
-            <FeedHealthMonitor
-              feedStats={feedStats}
-              recentErrors={recentErrors}
-              onViewDetails={handleViewFeedDetails}
-            />
+      {/* Charts and Activity Grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Chart Area */}
+        <div className="xl:col-span-2 bg-white rounded-lg border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="skote-card-title">Article Performance</h2>
+            <div className="flex items-center space-x-2">
+              <button className="px-3 py-1 skote-body-text text-blue-600 bg-blue-50 rounded-md">Weekly</button>
+              <button className="px-3 py-1 skote-body-text text-gray-500 hover:text-gray-700">Monthly</button>
+              <button className="px-3 py-1 skote-body-text text-gray-500 hover:text-gray-700">Yearly</button>
+            </div>
           </div>
 
-          {/* Right Column */}
-          <div className="space-y-6">
-            {/* Quick Actions */}
-            <QuickActions
-              onAction={handleQuickAction}
-              userRole={user?.role}
-            />
-
-            {/* Activity Feed */}
-            <ActivityFeed
-              activities={recentActivities}
-            />
+          {/* Placeholder for chart */}
+          <div className="h-80 bg-gray-50 rounded-lg flex items-center justify-center">
+            <div className="text-center">
+              <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">Chart visualization would be here</p>
+              <p className="skote-body-text text-gray-400">Integration with Chart.js or Recharts</p>
+            </div>
           </div>
         </div>
 
-        {/* Additional Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatCard
-            title="Przetworzone dzisiaj"
-            value={dashboardStats?.todayProcessed}
-            icon="CheckCircle"
-            description="Artykuły przejrzane dzisiaj"
-          />
-          <StatCard
-            title="Średni czas przeglądu"
-            value="2.3 min"
-            icon="Timer"
-            description="Czas na artykuł"
-          />
-          <StatCard
-            title="Wskaźnik akceptacji"
-            value="78%"
-            change="+5%"
-            changeType="positive"
-            icon="ThumbsUp"
-            description="Procent zaakceptowanych"
-          />
+        {/* Recent Activity */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h2 className="skote-card-title mb-6">Recent Activity</h2>
+          <div className="space-y-4">
+            {recentActivity.map((activity) => (
+              <div key={activity.id} className="flex items-start space-x-3">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getActivityIcon(activity.type)}`}>
+                  <Activity className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="skote-body-text font-medium text-gray-900">{activity.action}</p>
+                  <p className="skote-body-text text-gray-500 truncate">{activity.article}</p>
+                  <p className="skote-small-text text-gray-400">{activity.user} • {activity.time}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-6">
+            <button className="w-full text-center skote-body-text text-blue-600 hover:text-blue-700 font-medium">
+              View all activity
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Top Performing Articles */}
+      <div className="bg-white rounded-lg border border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="skote-card-title">Top Performing Articles</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left skote-small-text font-medium text-gray-500 uppercase tracking-wider">
+                  Article
+                </th>
+                <th className="px-6 py-3 text-left skote-small-text font-medium text-gray-500 uppercase tracking-wider">
+                  AI Score
+                </th>
+                <th className="px-6 py-3 text-left skote-small-text font-medium text-gray-500 uppercase tracking-wider">
+                  Views
+                </th>
+                <th className="px-6 py-3 text-left skote-small-text font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-center skote-small-text font-medium text-gray-500 uppercase tracking-wider">
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {topPerformingArticles.map((article) => (
+                <tr key={article.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">
+                    <div className="skote-body-text font-medium text-gray-900">{article.title}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="skote-body-text font-medium text-gray-900 mr-2">{article.score}</div>
+                      <div className="w-16 bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-green-600 h-2 rounded-full"
+                          style={{ width: `${article.score}%` }}
+                        />
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap skote-body-text text-gray-500">
+                    <div className="flex items-center">
+                      <Eye className="w-4 h-4 mr-1" />
+                      {article.views}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full skote-small-text font-medium bg-green-100 text-green-800">
+                      {article.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center skote-body-text font-medium">
+                    <button className="text-blue-600 hover:text-blue-900 transition-colors">
+                      <Eye className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

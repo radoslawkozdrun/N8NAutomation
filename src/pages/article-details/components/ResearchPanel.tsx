@@ -12,12 +12,12 @@ const ResearchPanel = ({ researchData, onAddResearch }) => {
   });
 
   const researchTypes = [
-    { value: 'fact_check', label: 'Sprawdzenie faktów', icon: 'CheckCircle' },
-    { value: 'source_verification', label: 'Weryfikacja źródła', icon: 'Shield' },
-    { value: 'competitor_analysis', label: 'Analiza konkurencji', icon: 'TrendingUp' },
-    { value: 'trend_research', label: 'Badanie trendów', icon: 'BarChart3' },
-    { value: 'expert_opinion', label: 'Opinia eksperta', icon: 'User' },
-    { value: 'additional_sources', label: 'Dodatkowe źródła', icon: 'Link' }
+    { value: 'fact_check', label: 'Fact Check', icon: 'CheckCircle' },
+    { value: 'source_verification', label: 'Source Verification', icon: 'Shield' },
+    { value: 'competitor_analysis', label: 'Competitor Analysis', icon: 'TrendingUp' },
+    { value: 'trend_research', label: 'Trend Research', icon: 'BarChart3' },
+    { value: 'expert_opinion', label: 'Expert Opinion', icon: 'User' },
+    { value: 'additional_sources', label: 'Additional Sources', icon: 'Link' }
   ];
 
   const getTypeIcon = (type) => {
@@ -42,16 +42,16 @@ const ResearchPanel = ({ researchData, onAddResearch }) => {
 
   const getStatusLabel = (status) => {
     const labels = {
-      'pending': 'Oczekuje',
-      'completed': 'Zakończone',
-      'failed': 'Niepowodzenie',
-      'in_progress': 'W trakcie'
+      'pending': 'Pending',
+      'completed': 'Completed',
+      'failed': 'Failed',
+      'in_progress': 'In Progress'
     };
     return labels?.[status] || status;
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString)?.toLocaleDateString('pl-PL', {
+    return new Date(dateString)?.toLocaleDateString('en-US', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -83,7 +83,7 @@ const ResearchPanel = ({ researchData, onAddResearch }) => {
   return (
     <div className="bg-card border border-border rounded-lg p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-foreground">Materiały badawcze</h2>
+        <h2 className="text-lg font-semibold text-foreground">Research Materials</h2>
         <Button
           variant="outline"
           size="sm"
@@ -120,13 +120,13 @@ const ResearchPanel = ({ researchData, onAddResearch }) => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Źródło *
+                  Source *
                 </label>
                 <input
                   type="text"
                   value={newResearch?.source}
                   onChange={(e) => setNewResearch({ ...newResearch, source: e?.target?.value })}
-                  placeholder="Nazwa źródła lub eksperta"
+                  placeholder="Source name or expert"
                   className="w-full p-2 border border-border rounded-lg bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                   required
                 />
@@ -176,9 +176,9 @@ const ResearchPanel = ({ researchData, onAddResearch }) => {
         {researchData?.length === 0 ? (
           <div className="text-center py-8">
             <Icon name="Search" size={48} className="text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">Brak materiałów badawczych</p>
+            <p className="text-muted-foreground">No research materials</p>
             <p className="text-sm text-muted-foreground mt-2">
-              Dodaj pierwsze badanie, aby rozpocząć śledzenie źródeł
+              Add the first research to start tracking sources
             </p>
           </div>
         ) : (
@@ -254,13 +254,13 @@ const ResearchPanel = ({ researchData, onAddResearch }) => {
               <div className="text-2xl font-bold text-foreground">
                 {researchData?.length}
               </div>
-              <div className="text-sm text-muted-foreground">Łącznie</div>
+              <div className="text-sm text-muted-foreground">Total</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">
                 {researchData?.filter(r => r?.status === 'completed')?.length}
               </div>
-              <div className="text-sm text-muted-foreground">Zakończone</div>
+              <div className="text-sm text-muted-foreground">Completed</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">

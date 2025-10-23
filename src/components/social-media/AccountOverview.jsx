@@ -5,28 +5,28 @@ import { cn } from '../../utils/cn';
 const AccountOverview = ({ stats, isLoading }) => {
   const overviewCards = [
     {
-      title: 'Łączna liczba kont',
+      title: 'Total Accounts',
       value: stats?.total || 0,
       icon: 'Users',
       color: 'bg-primary',
-      description: 'Wszystkie połączone konta'
+      description: 'All connected accounts'
     },
     {
-      title: 'Aktywne połączenia',
+      title: 'Active Connections',
       value: stats?.connected || 0,
       icon: 'CheckCircle',
       color: 'bg-success',
-      description: 'Prawidłowo działające konta'
+      description: 'Properly working accounts'
     },
     {
-      title: 'Błędy połączeń',
+      title: 'Connection Errors',
       value: stats?.errors || 0,
       icon: 'XCircle',
       color: 'bg-error',
-      description: 'Konta wymagające uwagi'
+      description: 'Accounts requiring attention'
     },
     {
-      title: 'Ostrzeżenia',
+      title: 'Warnings',
       value: stats?.warnings || 0,
       icon: 'AlertTriangle',
       color: 'bg-warning',
@@ -110,7 +110,7 @@ const AccountOverview = ({ stats, isLoading }) => {
       <div className="bg-card border border-border rounded-lg p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-foreground">
-            Rozkład platform
+            Platform Distribution
           </h3>
           <div className="text-sm text-muted-foreground">
             {stats?.total || 0} kont w {platformCards?.filter(p => p?.count > 0)?.length || 0} platformach
@@ -142,7 +142,7 @@ const AccountOverview = ({ stats, isLoading }) => {
         <div className="mt-6 pt-4 border-t border-border">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-foreground">
-              Stan połączeń
+              Connection Status
             </span>
             <span className="text-xs text-muted-foreground">
               {stats?.connected}/{stats?.total} aktywnych
@@ -178,15 +178,15 @@ const AccountOverview = ({ stats, isLoading }) => {
           <div className="flex justify-between text-xs text-muted-foreground mt-1">
             <span className="flex items-center space-x-1">
               <div className="w-2 h-2 bg-success rounded"></div>
-              <span>Połączone ({stats?.connected})</span>
+              <span>Connected ({stats?.connected})</span>
             </span>
             <span className="flex items-center space-x-1">
               <div className="w-2 h-2 bg-warning rounded"></div>
-              <span>Ostrzeżenia ({stats?.warnings})</span>
+              <span>Warnings ({stats?.warnings})</span>
             </span>
             <span className="flex items-center space-x-1">
               <div className="w-2 h-2 bg-error rounded"></div>
-              <span>Błędy ({stats?.errors})</span>
+              <span>Errors ({stats?.errors})</span>
             </span>
           </div>
         </div>

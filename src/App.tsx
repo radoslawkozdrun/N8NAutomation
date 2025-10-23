@@ -2,31 +2,30 @@ import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { Layout } from '@/components/Layout';
-import { ArticleList } from '@/components/ArticleList';
-import { AllArticles } from '@/components/AllArticles';
 import { ArticleDetailModal } from '@/components/ArticleDetailModal';
-import { Login } from '@/components/Login';
+// import { Login } from '@/components/Login'; // Old login component
 import { AccountPanel } from '@/components/AccountPanel';
 import { FeedManagement } from '@/components/FeedManagement';
-import { PostReview } from '@/components/PostReview';
 import { UserManagement } from '@/components/UserManagement';
 import { DomainManagement } from '@/components/DomainManagement';
 import { NewDashboard } from '@/components/NewDashboard';
-import { NewPostCreation } from '@/components/NewPostCreation';
+import Dashboard from '@/pages/dashboard/index';
 import { NewSocialMediaAccountManagement } from '@/components/NewSocialMediaAccountManagement';
 // Reference app pages
-import Dashboard from '@/pages/dashboard/index.tsx';
-import ArticleListPage from '@/pages/article-list/index.tsx';
-import ArticleDetailsPage from '@/pages/article-details/index.tsx';
-import LoginPage from '@/pages/login/index.tsx';
-import RSSFeedManagement from '@/pages/rss-feed-management/index.tsx';
-import UserManagementPage from '@/pages/user-management/index.tsx';
-import PostCreationPage from '@/pages/post-creation/index.tsx';
-import SocialMediaAccountManagementPage from '@/pages/social-media-account-management/index.tsx';
-import NotFound from '@/pages/NotFound.tsx';
+import ArticleListPage from '@/pages/article-list/index';
+import ArticleDetailsPage from '@/pages/article-details/index';
+import LoginPage from '@/pages/login/index';
+import UserManagementPage from '@/pages/user-management/index';
+import ConfigPropertiesManagement from '@/pages/config-properties/index';
+import ContentAdaptationPage from '@/pages/content-adaptation/index';
+import MasterContentPage from '@/pages/master-content/index';
+import MasterContentEditPage from '@/pages/master-content-edit/index';
+import SocialPlatformsPage from '@/pages/social-platforms/index';
+import NotFound from '@/pages/NotFound';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { NavigationProvider } from '@/contexts/NavigationContext';
 import { ToastProvider } from '@/components/ui/Toast';
-import { Article } from '@/types';
+import { Article, ViewType } from '@/types';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -41,7 +40,7 @@ const queryClient = new QueryClient({
 
 function AppContent() {
   const { user, loading } = useAuth();
-  const [currentView, setCurrentView] = useState<'articles' | 'all-articles' | 'account' | 'feeds' | 'post-review' | 'users' | 'domains' | 'new-dashboard' | 'new-post-creation' | 'new-social-media-accounts' | 'dashboard' | 'article-list-page' | 'article-details' | 'rss-feeds' | 'user-management' | 'post-creation' | 'social-media-management'>('dashboard');
+  const [currentView, setCurrentView] = useState<ViewType>('new-dashboard');
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
 
@@ -78,7 +77,9 @@ function AppContent() {
   if (!user) {
     return (
       <div className="App">
-        <Login onLogin={handleLogin} />
+        <NavigationProvider currentView="new-dashboard" onViewChange={() => {}}>
+          <LoginPage />
+        </NavigationProvider>
         <Toaster position="top-right" />
       </div>
     );
@@ -86,46 +87,40 @@ function AppContent() {
 
   return (
     <div className="App">
-      <Layout 
-        currentView={currentView} 
-        onViewChange={setCurrentView}
-      >
-        {currentView === 'dashboard' ? (
-          <Dashboard />
-        ) : currentView === 'article-list-page' ? (
-          <ArticleListPage />
-        ) : currentView === 'article-details' ? (
-          <ArticleDetailsPage />
-        ) : currentView === 'rss-feeds' ? (
-          <RSSFeedManagement />
-        ) : currentView === 'user-management' ? (
-          <UserManagementPage />
-        ) : currentView === 'post-creation' ? (
-          <PostCreationPage />
-        ) : currentView === 'social-media-management' ? (
-          <SocialMediaAccountManagementPage />
-        ) : currentView === 'new-dashboard' ? (
-          <NewDashboard />
-        ) : currentView === 'new-post-creation' ? (
-          <NewPostCreation />
-        ) : currentView === 'new-social-media-accounts' ? (
-          <NewSocialMediaAccountManagement />
-        ) : currentView === 'articles' ? (
-          <ArticleList onArticleSelect={handleArticleSelect} />
-        ) : currentView === 'all-articles' ? (
-          <AllArticles />
-        ) : currentView === 'post-review' ? (
-          <PostReview />
-        ) : currentView === 'account' ? (
-          <AccountPanel user={user} />
-        ) : currentView === 'feeds' ? (
-          <FeedManagement />
-        ) : currentView === 'users' ? (
-          <UserManagement />
-        ) : currentView === 'domains' ? (
-          <DomainManagement />
-        ) : null}
-      </Layout>
+      <NavigationProvider currentView={currentView} onViewChange={setCurrentView}>
+        <Layout
+          currentView={currentView}
+          onViewChange={setCurrentView}
+        >
+          {currentView === 'article-list-page' ? (
+            <ArticleListPage />
+          ) : currentView === 'article-details' ? (
+            <ArticleDetailsPage />
+          ) : currentView === 'user-management' ? (
+            <UserManagementPage />
+          ) : currentView === 'config-properties' ? (
+            <ConfigPropertiesManagement />
+          ) : currentView === 'master-content' ? (
+            <MasterContentPage />
+          ) : currentView === 'master-content-edit' ? (
+            <MasterContentEditPage />
+          ) : currentView === 'social-platforms' ? (
+            <SocialPlatformsPage />
+          ) : currentView === 'content-adaptation' ? (
+            <ContentAdaptationPage />
+          ) : currentView === 'new-dashboard' ? (
+            <Dashboard />
+          ) : currentView === 'new-social-media-accounts' ? (
+            <NewSocialMediaAccountManagement />
+          ) : currentView === 'account' ? (
+            <AccountPanel user={user} />
+          ) : currentView === 'feeds' ? (
+            <FeedManagement />
+          ) : currentView === 'domains' ? (
+            <DomainManagement />
+          ) : null}
+        </Layout>
+      </NavigationProvider>
 
       {/* Article detail modal */}
       <ArticleDetailModal

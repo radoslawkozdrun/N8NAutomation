@@ -1,8 +1,139 @@
 const express = require('express');
+const fs = require('fs').promises;
+const path = require('path');
+const crypto = require('crypto');
+const fetch = require('node-fetch');
 const { query } = require('../database');
 const { authenticateToken, requireAdmin, auditLog, addUserFilter, addUserConstraint, requireOwnershipOrAdmin } = require('../middleware/auth');
 
 const router = express.Router();
+
+// Path to logs file
+const LOGS_FILE_PATH = path.join(__dirname, '../logs/fetch-articles.json');
+
+// Helper function to write log entry to file
+async function writeLogToFile(logEntry) {
+  try {
+    // Ensure logs directory exists
+    const logsDir = path.dirname(LOGS_FILE_PATH);
+    try {
+      await fs.access(logsDir);
+    } catch (error) {
+      await fs.mkdir(logsDir, { recursive: true });
+      console.log('Created logs directory:', logsDir);
+    }
+
+    let logs = [];
+
+    // Try to read existing logs
+    try {
+      const fileContent = await fs.readFile(LOGS_FILE_PATH, 'utf8');
+      if (fileContent.trim()) {
+        logs = JSON.parse(fileContent);
+      }
+    } catch (error) {
+      // File doesn't exist or is empty, start with empty array
+      logs = [];
+      console.log('Starting new log file:', LOGS_FILE_PATH);
+    }
+
+    // Ensure logs is an array
+    if (!Array.isArray(logs)) {
+      console.warn('Log file contained invalid data, resetting to empty array');
+      logs = [];
+    }
+
+    // Add new log entry with validation
+    if (logEntry && typeof logEntry === 'object') {
+      logs.unshift(logEntry); // Add to beginning
+    } else {
+      console.error('Invalid log entry provided:', logEntry);
+      return;
+    }
+
+    // Keep only last 1000 entries to prevent file from growing too large
+    if (logs.length > 1000) {
+      logs = logs.slice(0, 1000);
+    }
+
+    // Write back to file with error handling
+    try {
+      await fs.writeFile(LOGS_FILE_PATH, JSON.stringify(logs, null, 2));
+      console.log('Log entry written successfully:', logEntry.id || 'unknown-id');
+    } catch (writeError) {
+      console.error('Error writing to log file:', writeError);
+      // Try to write without formatting as fallback
+      await fs.writeFile(LOGS_FILE_PATH, JSON.stringify(logs));
+    }
+  } catch (error) {
+    console.error('Error writing log to file:', error);
+    // Log to console as fallback
+    console.log('Fallback log entry:', JSON.stringify(logEntry, null, 2));
+  }
+}
+
+// Get N8N configuration from database
+async function getN8NConfig() {
+  try {
+    const result = await query(`
+      SELECT key, value
+      FROM config_property
+      WHERE key IN ('n8n_base_url', 'n8n_api_key')
+      AND is_active = true
+    `);
+
+    const config = {};
+    result.rows.forEach(row => {
+      config[row.key] = row.value;
+    });
+
+    return {
+      baseUrl: config.n8n_base_url || 'https://n8n.srv936559.hstgr.cloud/api/v1',
+      apiKey: config.n8n_api_key || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkOGI1M2UwNS00NjIxLTQyZTktYjk4Yi1hM2E4NDRjNzRlYmMiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzU3MDYyOTg0fQ.iHyLCgW7-N1nHk0TJ4yE4JzzgIyr3Cdo63GivTprLUA'
+    };
+  } catch (error) {
+    console.error('❌ Failed to get N8N config:', error.message);
+    return {
+      baseUrl: 'https://n8n.srv936559.hstgr.cloud/api/v1',
+      apiKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkOGI1M2UwNS00NjIxLTQyZTktYjk4Yi1hM2E4NDRjNzRlYmMiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzU3MDYyOTg0fQ.iHyLCgW7-N1nHk0TJ4yE4JzzgIyr3Cdo63GivTprLUA'
+    };
+  }
+}
+
+// Check if ContentFlowAI workflow is active
+async function isContentFlowAIWorkflowActive() {
+  try {
+    const { baseUrl, apiKey } = await getN8NConfig();
+    const response = await fetch(`${baseUrl}/workflows`, {
+      headers: {
+        'X-N8N-API-KEY': apiKey,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      console.error('Failed to fetch workflows from N8N:', response.statusText);
+      return false; // Default to test webhook if can't check
+    }
+
+    const data = await response.json();
+    const targetWorkflow = data.data.find(workflow =>
+      workflow.name === 'ContentFlowAI - N8N - 01 - RSS download'
+    );
+
+    if (!targetWorkflow) {
+      console.log('ContentFlowAI workflow not found, using test webhook');
+      return false;
+    }
+
+    const isActive = targetWorkflow.active === true;
+    console.log(`ContentFlowAI workflow status: ${isActive ? 'ACTIVE' : 'INACTIVE'}`);
+    return isActive;
+  } catch (error) {
+    console.error('Error checking ContentFlowAI workflow status:', error.message);
+    return false; // Default to test webhook on error
+  }
+}
 
 // Get all feeds with pagination and filtering
 router.get('/feeds', authenticateToken, addUserFilter, async (req, res) => {
@@ -38,7 +169,7 @@ router.get('/feeds', authenticateToken, addUserFilter, async (req, res) => {
       whereConditions.push(`(name ILIKE $${paramIndex++} OR url ILIKE $${paramIndex++} OR description ILIKE $${paramIndex++})`);
       const searchPattern = `%${search}%`;
       queryParams.push(searchPattern, searchPattern, searchPattern);
-      paramIndex += 2; // We added 2 more params
+      // paramIndex was already incremented 3 times in the whereConditions.push line
     }
 
     const whereClause = whereConditions.length > 0 ? 
@@ -112,6 +243,112 @@ router.get('/feeds', authenticateToken, addUserFilter, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to get feeds'
+    });
+  }
+});
+
+// Get fetch articles logs from file (must be before /feeds/:id route)
+// Get feed fetch logs from database
+router.get('/feeds/fetch-logs', authenticateToken, async (req, res) => {
+  try {
+    const { page = 1, limit = 20, status, search } = req.query;
+    const offset = (page - 1) * limit;
+
+    let queryStr = `
+      SELECT
+        id,
+        fetching_number,
+        fetched_at as started_at,
+        updated_at as completed_at,
+        status,
+        total_records as total_feeds,
+        valid_records as valid_feeds,
+        invalid_records as invalid_feeds,
+        '{}' as feed_stats,
+        user_id,
+        created_at
+      FROM feed_fetch_log
+    `;
+
+    const conditions = [];
+    const params = [];
+    let paramIndex = 1;
+
+    // Add status filter (map frontend status to database status)
+    if (status && status !== 'all') {
+      let dbStatus = status;
+      if (status === 'completed') dbStatus = 'SUCCESS';
+      else if (status === 'failed') dbStatus = 'FAILED';
+      else if (status === 'pending') dbStatus = 'RUNNING';
+
+      conditions.push(`status = $${paramIndex}`);
+      params.push(dbStatus);
+      paramIndex++;
+    }
+
+    // Add search filter (search in fetching_number or id)
+    if (search) {
+      conditions.push(`(id::text LIKE $${paramIndex} OR fetching_number::text LIKE $${paramIndex})`);
+      params.push(`%${search}%`);
+      paramIndex++;
+    }
+
+    if (conditions.length > 0) {
+      queryStr += ` WHERE ${conditions.join(' AND ')}`;
+    }
+
+    queryStr += ` ORDER BY fetched_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+    params.push(limit, offset);
+
+    // Execute query
+    const result = await query(queryStr, params);
+
+    // Get total count for pagination
+    let countQuery = 'SELECT COUNT(*) FROM feed_fetch_log';
+    const countParams = [];
+    let countParamIndex = 1;
+
+    if (conditions.length > 0) {
+      // Rebuild conditions for count query
+      const countConditions = [];
+      if (status && status !== 'all') {
+        let dbStatus = status;
+        if (status === 'completed') dbStatus = 'SUCCESS';
+        else if (status === 'failed') dbStatus = 'FAILED';
+        else if (status === 'pending') dbStatus = 'RUNNING';
+
+        countConditions.push(`status = $${countParamIndex}`);
+        countParams.push(dbStatus);
+        countParamIndex++;
+      }
+      if (search) {
+        countConditions.push(`(id::text LIKE $${countParamIndex} OR fetching_number::text LIKE $${countParamIndex})`);
+        countParams.push(`%${search}%`);
+        countParamIndex++;
+      }
+      countQuery += ` WHERE ${countConditions.join(' AND ')}`;
+    }
+
+    const countResult = await query(countQuery, countParams);
+    const total = parseInt(countResult.rows[0].count);
+    const totalPages = Math.ceil(total / limit);
+
+    res.json({
+      success: true,
+      data: result.rows,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        total_pages: totalPages
+      }
+    });
+  } catch (error) {
+    console.error('Error reading logs from database:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve logs',
+      error: error.message
     });
   }
 });
@@ -348,6 +585,26 @@ router.patch('/feeds/:id/toggle', authenticateToken, requireOwnershipOrAdmin('fe
   }
 });
 
+// Clear fetch articles logs (must be before /feeds/:id route)
+router.delete('/feeds/fetch-logs', authenticateToken, async (req, res) => {
+  try {
+    // Clear the log file by writing an empty array
+    await fs.writeFile(LOGS_FILE_PATH, '[]');
+    
+    res.json({
+      success: true,
+      message: 'Fetch logs cleared successfully'
+    });
+  } catch (error) {
+    console.error('Error clearing logs file:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to clear logs',
+      error: error.message
+    });
+  }
+});
+
 // Delete feed (admin or owner only)
 router.delete('/feeds/:id', authenticateToken, requireOwnershipOrAdmin('feed'), auditLog('DELETE_FEED', 'feed'), async (req, res) => {
   try {
@@ -514,6 +771,139 @@ router.post('/feeds/test-url', authenticateToken, requireAdmin, async (req, res)
     res.status(500).json({
       success: false,
       message: 'Failed to test URL'
+    });
+  }
+});
+
+// Proxy endpoint for N8N webhook to avoid CORS issues
+router.post('/feeds/fetch-articles', authenticateToken, async (req, res) => {
+  try {
+    const { fetchType, ids = [] } = req.body;
+    
+    // Validate input
+    if (!fetchType || !['SELECTED', 'ALL'].includes(fetchType)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid fetchType. Must be SELECTED or ALL'
+      });
+    }
+    
+    if (fetchType === 'SELECTED' && (!ids || ids.length === 0)) {
+      return res.status(400).json({
+        success: false,
+        message: 'ids array is required when fetchType is SELECTED'
+      });
+    }
+    
+    // Create log entry
+    const logEntry = {
+      id: Date.now() + Math.random(),
+      timestamp: new Date().toISOString(),
+      user: req.user?.username || 'Unknown',
+      fetchType,
+      ids: fetchType === 'SELECTED' ? ids : 'ALL',
+      status: 'starting',
+      message: 'Initiating fetch request to N8N webhook...'
+    };
+
+    // Log the request for auditing
+    console.log('Proxying feed fetch request:', logEntry);
+
+    // Generate unique fetch ID (fallback if crypto.randomUUID is not available)
+    const fetch_id = crypto.randomUUID ? crypto.randomUUID() : `fetch_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Prepare payload for N8N webhook
+    const payload = {
+      fetchType,
+      fetch_id,
+      user_id: req.user?.id || null,
+      ...(fetchType === 'SELECTED' && { ids })
+    };
+    
+    // Log the payload being sent to webhook
+    console.log('Webhook payload:', JSON.stringify(payload, null, 2));
+
+    // Check ContentFlowAI workflow status and determine webhook URL
+    const isWorkflowActive = await isContentFlowAIWorkflowActive();
+    const webhookPath = isWorkflowActive ? '/webhook/feeds/fetch' : '/webhook-test/feeds/fetch';
+    const webhookUrl = `https://n8n.srv936559.hstgr.cloud${webhookPath}`;
+
+    console.log(`Using webhook: ${webhookUrl} (ContentFlowAI workflow is ${isWorkflowActive ? 'ACTIVE' : 'INACTIVE'})`);
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    const responseData = await response.json().catch(() => ({}));
+    
+    // Update log entry with result
+    const finalLogEntry = {
+      ...logEntry,
+      status: response.ok ? 'success' : 'error',
+      httpStatus: `${response.status} ${response.statusText}`,
+      message: response.ok ? 'Article fetch request sent successfully' : `N8N webhook error: ${response.statusText}`,
+      responseData: responseData,
+      webhookPayload: payload
+    };
+    
+    // Write log to file
+    await writeLogToFile(finalLogEntry);
+    
+    // Return the response from N8N webhook along with the payload we sent
+    res.status(response.status).json({
+      success: response.ok,
+      data: responseData,
+      webhookPayload: payload,
+      httpStatus: `${response.status} ${response.statusText}`,
+      message: response.ok ? 'Article fetch request sent successfully' : `N8N webhook error: ${response.statusText}`
+    });
+    
+  } catch (error) {
+    console.error('Error proxying fetch request:', error);
+    
+    // Handle different types of errors
+    let errorMessage = 'Failed to send fetch request to N8N webhook';
+    let statusCode = 500;
+    
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      errorMessage = 'Network error: Unable to connect to N8N webhook';
+      statusCode = 503; // Service Unavailable
+    } else if (error.message.includes('timeout')) {
+      errorMessage = 'Timeout: N8N webhook did not respond in time';
+      statusCode = 504; // Gateway Timeout
+    }
+    
+    // Log error to file
+    const errorLogEntry = {
+      ...logEntry,
+      status: 'error',
+      httpStatus: `${statusCode} ${statusCode === 503 ? 'Service Unavailable' : statusCode === 504 ? 'Gateway Timeout' : 'Internal Server Error'}`,
+      message: errorMessage,
+      error: error.message,
+      webhookPayload: {
+        fetchType,
+        fetch_id: fetch_id || 'unknown',
+        user_id: req.user?.id || null,
+        ...(fetchType === 'SELECTED' && { ids })
+      }
+    };
+    
+    await writeLogToFile(errorLogEntry);
+    
+    res.status(statusCode).json({
+      success: false,
+      message: errorMessage,
+      error: error.message,
+      webhookPayload: {
+        fetchType,
+        fetch_id: fetch_id || 'unknown',
+        user_id: req.user?.id || null,
+        ...(fetchType === 'SELECTED' && { ids })
+      },
+      httpStatus: `${statusCode} ${statusCode === 503 ? 'Service Unavailable' : statusCode === 504 ? 'Gateway Timeout' : 'Internal Server Error'}`
     });
   }
 });

@@ -16,7 +16,7 @@ interface ScoreDistributionChartProps {
 const ScoreDistributionChart: React.FC<ScoreDistributionChartProps> = ({ 
   data = [], 
   type = 'bar',
-  title = 'Rozkład wyników AI',
+  title = 'AI Score Distribution',
   className = '' 
 }) => {
   const colors = [
@@ -107,7 +107,7 @@ const ScoreDistributionChart: React.FC<ScoreDistributionChartProps> = ({
                   <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3" />
                 </svg>
               </div>
-              <p>Brak danych do wyświetlenia</p>
+              <p>No data to display</p>
             </div>
           </div>
         ) : (

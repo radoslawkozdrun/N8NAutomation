@@ -6,6 +6,9 @@ import AccountOverview from './social-media/AccountOverview';
 import N8NIntegrationPanel from './social-media/N8NIntegrationPanel';
 import AccountFilters from './social-media/AccountFilters';
 import AccountTable from './social-media/AccountTable';
+import N8NConfigModal from './N8NConfigModal';
+import { api } from '@/lib/api';
+import { N8nWorkflow } from '@/types';
 
 export function NewSocialMediaAccountManagement() {
   // State management
@@ -18,90 +21,30 @@ export function NewSocialMediaAccountManagement() {
   const [isLoading, setIsLoading] = useState(true);
   
   // N8N Integration state
-  const [n8nWorkflows, setN8nWorkflows] = useState([]);
-  const [isN8nConnected, setIsN8nConnected] = useState(true);
+  const [n8nWorkflows, setN8nWorkflows] = useState<N8nWorkflow[]>([]);
+  const [isN8nConnected, setIsN8nConnected] = useState(false);
+  const [n8nLoading, setN8nLoading] = useState(false);
+  const [showN8NConfig, setShowN8NConfig] = useState(false);
 
-  // Mock accounts data
-  const mockAccounts = [
-    {
-      id: '1',
-      platform: 'twitter',
-      username: '@TechBlogPL',
-      displayName: 'Tech Blog Polska',
-      status: 'connected',
-      followers: 15200,
-      lastSync: new Date(Date.now() - 300000),
-      connectionHealth: 'healthy',
-      postingEnabled: true,
-      apiRateLimit: {
-        used: 150,
-        limit: 300,
-        resetTime: '14:30'
-      }
-    },
-    {
-      id: '2',
-      platform: 'linkedin',
-      username: 'tech-blog-polska',
-      displayName: 'Tech Blog Polska Company',
-      status: 'connected',
-      followers: 3200,
-      lastSync: new Date(Date.now() - 600000),
-      connectionHealth: 'healthy',
-      postingEnabled: true,
-      apiRateLimit: {
-        used: 45,
-        limit: 100,
-        resetTime: '15:00'
-      }
-    },
-    {
-      id: '3',
-      platform: 'twitter',
-      username: '@DevNewsPoland',
-      displayName: 'Dev News Poland',
-      status: 'error',
-      followers: 8500,
-      lastSync: new Date(Date.now() - 3600000),
-      connectionHealth: 'unhealthy',
-      postingEnabled: false,
-      errorMessage: 'Authentication token expired - please reconnect',
-      apiRateLimit: {
-        used: 0,
-        limit: 300,
-        resetTime: 'N/A'
-      }
-    },
-    {
-      id: '4',
-      platform: 'instagram',
-      username: '@techblogpl',
-      displayName: 'Tech Blog PL',
-      status: 'warning',
-      followers: 4200,
-      lastSync: new Date(Date.now() - 7200000),
-      connectionHealth: 'degraded',
-      postingEnabled: true,
-      warningMessage: 'Rate limit approaching - consider reducing posting frequency',
-      apiRateLimit: {
-        used: 180,
-        limit: 200,
-        resetTime: '16:00'
-      }
-    },
-    {
-      id: '5',
-      platform: 'blog',
-      username: 'tech-blog-pl',
-      displayName: 'Tech Blog PL WordPress',
-      status: 'connected',
-      followers: 0,
-      lastSync: new Date(Date.now() - 1800000),
-      connectionHealth: 'healthy',
-      postingEnabled: true,
-      apiRateLimit: null
-    }
-  ];
+  // Transform database account to component format
+  const transformAccount = (dbAccount: any) => ({
+    id: dbAccount.id.toString(),
+    platform: dbAccount.platform,
+    username: dbAccount.username,
+    displayName: dbAccount.display_name,
+    status: dbAccount.status,
+    followers: dbAccount.followers || 0,
+    lastSync: dbAccount.last_sync ? new Date(dbAccount.last_sync) : null,
+    connectionHealth: dbAccount.connection_health,
+    postingEnabled: dbAccount.posting_enabled,
+    errorMessage: dbAccount.error_message,
+    warningMessage: dbAccount.warning_message,
+    apiRateLimit: dbAccount.api_rate_limit_total ? {
+      used: dbAccount.api_rate_limit_used || 0,
+      limit: dbAccount.api_rate_limit_total,
+      resetTime: dbAccount.api_rate_limit_reset_time || 'N/A'
+    } : null
+  });
 
   // Mock N8N workflows
   const mockN8nWorkflows = [
@@ -144,15 +87,97 @@ export function NewSocialMediaAccountManagement() {
     }
   ];
 
+  // Transform n8n workflow to match component expected format
+  const transformN8nWorkflow = (workflow: N8nWorkflow) => ({
+    id: workflow.id,
+    name: workflow.name,
+    status: workflow.active ? 'active' : 'paused',
+    lastRun: workflow.updatedAt ? new Date(workflow.updatedAt) : null,
+    success: true, // We'll assume success unless we have execution data
+    accountsImported: 0, // This would need to be calculated from execution data
+    description: workflow.tags?.length ? `Tagi: ${workflow.tags.join(', ')}` : 'Workflow n8n',
+    tags: workflow.tags || [],
+    nodes: workflow.nodes?.length || 0,
+  });
+
+  // Show all workflows (removed ContentFlowAI filtering)
+  const isRelevantWorkflow = (workflow: N8nWorkflow) => {
+    // Show all workflows without filtering
+    return true;
+  };
+
+  // Load n8n workflows
+  const loadN8nWorkflows = async () => {
+    setN8nLoading(true);
+    try {
+      const workflows = await api.n8n.getWorkflows();
+
+      // Debug: Log first few workflows to see their structure
+      console.log('🔍 N8N Workflows structure:', workflows.slice(0, 3).map(w => ({
+        id: w.id,
+        name: w.name,
+        tags: w.tags,
+        tagsType: typeof w.tags,
+        tagsArray: Array.isArray(w.tags),
+        folder: (w as any).folder || 'no folder property'
+      })));
+
+      // Debug: Log all workflow names and tags to find ContentFlowAI ones
+      console.log('🔍 All workflow names and tags:');
+      workflows.forEach((w, index) => {
+        console.log(`${index + 1}. "${w.name}" - Tags: [${w.tags ? w.tags.join(', ') : 'none'}]`);
+      });
+
+      // Filter workflows to only show ones from ContentFlowAI folder
+      const relevantWorkflows = workflows.filter(isRelevantWorkflow);
+
+      // Debug: Log filtering results
+      console.log(`🔍 Filtering results: ${relevantWorkflows.length}/${workflows.length} workflows match criteria`);
+
+      // Transform workflows to match component format
+      const transformedWorkflows = relevantWorkflows.map(transformN8nWorkflow);
+      setN8nWorkflows(transformedWorkflows);
+      setIsN8nConnected(true);
+      toast.success(`Loaded ${relevantWorkflows.length} workflows from n8n`);
+    } catch (error: any) {
+      console.error('Failed to load n8n workflows:', error);
+      setIsN8nConnected(false);
+      // Fallback to mock data if n8n is not available
+      setN8nWorkflows(mockN8nWorkflows);
+      toast.error(`Cannot connect to n8n: ${error.message}`);
+    } finally {
+      setN8nLoading(false);
+    }
+  };
+
+  // Load social media accounts from API
+  const loadAccounts = async () => {
+    setIsLoading(true);
+    try {
+      const filters = {
+        platform: selectedPlatform,
+        status: selectedStatus,
+        search: searchQuery
+      };
+
+      const response = await api.getSocialMediaAccounts(filters, 1, 100); // Get all accounts for now
+      const transformedAccounts = response.data.map(transformAccount);
+      setAccounts(transformedAccounts);
+
+      console.log(`✅ Loaded ${transformedAccounts.length} social media accounts`);
+    } catch (error: any) {
+      console.error('Failed to load social media accounts:', error);
+      toast.error(`Cannot load accounts: ${error.message}`);
+      setAccounts([]); // Set empty array on error
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Load data on component mount
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setAccounts(mockAccounts);
-      setN8nWorkflows(mockN8nWorkflows);
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
+    loadAccounts();
+    loadN8nWorkflows();
   }, []);
 
   // Filter accounts based on current filters
@@ -178,70 +203,115 @@ export function NewSocialMediaAccountManagement() {
   }, [accounts, selectedPlatform, selectedStatus, searchQuery]);
 
   // Account management handlers
-  const handleDisconnectAccount = (accountId) => {
-    setAccounts(prev => prev.map(acc => 
-      acc.id === accountId 
-        ? { ...acc, status: 'disconnected', postingEnabled: false }
-        : acc
-    ));
-    toast.success('Konto zostało rozłączone');
+  const handleDisconnectAccount = async (accountId) => {
+    try {
+      // Update account status to disconnected via API
+      await api.updateSocialMediaAccountStatus(parseInt(accountId), {
+        status: 'disconnected',
+        error_message: null,
+        warning_message: null
+      });
+
+      // Update local state
+      setAccounts(prev => prev.map(acc =>
+        acc.id === accountId
+          ? { ...acc, status: 'disconnected', postingEnabled: false }
+          : acc
+      ));
+
+      toast.success('Account has been disconnected');
+    } catch (error: any) {
+      console.error('Failed to disconnect account:', error);
+      toast.error(`Cannot disconnect account: ${error.message}`);
+    }
   };
 
-  const handleRefreshAccount = (accountId) => {
-    // Set account as connecting first
-    setAccounts(prev => prev.map(acc => 
-      acc.id === accountId 
-        ? { ...acc, status: 'connecting' }
-        : acc
-    ));
+  const handleRefreshAccount = async (accountId) => {
+    try {
+      // Set account as connecting first
+      setAccounts(prev => prev.map(acc =>
+        acc.id === accountId
+          ? { ...acc, status: 'connecting' }
+          : acc
+      ));
 
-    // Simulate refresh delay
-    setTimeout(() => {
-      setAccounts(prev => prev.map(acc => 
-        acc.id === accountId 
-          ? { 
-            ...acc, 
-            lastSync: new Date(), 
-            status: 'connected', 
+      // Update account status to connected via API
+      await api.updateSocialMediaAccountStatus(parseInt(accountId), {
+        status: 'connected',
+        error_message: null,
+        warning_message: null
+      });
+
+      // Update local state
+      setAccounts(prev => prev.map(acc =>
+        acc.id === accountId
+          ? {
+            ...acc,
+            lastSync: new Date(),
+            status: 'connected',
             connectionHealth: 'healthy',
             errorMessage: undefined,
             warningMessage: undefined
           }
           : acc
       ));
-      toast.success('Konto zostało odświeżone');
-    }, 2000);
+
+      toast.success('Account has been refreshed');
+    } catch (error: any) {
+      console.error('Failed to refresh account:', error);
+      toast.error(`Cannot refresh account: ${error.message}`);
+
+      // Revert status on error
+      setAccounts(prev => prev.map(acc =>
+        acc.id === accountId
+          ? { ...acc, status: 'error' }
+          : acc
+      ));
+    }
   };
 
   const handleViewAccountDetails = (account) => {
     setSelectedAccount(account);
-    toast.info(`Szczegóły konta: ${account.displayName}`);
+    toast.info(`Account details: ${account.displayName}`);
   };
 
   // N8N workflow handlers
-  const handleRunWorkflow = (workflowId) => {
-    setN8nWorkflows(prev => prev.map(workflow => 
-      workflow.id === workflowId 
-        ? { ...workflow, status: 'running', lastRun: new Date() }
-        : workflow
-    ));
-    
-    toast.success('Uruchamianie workflow N8N...');
-    
-    // Simulate workflow execution
-    setTimeout(() => {
-      setN8nWorkflows(prev => prev.map(workflow => 
-        workflow.id === workflowId 
-          ? { 
-            ...workflow, 
-            status: 'active', 
-            success: true,
-            accountsImported: Math.floor(Math.random() * 3) + 1
-          }
+  const handleRunWorkflow = async (workflowId) => {
+    try {
+      setN8nWorkflows(prev => prev.map(workflow =>
+        workflow.id === workflowId
+          ? { ...workflow, status: 'running', lastRun: new Date() }
           : workflow
       ));
-      toast.success('Workflow został wykonany pomyślnie');
-    }, 3000);
+
+      toast.success('Starting N8N workflow...');
+
+      // Execute workflow via n8n API
+      await api.n8n.executeWorkflow(workflowId);
+
+      // Update status after execution
+      setTimeout(() => {
+        setN8nWorkflows(prev => prev.map(workflow =>
+          workflow.id === workflowId
+            ? { ...workflow, status: 'active', success: true }
+            : workflow
+        ));
+        toast.success('Workflow executed successfully');
+      }, 3000);
+
+    } catch (error: any) {
+      console.error('Failed to execute workflow:', error);
+      setN8nWorkflows(prev => prev.map(workflow =>
+        workflow.id === workflowId
+          ? { ...workflow, status: 'error', success: false }
+          : workflow
+      ));
+      toast.error(`Workflow execution error: ${error.message}`);
+    }
+  };
+
+  const handleRefreshWorkflows = () => {
+    loadN8nWorkflows();
   };
 
   // Platform change handler
@@ -259,6 +329,13 @@ export function NewSocialMediaAccountManagement() {
     setSearchQuery(query);
   };
 
+  // Reload accounts when filters change
+  useEffect(() => {
+    if (!isLoading) { // Only reload if not currently loading
+      loadAccounts();
+    }
+  }, [selectedPlatform, selectedStatus, searchQuery]);
+
   // Calculate account statistics
   const accountStats = {
     total: accounts.length,
@@ -274,16 +351,15 @@ export function NewSocialMediaAccountManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto p-6 space-y-8">
+    <div className="h-full flex flex-col p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">
-              NEW - Zarządzanie kontami społecznościowymi
+            <h1 className="skote-page-title">
+              N8N Overview
             </h1>
             <p className="text-muted-foreground mt-2">
-              Zarządzaj połączonymi kontami i integracjami API dla wszystkich platform
+              Manage N8N workflows and connected social media accounts
             </p>
           </div>
           
@@ -292,19 +368,21 @@ export function NewSocialMediaAccountManagement() {
               variant="outline"
               size="sm"
               iconName="Settings"
+              onClick={() => setShowN8NConfig(true)}
             >
-              Ustawienia
-            </Button>
-            <Button
-              variant="default"
-              size="sm"
-              iconName="Plus"
-              onClick={() => toast.info('Dodawanie nowego konta...')}
-            >
-              Dodaj konto
+              Settings
             </Button>
           </div>
         </div>
+
+        {/* N8N Integration Panel */}
+        <N8NIntegrationPanel
+          workflows={n8nWorkflows}
+          isConnected={isN8nConnected}
+          isLoading={n8nLoading}
+          onRunWorkflow={handleRunWorkflow}
+          onRefresh={handleRefreshWorkflows}
+        />
 
         {/* Account Overview */}
         <AccountOverview
@@ -312,22 +390,15 @@ export function NewSocialMediaAccountManagement() {
           isLoading={isLoading}
         />
 
-        {/* N8N Integration Panel */}
-        <N8NIntegrationPanel
-          workflows={n8nWorkflows}
-          isConnected={isN8nConnected}
-          onRunWorkflow={handleRunWorkflow}
-        />
-
         {/* Account Management Section */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-semibold text-foreground">
-                Połączone konta ({filteredAccounts.length})
+              <h2 className="skote-card-title text-foreground">
+                Connected Accounts ({filteredAccounts.length})
               </h2>
-              <p className="text-sm text-muted-foreground">
-                Zarządzaj wszystkimi połączonymi kontami społecznościowymi
+              <p className="skote-body-text text-muted-foreground">
+                Manage all connected social media accounts
               </p>
             </div>
             
@@ -354,38 +425,48 @@ export function NewSocialMediaAccountManagement() {
         {/* Quick Stats */}
         {!isLoading && accounts.length > 0 && (
           <div className="bg-card border border-border rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-foreground mb-4">
-              Podsumowanie aktywności
+            <h3 className="skote-card-title text-foreground mb-4">
+              Activity Summary
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">
-                <div className="text-2xl font-bold text-success">
+                <div className="skote-section-title font-bold text-success">
                   {accountStats.connected}/{accountStats.total}
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  Sprawne połączenia
+                <div className="skote-body-text text-muted-foreground">
+                  Active Connections
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-primary">
+                <div className="skote-section-title font-bold text-primary">
                   {accounts.reduce((sum, acc) => sum + acc.followers, 0).toLocaleString()}
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  Łączna liczba obserwujących
+                <div className="skote-body-text text-muted-foreground">
+                  Total Followers
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-warning">
+                <div className="skote-section-title font-bold text-warning">
                   {n8nWorkflows.filter(w => w.status === 'active').length}
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  Aktywne workflow N8N
+                <div className="skote-body-text text-muted-foreground">
+                  Active N8N workflows
                 </div>
               </div>
             </div>
           </div>
         )}
-      </div>
+
+        {/* N8N Configuration Modal */}
+        <N8NConfigModal
+          isOpen={showN8NConfig}
+          onClose={() => setShowN8NConfig(false)}
+          onConfigSaved={() => {
+            setShowN8NConfig(false);
+            handleRefreshWorkflows();
+            toast.success('N8N configuration saved successfully');
+          }}
+        />
     </div>
   );
 }

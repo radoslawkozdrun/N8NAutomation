@@ -12,12 +12,13 @@ const BulkActions = ({
   const [selectedAction, setSelectedAction] = useState('');
 
   const actionOptions = [
-    { value: '', label: 'Wybierz akcję...' },
-    { value: 'accept', label: 'Zaakceptuj wybrane' },
-    { value: 'reject', label: 'Odrzuć wybrane' },
-    { value: 'archive', label: 'Zarchiwizuj wybrane' },
-    { value: 'needs_more', label: 'Wymaga więcej informacji' },
-    { value: 'research_done', label: 'Oznacz jako zbadane' }
+    { value: '', label: 'Select action...' },
+    { value: 'accept', label: 'Accept selected' },
+    { value: 'reject', label: 'Reject selected' },
+    { value: 'archive', label: 'Archive selected' },
+    { value: 'needs_more', label: 'Needs more information' },
+    { value: 'research_done', label: 'Mark as researched' },
+    { value: 'delete', label: 'Delete selected', className: 'text-red-600' }
   ];
 
   const handleExecuteAction = () => {
@@ -38,7 +39,7 @@ const BulkActions = ({
           <div className="flex items-center space-x-2">
             <Icon name="CheckSquare" size={20} className="text-primary" />
             <span className="font-medium text-foreground">
-              Wybrano {selectedCount} {selectedCount === 1 ? 'artykuł' : 'artykułów'}
+              Selected {selectedCount} {selectedCount === 1 ? 'article' : 'articles'}
             </span>
           </div>
           
@@ -47,7 +48,7 @@ const BulkActions = ({
               options={actionOptions}
               value={selectedAction}
               onChange={setSelectedAction}
-              placeholder="Wybierz akcję..."
+              placeholder="Select action..."
               className="min-w-48"
             />
             
@@ -71,7 +72,7 @@ const BulkActions = ({
           iconPosition="left"
           className="text-muted-foreground"
         >
-          Wyczyść zaznaczenie
+          Clear Selection
         </Button>
       </div>
 
@@ -83,27 +84,32 @@ const BulkActions = ({
             <div className="text-sm">
               {selectedAction === 'accept' && (
                 <p className="text-foreground">
-                  <strong>Zaakceptuj:</strong> Artykuły zostaną oznaczone jako zaakceptowane i będą gotowe do publikacji.
+                  <strong>Accept:</strong> Articles will be marked as accepted and ready for publication.
                 </p>
               )}
               {selectedAction === 'reject' && (
                 <p className="text-foreground">
-                  <strong>Odrzuć:</strong> Artykuły zostaną oznaczone jako odrzucone i nie będą publikowane.
+                  <strong>Reject:</strong> Articles will be marked as rejected and will not be published.
                 </p>
               )}
               {selectedAction === 'archive' && (
                 <p className="text-foreground">
-                  <strong>Zarchiwizuj:</strong> Artykuły zostaną przeniesione do archiwum.
+                  <strong>Archive:</strong> Articles will be moved to archive.
                 </p>
               )}
               {selectedAction === 'needs_more' && (
                 <p className="text-foreground">
-                  <strong>Wymaga więcej:</strong> Artykuły zostaną oznaczone jako wymagające dodatkowych informacji.
+                  <strong>Needs more:</strong> Articles will be marked as requiring additional information.
                 </p>
               )}
               {selectedAction === 'research_done' && (
                 <p className="text-foreground">
-                  <strong>Badania zakończone:</strong> Artykuły zostaną oznaczone jako przebadane.
+                  <strong>Research Done:</strong> Articles will be marked as researched.
+                </p>
+              )}
+              {selectedAction === 'delete' && (
+                <p className="text-red-600">
+                  <strong>Delete:</strong> Articles will be permanently deleted from the database. This operation is irreversible!
                 </p>
               )}
             </div>
