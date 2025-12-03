@@ -22,7 +22,7 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 
 // Serve static files from React build
-app.use(express.static(path.join(__dirname, '../dist')));
+app.use(express.static(path.join(__dirname, '../../dist')));
 
 // Mock routes for development
 app.use('/api/posts', (req, res) => {
@@ -38,17 +38,17 @@ app.use('/api/articles', (req, res) => {
 });
 
 app.use('/api/dashboard', (req, res) => {
-  res.json({ 
-    success: true, 
-    data: { 
-      stats: { 
-        total_articles: 0, 
-        pending_review: 0, 
-        approved: 0, 
-        rejected: 0 
-      } 
-    }, 
-    message: 'Development mode' 
+  res.json({
+    success: true,
+    data: {
+      stats: {
+        total_articles: 0,
+        pending_review: 0,
+        approved: 0,
+        rejected: 0
+      }
+    },
+    message: 'Development mode'
   });
 });
 
@@ -98,14 +98,14 @@ app.get('*', (req, res) => {
       code: 'ROUTE_NOT_FOUND'
     });
   }
-  
-  res.sendFile(path.join(__dirname, '../dist/index.html'));
+
+  res.sendFile(path.join(__dirname, '../../dist/index.html'));
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('❌ Server error:', err);
-  
+
   res.status(err.status || 500).json({
     success: false,
     message: err.message || 'Internal server error',

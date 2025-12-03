@@ -1,5 +1,7 @@
 const bcrypt = require('bcryptjs');
-const { query } = require('./database');
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+const { query } = require('../../src/database');
 
 async function createDefaultAdmin() {
   try {
@@ -16,8 +18,15 @@ async function createDefaultAdmin() {
     // Create default admin
     const username = 'admin';
     const email = 'admin@example.com';
-    const password = '1qaz@WSX';
+    const password = process.argv[2] || process.env.ADMIN_PASSWORD;
     const role = 'ADMIN';
+
+    if (!password) {
+      console.error('❌ Error: Password required!');
+      console.log('Usage: node create-admin.js <password>');
+      console.log('   Or: ADMIN_PASSWORD=xxx node create-admin.js');
+      process.exit(1);
+    }
 
     console.log('Creating default admin user...');
     console.log('Username:', username);

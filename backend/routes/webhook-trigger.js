@@ -1,5 +1,5 @@
 const express = require('express');
-const { query } = require('../database');
+const { query } = require('../src/database');
 const fetch = require('node-fetch');
 const crypto = require('crypto');
 const { authenticateToken } = require('../middleware/auth');

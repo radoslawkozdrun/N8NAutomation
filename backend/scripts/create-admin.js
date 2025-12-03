@@ -7,7 +7,16 @@ const createAdminUser = async () => {
 
     const adminUsername = 'admin';
     const adminEmail = 'admin@n8nautomation.local';
-    const adminPassword = '1qaz@WSX';
+    // Accept password from command line: node create-admin.js <password>
+    // Or from environment variable: ADMIN_PASSWORD=xxx node create-admin.js
+    const adminPassword = process.argv[2] || process.env.ADMIN_PASSWORD;
+
+    if (!adminPassword) {
+      console.error('❌ Error: Password required!');
+      console.log('Usage: node create-admin.js <password>');
+      console.log('   Or: ADMIN_PASSWORD=xxx node create-admin.js');
+      process.exit(1);
+    }
 
     // Check if admin user already exists
     const existingAdmin = await query(

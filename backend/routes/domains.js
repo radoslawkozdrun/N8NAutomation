@@ -1,5 +1,5 @@
 const express = require('express');
-const { query } = require('../database');
+const { query } = require('../src/database');
 const { authenticateToken, requireAdmin, auditLog, addUserFilter, addUserConstraint } = require('../middleware/auth');
 
 const router = express.Router();

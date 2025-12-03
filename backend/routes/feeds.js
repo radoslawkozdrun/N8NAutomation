@@ -3,7 +3,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
 const fetch = require('node-fetch');
-const { query } = require('../database');
+const { query } = require('../src/database');
 const { authenticateToken, requireAdmin, auditLog, addUserFilter, addUserConstraint, requireOwnershipOrAdmin } = require('../middleware/auth');
 
 const router = express.Router();
@@ -88,13 +88,13 @@ async function getN8NConfig() {
     });
 
     return {
-      baseUrl: config.n8n_base_url || 'https://n8n.srv936559.hstgr.cloud/api/v1',
+      baseUrl: config.n8n_base_url || process.env.N8N_BASE_URL || 'https://n8n.srv936559.hstgr.cloud/api/v1',
       apiKey: config.n8n_api_key || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkOGI1M2UwNS00NjIxLTQyZTktYjk4Yi1hM2E4NDRjNzRlYmMiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzU3MDYyOTg0fQ.iHyLCgW7-N1nHk0TJ4yE4JzzgIyr3Cdo63GivTprLUA'
     };
   } catch (error) {
     console.error('❌ Failed to get N8N config:', error.message);
     return {
-      baseUrl: 'https://n8n.srv936559.hstgr.cloud/api/v1',
+      baseUrl: process.env.N8N_BASE_URL || 'https://n8n.srv936559.hstgr.cloud/api/v1',
       apiKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkOGI1M2UwNS00NjIxLTQyZTktYjk4Yi1hM2E4NDRjNzRlYmMiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzU3MDYyOTg0fQ.iHyLCgW7-N1nHk0TJ4yE4JzzgIyr3Cdo63GivTprLUA'
     };
   }
@@ -172,7 +172,7 @@ router.get('/feeds', authenticateToken, addUserFilter, async (req, res) => {
       // paramIndex was already incremented 3 times in the whereConditions.push line
     }
 
-    const whereClause = whereConditions.length > 0 ? 
+    const whereClause = whereConditions.length > 0 ?
       `WHERE ${whereConditions.join(' AND ')}` : '';
 
     // Get total count
@@ -189,19 +189,19 @@ router.get('/feeds', authenticateToken, addUserFilter, async (req, res) => {
     let orderBy = 'ORDER BY f.name ASC';
     if (req.query.sort_by) {
       const validSortFields = [
-        'name', 
-        'url', 
-        'type', 
+        'name',
+        'url',
+        'type',
         'enabled',
-        'created_at', 
-        'updated_at', 
-        'last_checked', 
+        'created_at',
+        'updated_at',
+        'last_checked',
         'error_count',
         'domain_name'
       ];
       const sortBy = validSortFields.includes(req.query.sort_by) ? req.query.sort_by : 'name';
       const sortOrder = req.query.sort_order === 'asc' ? 'ASC' : 'DESC';
-      
+
       if (sortBy === 'domain_name') {
         orderBy = `ORDER BY d.domain_name ${sortOrder} NULLS LAST`;
       } else if (sortBy === 'enabled') {
@@ -590,7 +590,7 @@ router.delete('/feeds/fetch-logs', authenticateToken, async (req, res) => {
   try {
     // Clear the log file by writing an empty array
     await fs.writeFile(LOGS_FILE_PATH, '[]');
-    
+
     res.json({
       success: true,
       message: 'Fetch logs cleared successfully'
@@ -643,10 +643,10 @@ router.get('/feeds/meta/types', authenticateToken, addUserFilter, async (req, re
     const conditions = [];
     const params = [];
     let paramIndex = 1;
-    
+
     paramIndex = addUserConstraint(conditions, params, req.userFilter, paramIndex);
     conditions.push('type IS NOT NULL');
-    
+
     const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
 
     const result = await query(`
@@ -676,10 +676,10 @@ router.get('/feeds/meta/stats', authenticateToken, addUserFilter, async (req, re
     const conditions = [];
     const params = [];
     let paramIndex = 1;
-    
+
     paramIndex = addUserConstraint(conditions, params, req.userFilter, paramIndex);
     const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
-    
+
     // Category stats need additional WHERE clause for NOT NULL
     const typeConditions = [...conditions, 'type IS NOT NULL'];
     const typeWhereClause = typeConditions.length > 0 ? 'WHERE ' + typeConditions.join(' AND ') : '';
@@ -779,7 +779,7 @@ router.post('/feeds/test-url', authenticateToken, requireAdmin, async (req, res)
 router.post('/feeds/fetch-articles', authenticateToken, async (req, res) => {
   try {
     const { fetchType, ids = [] } = req.body;
-    
+
     // Validate input
     if (!fetchType || !['SELECTED', 'ALL'].includes(fetchType)) {
       return res.status(400).json({
@@ -787,14 +787,14 @@ router.post('/feeds/fetch-articles', authenticateToken, async (req, res) => {
         message: 'Invalid fetchType. Must be SELECTED or ALL'
       });
     }
-    
+
     if (fetchType === 'SELECTED' && (!ids || ids.length === 0)) {
       return res.status(400).json({
         success: false,
         message: 'ids array is required when fetchType is SELECTED'
       });
     }
-    
+
     // Create log entry
     const logEntry = {
       id: Date.now() + Math.random(),
@@ -811,7 +811,7 @@ router.post('/feeds/fetch-articles', authenticateToken, async (req, res) => {
 
     // Generate unique fetch ID (fallback if crypto.randomUUID is not available)
     const fetch_id = crypto.randomUUID ? crypto.randomUUID() : `fetch_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+
     // Prepare payload for N8N webhook
     const payload = {
       fetchType,
@@ -819,14 +819,14 @@ router.post('/feeds/fetch-articles', authenticateToken, async (req, res) => {
       user_id: req.user?.id || null,
       ...(fetchType === 'SELECTED' && { ids })
     };
-    
+
     // Log the payload being sent to webhook
     console.log('Webhook payload:', JSON.stringify(payload, null, 2));
 
     // Check ContentFlowAI workflow status and determine webhook URL
     const isWorkflowActive = await isContentFlowAIWorkflowActive();
     const webhookPath = isWorkflowActive ? '/webhook/feeds/fetch' : '/webhook-test/feeds/fetch';
-    const webhookUrl = `https://n8n.srv936559.hstgr.cloud${webhookPath}`;
+    const webhookUrl = `${process.env.N8N_WEBHOOK_BASE || 'https://n8n.srv936559.hstgr.cloud'}${webhookPath}`;
 
     console.log(`Using webhook: ${webhookUrl} (ContentFlowAI workflow is ${isWorkflowActive ? 'ACTIVE' : 'INACTIVE'})`);
     const response = await fetch(webhookUrl, {
@@ -836,9 +836,9 @@ router.post('/feeds/fetch-articles', authenticateToken, async (req, res) => {
       },
       body: JSON.stringify(payload)
     });
-    
+
     const responseData = await response.json().catch(() => ({}));
-    
+
     // Update log entry with result
     const finalLogEntry = {
       ...logEntry,
@@ -848,10 +848,10 @@ router.post('/feeds/fetch-articles', authenticateToken, async (req, res) => {
       responseData: responseData,
       webhookPayload: payload
     };
-    
+
     // Write log to file
     await writeLogToFile(finalLogEntry);
-    
+
     // Return the response from N8N webhook along with the payload we sent
     res.status(response.status).json({
       success: response.ok,
@@ -860,14 +860,14 @@ router.post('/feeds/fetch-articles', authenticateToken, async (req, res) => {
       httpStatus: `${response.status} ${response.statusText}`,
       message: response.ok ? 'Article fetch request sent successfully' : `N8N webhook error: ${response.statusText}`
     });
-    
+
   } catch (error) {
     console.error('Error proxying fetch request:', error);
-    
+
     // Handle different types of errors
     let errorMessage = 'Failed to send fetch request to N8N webhook';
     let statusCode = 500;
-    
+
     if (error instanceof TypeError && error.message.includes('fetch')) {
       errorMessage = 'Network error: Unable to connect to N8N webhook';
       statusCode = 503; // Service Unavailable
@@ -875,7 +875,7 @@ router.post('/feeds/fetch-articles', authenticateToken, async (req, res) => {
       errorMessage = 'Timeout: N8N webhook did not respond in time';
       statusCode = 504; // Gateway Timeout
     }
-    
+
     // Log error to file
     const errorLogEntry = {
       ...logEntry,
@@ -890,9 +890,9 @@ router.post('/feeds/fetch-articles', authenticateToken, async (req, res) => {
         ...(fetchType === 'SELECTED' && { ids })
       }
     };
-    
+
     await writeLogToFile(errorLogEntry);
-    
+
     res.status(statusCode).json({
       success: false,
       message: errorMessage,

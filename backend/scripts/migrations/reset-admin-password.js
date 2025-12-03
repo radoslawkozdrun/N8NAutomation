@@ -1,9 +1,18 @@
 const bcrypt = require('bcryptjs');
-const { query } = require('./database');
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+const { query } = require('../../src/database');
 
 async function resetAdminPassword() {
   try {
-    const newPassword = '1qaz@WSX';
+    const newPassword = process.argv[2] || process.env.ADMIN_PASSWORD;
+
+    if (!newPassword) {
+      console.error('❌ Error: Password required!');
+      console.log('Usage: node reset-admin-password.js <password>');
+      console.log('   Or: ADMIN_PASSWORD=xxx node reset-admin-password.js');
+      process.exit(1);
+    }
 
     console.log('Resetting admin password...');
     console.log('New password:', newPassword);
@@ -27,7 +36,7 @@ async function resetAdminPassword() {
 
     const user = result.rows[0];
     console.log('Password reset successfully for user:', user);
-    console.log('You can now login with: admin / 1qaz@WSX');
+    console.log('You can now login with: admin /', newPassword);
 
   } catch (error) {
     console.error('Error resetting password:', error);

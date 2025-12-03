@@ -1,7 +1,7 @@
 const express = require('express');
 const fetch = require('node-fetch');
 const { authenticateToken } = require('../middleware/auth');
-const { query } = require('../database');
+const { query } = require('../src/database');
 
 const router = express.Router();
 
@@ -21,14 +21,14 @@ async function getN8NConfig() {
     });
 
     return {
-      baseUrl: config.n8n_base_url || 'https://n8n.srv936559.hstgr.cloud/api/v1',
+      baseUrl: config.n8n_base_url || process.env.N8N_BASE_URL || 'https://n8n.srv936559.hstgr.cloud/api/v1',
       apiKey: config.n8n_api_key || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkOGI1M2UwNS00NjIxLTQyZTktYjk4Yi1hM2E4NDRjNzRlYmMiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzU3MDYyOTg0fQ.iHyLCgW7-N1nHk0TJ4yE4JzzgIyr3Cdo63GivTprLUA'
     };
   } catch (error) {
     console.error('❌ Failed to get N8N config:', error.message);
     // Fallback to default values
     return {
-      baseUrl: 'https://n8n.srv936559.hstgr.cloud/api/v1',
+      baseUrl: process.env.N8N_BASE_URL || 'https://n8n.srv936559.hstgr.cloud/api/v1',
       apiKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkOGI1M2UwNS00NjIxLTQyZTktYjk4Yi1hM2E4NDRjNzRlYmMiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzU3MDYyOTg0fQ.iHyLCgW7-N1nHk0TJ4yE4JzzgIyr3Cdo63GivTprLUA'
     };
   }

@@ -1,0 +1,118 @@
+Clean Code i dobre praktyki w React
+Tworzenie aplikacji frontendowych w React wymaga przestrzegania określonych zasad i konwencji, które pozwalają na utrzymanie czystego, skalowalnego i łatwego w utrzymaniu kodu. Poniżej przedstawiam kompleksowy przegląd najważniejszych dobrych praktyk.
+
+Fundamentalne zasady React
+React posiada oficjalnie zdefiniowane Rules of React, które stanowią podstawę pisania idiomatycznego kodu. Według oficjalnej dokumentacji, zasady te nie są jedynie wytycznymi – ich złamanie prawdopodobnie spowoduje błędy w aplikacji.​
+
+Komponenty i Hooks muszą być czyste – komponenty React powinny zawsze zwracać ten sam wynik dla tych samych danych wejściowych (props, state, context). Efekty uboczne (side effects) nie powinny być wykonywane podczas renderowania, ponieważ React może renderować komponenty wielokrotnie. Props i state są niemutowalne – należy je traktować jako niezmienne migawki względem pojedynczego renderowania.​
+
+React odpowiada za renderowanie – nigdy nie należy wywoływać funkcji komponentów bezpośrednio ani przekazywać hooków jako zwykłych wartości. Hooki powinny być wywoływane wyłącznie wewnątrz komponentów.​
+
+Zasady Hooks – hooki należy wywoływać tylko na najwyższym poziomie funkcji React, nigdy wewnątrz pętli, warunków czy zagnieżdżonych funkcji. Hooki można wywoływać wyłącznie z funkcji React, nie z regularnych funkcji JavaScript.​
+
+Struktura i organizacja projektu
+Organizacja katalogów powinna być przemyślana i wspierać modularność. Popularne podejście obejmuje następującą strukturę katalogów: components/ dla komponentów wielokrotnego użytku, pages/ dla komponentów reprezentujących całe widoki, hooks/ dla własnych hooków, utils/ dla funkcji pomocniczych, services/ dla logiki API, oraz assets/ dla plików statycznych.​
+
+Najlepsza praktyka polega na kolokacji powiązanych plików – plik CSS komponentu, testy i inne powiązane pliki powinny znajdować się w tym samym katalogu co sam komponent. Hooki używane tylko przez jeden komponent powinny pozostać w pliku tego komponentu lub obok niego, natomiast hooki wielokrotnego użytku trafiają do dedykowanego katalogu hooks/.​
+
+W miarę rozwoju projektu warto przejść na strukturę opartą na funkcjonalnościach (feature-based), gdzie każda funkcjonalność ma własny folder z komponentami, hookami, serwisami i stylami.​
+
+Komponenty funkcyjne i Hooks
+Stosowanie komponentów funkcyjnych z Hooks jest zalecaną praktyką w nowoczesnym React. Komponenty funkcyjne są krótsze, bardziej czytelne i łatwiejsze do testowania niż komponenty klasowe. Hooks jak useState i useEffect umożliwiają zarządzanie stanem i efektami ubocznymi bez potrzeby stosowania metod cyklu życia typowych dla klas.​
+
+Przy korzystaniu z useState należy używać opisowych nazw zmiennych, co poprawia czytelność kodu. Zamiast const [isL, setL] = useState(false) należy pisać const [isLoggedIn, setLoggedIn] = useState(false).​
+
+Rozdzielanie odpowiedzialności poprzez użycie wielu hooków jest lepsze niż jeden hook obsługujący cały stan i wszystkie efekty uboczne komponentu. Custom hooks powinny być tworzone do hermetyzacji logiki wielokrotnego użytku, co promuje modularność i spójność kodu.​
+
+Nazewnictwo i konwencje
+Konwencje nazewnictwa w React są następujące:
+
+PascalCase dla nazw komponentów (np. UserProfile, NavBar)​
+
+camelCase dla funkcji, zmiennych i właściwości obiektów (np. handleClick, fetchUserData)​
+
+UPPER_SNAKE_CASE dla stałych (np. MAX_HEIGHT, API_URL)​
+
+Prefiksy is/has/should dla zmiennych boolowskich​
+
+Prefiksy handle lub on dla handlerów zdarzeń​
+
+Prefiks with dla Higher-Order Components​
+
+Prefiks use dla custom hooks​
+
+Nazwy komponentów powinny być opisowe i konkretne – LoginButton jest lepsze niż ogólne Button. Nazwy takie jak Component, Item czy Thing są zbyt niejasne.​
+
+Zarządzanie stanem
+Struktura stanu powinna unikać redundancji i duplikacji danych. Stan nie powinien zawierać informacji, które mogą być obliczone na podstawie innych danych. Przykładowo, zamiast przechowywać fullName jako osobną zmienną stanu, lepiej jest ją obliczać podczas renderowania z firstName i lastName.​
+
+Lokalizacja stanu – stan powinien być przechowywany jak najbliżej komponentu, który go potrzebuje. Należy unikać niepotrzebnego "lifting state up". Gdy wiele komponentów wymaga dostępu do tych samych danych, należy wynieść stan do najbliższego wspólnego rodzica.​
+
+Dla złożonych aplikacji należy rozważyć użycie bibliotek zarządzania stanem. Redux pozostaje dominujący w aplikacjach enterprise (72% dużych aplikacji), natomiast Zustand zyskuje popularność dzięki prostocie i wysokiemu poziomowi satysfakcji (66,7%). Context API jest odpowiedni dla małych, statycznych stanów globalnych, ale może powodować problemy wydajnościowe przy częstych aktualizacjach.​
+
+Reducery i Context można łączyć do zarządzania stanem złożonych ekranów – rodzic z kompleksowym stanem zarządza nim przez reducer, a inne komponenty odczytują stan przez context i wysyłają akcje do jego aktualizacji.​
+
+Optymalizacja wydajności
+React.memo() pozwala zapobiegać niepotrzebnym renderowaniom komponentów funkcyjnych, gdy ich propsy się nie zmieniają. Komponenty opakowane w React.memo będą porównywać poprzednie i aktualne propsy przed renderowaniem.​
+
+useCallback powinien być używany do memoizacji funkcji callback przekazywanych jako propsy, aby unikać niepotrzebnych rerenderów komponentów potomnych. useMemo służy do cachowania wyników kosztownych obliczeń.​
+
+Code splitting i lazy loading znacząco poprawiają czas ładowania aplikacji. React dostarcza React.lazy() i Suspense do dynamicznego ładowania komponentów. Dzielenie kodu na poziomie routingu jest najlepszym miejscem do rozpoczęcia optymalizacji. Lazy loading może zmniejszyć początkowy bundle nawet o 40%.​
+
+Wirtualizacja długich list jest konieczna przy renderowaniu dużych zbiorów danych – używanie stabilnych, unikalnych kluczy (key) jest obowiązkowe.​
+
+TypeScript w React
+Tryb strict powinien być włączony w tsconfig.json dla egzekwowania ścisłego sprawdzania typów. Aktywuje to opcje takie jak noImplicitAny (zapobiega niejawnemu typowi any) oraz strictNullChecks (wymaga jawnej obsługi null i undefined).​
+
+Typowanie props i state za pomocą interfejsów lub typów jest obowiązkowe dla zapewnienia bezpieczeństwa typów i poprawy czytelności kodu. Należy unikać typu any – zamiast niego używać jawnych typów lub typów unii.​
+
+typescript
+interface UserProfileProps {
+  name: string;
+  age: number;
+  email?: string; // opcjonalny prop
+}
+
+const UserProfile: React.FC<UserProfileProps> = ({ name, age, email }) => {
+  // implementacja komponentu
+};
+Utility types TypeScript jak Partial<T>, Pick<T, K> czy Omit<T, K> upraszczają typowanie złożonych struktur danych.​
+
+Obsługa błędów
+Error Boundaries są kluczowym mechanizmem do przechwytywania błędów w drzewie komponentów React. Działają jak "siatki bezpieczeństwa" dla aplikacji, przechwytując błędy podczas renderowania, w metodach cyklu życia i konstruktorach.​
+
+javascript
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  componentDidCatch(error, info) {
+    this.setState({ hasError: true });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <h1>Wystąpił błąd!</h1>;
+    }
+    return this.props.children;
+  }
+}
+Najlepsze praktyki obsługi błędów obejmują: dostarczanie informacyjnych komunikatów o błędach, logowanie błędów do celów debugowania, graceful handling błędów oraz centralizację stanu i logiki błędów w Context providerze.​
+
+Testowanie
+Podejście do testowania powinno skupiać się na zachowaniu komponentów, nie na szczegółach implementacji. Testy powinny sprawdzać to, co widzi i z czym wchodzi w interakcję użytkownik.​
+
+React Testing Library jest zalecanym narzędziem, które zachęca do pisania testów z perspektywy użytkownika, używając selektorów jak getByText czy getByRole. Wzorzec Arrange-Act-Assert (AAA) pomaga strukturyzować testy: przygotowanie środowiska, wykonanie akcji, weryfikacja wyniku.​
+
+Typy testów obejmują: testy jednostkowe (pojedyncze komponenty w izolacji), testy integracyjne (współdziałanie komponentów), oraz testy end-to-end (pełne scenariusze użytkownika).​
+
+Jakość kodu
+Narzędzia automatyzacji jak ESLint i Prettier powinny być skonfigurowane w każdym projekcie. ESLint egzekwuje standardy kodowania i wykrywa potencjalne problemy, Prettier zapewnia spójne formatowanie. Integracja z TypeScript ESLint jest szczególnie wartościowa dla projektów z TypeScript.​
+
+Zasada DRY (Don't Repeat Yourself) – należy unikać duplikacji kodu poprzez tworzenie małych, wielokrotnego użytku komponentów i funkcji. Każdy komponent powinien mieć pojedynczą odpowiedzialność zgodnie z zasadą Single Responsibility Principle.​
+
+Czysty JSX – należy utrzymywać drzewo JSX płytkie, unikać inline styles i złożonych wyrażeń bezpośrednio w JSX, używać opisowych nazw klas. Markup JSX nie powinien przekraczać 50 linii.​
+
+Usuwanie martwego kodu – komentowany kod, nieużywane zmienne, console.log statements i nieosiągalny kod powinny być regularnie usuwane z codebase.​

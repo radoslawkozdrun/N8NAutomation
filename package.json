@@ -3,6 +3,19 @@
   "version": "1.0.0",
   "description": "AI-powered content automation and RSS management platform",
   "private": true,
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/radoslawkozdrun/N8NAutomation.git"
+  },
+  "bugs": {
+    "url": "https://github.com/radoslawkozdrun/N8NAutomation/issues"
+  },
+  "homepage": "https://github.com/radoslawkozdrun/N8NAutomation#readme",
+  "author": "Radosław Kozdruń",
   "dependencies": {
     "@headlessui/react": "^1.7.13",
     "@tanstack/react-query": "^4.24.6",

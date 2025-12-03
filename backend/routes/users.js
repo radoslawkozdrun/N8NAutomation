@@ -1,6 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const { query } = require('../database');
+const { query } = require('../src/database');
 const { authenticateToken, requireAdmin, auditLog } = require('../middleware/auth');
 
 const router = express.Router();

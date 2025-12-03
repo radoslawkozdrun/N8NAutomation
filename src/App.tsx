@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { Layout } from '@/components/Layout';
@@ -6,9 +6,7 @@ import { ArticleDetailModal } from '@/components/ArticleDetailModal';
 // import { Login } from '@/components/Login'; // Old login component
 import { AccountPanel } from '@/components/AccountPanel';
 import { FeedManagement } from '@/components/FeedManagement';
-import { UserManagement } from '@/components/UserManagement';
 import { DomainManagement } from '@/components/DomainManagement';
-import { NewDashboard } from '@/components/NewDashboard';
 import Dashboard from '@/pages/dashboard/index';
 import { NewSocialMediaAccountManagement } from '@/components/NewSocialMediaAccountManagement';
 // Reference app pages
@@ -21,7 +19,6 @@ import ContentAdaptationPage from '@/pages/content-adaptation/index';
 import MasterContentPage from '@/pages/master-content/index';
 import MasterContentEditPage from '@/pages/master-content-edit/index';
 import SocialPlatformsPage from '@/pages/social-platforms/index';
-import NotFound from '@/pages/NotFound';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { NavigationProvider } from '@/contexts/NavigationContext';
 import { ToastProvider } from '@/components/ui/Toast';
@@ -44,18 +41,6 @@ function AppContent() {
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
 
-  const handleLogin = (token: string, userData: any) => {
-    localStorage.setItem('authToken', token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    // Refresh the page to reload auth state
-    window.location.reload();
-  };
-
-  const handleArticleSelect = (article: Article) => {
-    setSelectedArticle(article);
-    setDetailModalOpen(true);
-  };
-
   const handleCloseModal = () => {
     setDetailModalOpen(false);
     setSelectedArticle(null);
@@ -77,7 +62,7 @@ function AppContent() {
   if (!user) {
     return (
       <div className="App">
-        <NavigationProvider currentView="new-dashboard" onViewChange={() => {}}>
+        <NavigationProvider currentView="new-dashboard" onViewChange={() => { }}>
           <LoginPage />
         </NavigationProvider>
         <Toaster position="top-right" />

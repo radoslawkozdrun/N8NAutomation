@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { query } = require('../database');
+const { query } = require('../src/database');
 const { authenticateToken } = require('../middleware/auth');
 
 // Get all posts with optional status filter

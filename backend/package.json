@@ -2,12 +2,20 @@
   "name": "rss-review-backend",
   "version": "1.0.0",
   "description": "Backend API for RSS Review Interface",
-  "main": "server.js",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/radoslawkozdrun/N8NAutomation.git"
+  },
   "scripts": {
-    "start": "node server.js",
-    "start:api": "node server-api-only.js",
-    "dev": "nodemon server.js",
-    "dev:api": "nodemon server-api-only.js"
+    "start": "node src/server.js",
+    "start:api": "node src/server-api-only.js",
+    "dev": "nodemon src/server.js",
+    "dev:api": "nodemon src/server-api-only.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
@@ -31,6 +39,6 @@
     "rss",
     "review"
   ],
-  "author": "",
+  "author": "Radosław Kozdruń",
   "license": "MIT"
 }

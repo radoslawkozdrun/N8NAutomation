@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 // Database connection pool
 const pool = new Pool({
@@ -45,17 +46,17 @@ const testConnection = async () => {
   try {
     const result = await query('SELECT NOW() as current_time');
     console.log('✅ Database connection test successful:', result.rows[0].current_time);
-    
+
     // Check if content table exists
     const tableCheck = await query(`
       SELECT table_name 
       FROM information_schema.tables 
       WHERE table_name = 'content'
     `);
-    
+
     if (tableCheck.rows.length > 0) {
       console.log('✅ Table content found');
-      
+
       // Get table info
       const countResult = await query('SELECT COUNT(*) FROM content');
       console.log(`📋 Found ${countResult.rows[0].count} articles in content`);

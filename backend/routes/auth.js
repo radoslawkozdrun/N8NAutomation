@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const rateLimit = require('express-rate-limit');
-const { query } = require('../database');
+const { query } = require('../src/database');
 const { 
   generateToken, 
   createSession, 
