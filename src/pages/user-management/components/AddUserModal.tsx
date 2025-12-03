@@ -4,16 +4,41 @@ import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
 import { Checkbox } from '../../../components/ui/Checkbox';
+import { CreateUserRequest, UserRole } from '../../../types';
 
-const AddUserModal = ({ isOpen, onClose, onAddUser }) => {
-  const [formData, setFormData] = useState({
-    name: '',
+interface AddUserModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onAddUser: (user: CreateUserRequest) => Promise<void>;
+}
+
+interface FormData {
+  username: string;
+  email: string;
+  password: string;
+  role: UserRole;
+  is_active: boolean;
+  sendNotification: boolean;
+}
+
+interface FormErrors {
+  username?: string;
+  email?: string;
+  password?: string;
+  submit?: string;
+  [key: string]: string | undefined;
+}
+
+const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser }) => {
+  const [formData, setFormData] = useState<FormData>({
+    username: '',
     email: '',
+    password: '',
     role: 'USER',
-    status: 'ACTIVE',
+    is_active: true,
     sendNotification: true
   });
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
 
   const roleOptions = [
@@ -23,42 +48,47 @@ const AddUserModal = ({ isOpen, onClose, onAddUser }) => {
   ];
 
   const statusOptions = [
-    { value: 'ACTIVE', label: 'Active' },
-    { value: 'INACTIVE', label: 'Inactive' }
+    { value: 'true', label: 'Active' },
+    { value: 'false', label: 'Inactive' }
   ];
 
   const validateForm = () => {
-    const newErrors = {};
+    const newErrors: FormErrors = {};
 
-    if (!formData?.name?.trim()) {
-      newErrors.name = 'Username is required';
+    if (!formData.username.trim()) {
+      newErrors.username = 'Username is required';
     }
 
-    if (!formData?.email?.trim()) {
+    if (!formData.email.trim()) {
       newErrors.email = 'Email address is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/?.test(formData?.email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Invalid email address format';
     }
 
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+
     setErrors(newErrors);
-    return Object.keys(newErrors)?.length === 0;
+    return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e?.preventDefault();
-    
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     if (!validateForm()) return;
 
     setIsLoading(true);
-    
+
     try {
-      const newUser = {
-        id: Date.now(),
-        ...formData,
-        createdAt: new Date()?.toISOString(),
-        lastLogin: null,
-        articleReviews: 0,
-        loginCount: 0
+      const newUser: CreateUserRequest = {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+        is_active: formData.is_active
       };
 
       await onAddUser(newUser);
@@ -72,19 +102,20 @@ const AddUserModal = ({ isOpen, onClose, onAddUser }) => {
 
   const handleClose = () => {
     setFormData({
-      name: '',
+      username: '',
       email: '',
+      password: '',
       role: 'USER',
-      status: 'ACTIVE',
+      is_active: true,
       sendNotification: true
     });
     setErrors({});
     onClose();
   };
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: keyof FormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    if (errors?.[field]) {
+    if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
@@ -100,7 +131,7 @@ const AddUserModal = ({ isOpen, onClose, onAddUser }) => {
           <h2 className="text-lg font-semibold text-card-foreground">Add New User</h2>
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
             onClick={handleClose}
             iconName="X"
             iconSize={20}
@@ -113,9 +144,9 @@ const AddUserModal = ({ isOpen, onClose, onAddUser }) => {
             label="Username"
             type="text"
             placeholder="Enter username"
-            value={formData?.name}
-            onChange={(e) => handleInputChange('name', e?.target?.value)}
-            error={errors?.name}
+            value={formData.username}
+            onChange={(e) => handleInputChange('username', e.target.value)}
+            error={errors.username || ''}
             required
           />
 
@@ -123,38 +154,46 @@ const AddUserModal = ({ isOpen, onClose, onAddUser }) => {
             label="Email Address"
             type="email"
             placeholder="user@example.com"
-            value={formData?.email}
-            onChange={(e) => handleInputChange('email', e?.target?.value)}
-            error={errors?.email}
+            value={formData.email}
+            onChange={(e) => handleInputChange('email', e.target.value)}
+            error={errors.email || ''}
+            required
+          />
+
+          <Input
+            label="Password"
+            type="password"
+            placeholder="Enter password"
+            value={formData.password}
+            onChange={(e) => handleInputChange('password', e.target.value)}
+            error={errors.password || ''}
             required
           />
 
           <Select
             label="User Role"
             options={roleOptions}
-            value={formData?.role}
+            value={formData.role}
             onChange={(value) => handleInputChange('role', value)}
-            description="Select appropriate permission level"
           />
 
           <Select
             label="Account Status"
             options={statusOptions}
-            value={formData?.status}
-            onChange={(value) => handleInputChange('status', value)}
+            value={formData.is_active ? 'true' : 'false'}
+            onChange={(value) => handleInputChange('is_active', value === 'true')}
           />
 
           <Checkbox
             label="Send email notification"
-            description="User will receive email with access credentials"
-            checked={formData?.sendNotification}
-            onChange={(e) => handleInputChange('sendNotification', e?.target?.checked)}
+            checked={formData.sendNotification}
+            onChange={(checked) => handleInputChange('sendNotification', checked)}
           />
 
-          {errors?.submit && (
+          {errors.submit && (
             <div className="flex items-center space-x-2 text-sm text-error">
               <Icon name="AlertCircle" size={16} />
-              <span>{errors?.submit}</span>
+              <span>{errors.submit}</span>
             </div>
           )}
 

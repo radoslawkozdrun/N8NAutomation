@@ -1,12 +1,13 @@
 import { useNavigation } from '@/contexts/NavigationContext';
 import { ViewType } from '@/types';
+import { logger } from '@/utils/logger';
 
 // Navigation helper that works with our view system
 export function useMockNavigate() {
   const { setCurrentView } = useNavigation();
 
   return (path: string) => {
-    console.log('Navigate to:', path);
+    logger.debug('Navigate to', path);
 
     // Handle article-details with query parameters
     if (path.startsWith('/article-details')) {
@@ -36,7 +37,7 @@ export function useMockNavigate() {
     if (view) {
       setCurrentView(view);
     } else {
-      console.warn('Unknown path:', path);
+      logger.warn('Unknown path', path);
     }
   };
 }

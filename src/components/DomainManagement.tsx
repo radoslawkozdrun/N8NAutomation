@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/utils';
 import { api } from '@/lib/api';
 import toast from 'react-hot-toast';
+import { logger } from '@/utils/logger';
 
 interface Domain {
   id: number;
@@ -121,14 +122,14 @@ export function DomainManagement() {
     setLoading(true);
     try {
       const filters: Record<string, any> = {};
-      if (search) filters.search = search;
-      if (statusFilter !== 'all') filters.active = statusFilter === 'active';
+      if (search) filters['search'] = search;
+      if (statusFilter !== 'all') filters['active'] = statusFilter === 'active';
 
       const response = await api.getDomains(filters, page, 20);
       setDomains(response.data);
       setTotalPages(response.pagination.total_pages);
     } catch (error: any) {
-      console.error('Error fetching domains:', error);
+      logger.error('Error fetching domains', error);
       if (error?.status === 401) {
         showMessage('Authentication failed - please log in again', 'error');
         localStorage.removeItem('authToken');
@@ -145,7 +146,7 @@ export function DomainManagement() {
       const response = await api.getDomainStats();
       setStats(response.data);
     } catch (error) {
-      console.error('Failed to fetch stats:', error);
+      logger.error('Failed to fetch stats', error);
     }
   };
 
@@ -156,7 +157,6 @@ export function DomainManagement() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Submitting domain form with data:', formData, 'editingDomain:', editingDomain);
 
     if (!formData.domain_id || !formData.domain_name) {
       showMessage('Domain ID and name are required', 'error');
@@ -167,20 +167,17 @@ export function DomainManagement() {
     try {
       let response;
       if (editingDomain) {
-        console.log('Updating domain with ID:', editingDomain.id);
         response = await api.updateDomain(editingDomain.id, formData);
       } else {
-        console.log('Creating new domain');
         response = await api.createDomain(formData);
       }
-      
-      console.log('Domain API response:', response);
+
       showMessage(response.message || `Domain ${editingDomain ? 'updated' : 'created'} successfully`, 'success');
       closeModals();
       fetchDomains();
       fetchStats();
     } catch (error: any) {
-      console.error('Error submitting domain form:', error);
+      logger.error('Error submitting domain form', error);
       showMessage(error?.message || 'Failed to save domain', 'error');
     } finally {
       setLoading(false);
@@ -214,8 +211,6 @@ export function DomainManagement() {
   };
 
   const openEditModal = (domain: Domain) => {
-    console.log('Opening edit modal for domain:', domain);
-    console.log('Current showEditModal state:', showEditModal);
     setEditingDomain(domain);
     setFormData({
       domain_id: domain.domain_id,
@@ -224,7 +219,6 @@ export function DomainManagement() {
       is_active: domain.is_active
     });
     setShowEditModal(true);
-    console.log('Setting showEditModal to true');
   };
 
   const openViewModal = (domain: Domain) => {
@@ -248,7 +242,7 @@ export function DomainManagement() {
   };
 
   const getStatusBadgeColor = (is_active: boolean) => {
-    return is_active 
+    return is_active
       ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
       : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
   };
@@ -459,10 +453,7 @@ export function DomainManagement() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => {
-                      console.log('View button clicked for domain:', row.id, row.domain_name);
-                      openViewModal(row);
-                    }}
+                    onClick={() => openViewModal(row)}
                     iconName="Eye"
                     iconSize={14}
                     title="View configuration"
@@ -474,7 +465,6 @@ export function DomainManagement() {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log('Edit button clicked for domain:', row.id, row.domain_name);
                       openEditModal(row);
                     }}
                     iconName="Edit2"
@@ -765,14 +755,14 @@ interface DomainEditModalProps {
   loading: boolean;
 }
 
-function DomainEditModal({ 
-  domain, 
-  isOpen, 
-  onClose, 
-  onSave, 
-  formData, 
-  setFormData, 
-  loading 
+function DomainEditModal({
+  domain,
+  isOpen,
+  onClose,
+  onSave,
+  formData,
+  setFormData,
+  loading
 }: DomainEditModalProps) {
   const [activeTab, setActiveTab] = useState<'basic' | 'categories' | 'persona' | 'audiences'>('basic');
 
@@ -797,7 +787,7 @@ function DomainEditModal({
     });
   };
 
-  const updateCategories = (categories: Array<{name: string; subcategories: string[]}>) => {
+  const updateCategories = (categories: Array<{ name: string; subcategories: string[] }>) => {
     updateConfig({ categories });
   };
 
@@ -897,11 +887,10 @@ function DomainEditModal({
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key as any)}
-                className={`py-3 px-4 border-b-3 font-semibold text-sm mr-6 rounded-t-lg transition-all duration-200 ${
-                  activeTab === tab.key
-                    ? `border-${tab.color}-500 text-${tab.color}-600 dark:text-${tab.color}-400 bg-${tab.color}-50 dark:bg-${tab.color}-900/20 shadow-sm`
-                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                }`}
+                className={`py-3 px-4 border-b-3 font-semibold text-sm mr-6 rounded-t-lg transition-all duration-200 ${activeTab === tab.key
+                  ? `border-${tab.color}-500 text-${tab.color}-600 dark:text-${tab.color}-400 bg-${tab.color}-50 dark:bg-${tab.color}-900/20 shadow-sm`
+                  : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                  }`}
               >
                 {tab.label}
               </button>
@@ -920,7 +909,7 @@ function DomainEditModal({
                     <div className="w-3 h-3 bg-blue-500 rounded-full mr-3 animate-pulse"></div>
                     <h4 className="text-lg font-semibold text-blue-900 dark:text-blue-100">🌐 Domain Identity</h4>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2 flex items-center">
@@ -960,7 +949,7 @@ function DomainEditModal({
                     <div className="w-3 h-3 bg-purple-500 rounded-full mr-3 animate-pulse"></div>
                     <h4 className="text-lg font-semibold text-purple-900 dark:text-purple-100">👤 Target Persona</h4>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-semibold text-purple-700 dark:text-purple-300 mb-2">
                       Who is your target audience?
@@ -981,7 +970,7 @@ function DomainEditModal({
                     <div className="w-3 h-3 bg-emerald-500 rounded-full mr-3 animate-pulse"></div>
                     <h4 className="text-lg font-semibold text-emerald-900 dark:text-emerald-100">🧠 Domain Expertise</h4>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-2">
                       Describe your domain expertise
@@ -1003,7 +992,7 @@ function DomainEditModal({
                       <div className="w-3 h-3 bg-amber-500 rounded-full mr-3 animate-pulse"></div>
                       <h4 className="text-lg font-semibold text-amber-900 dark:text-amber-100">🏷️ Key Terms</h4>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-semibold text-amber-700 dark:text-amber-300 mb-2">
                         Domain-specific terminology
@@ -1023,7 +1012,7 @@ function DomainEditModal({
                       <div className="w-3 h-3 bg-rose-500 rounded-full mr-3 animate-pulse"></div>
                       <h4 className="text-lg font-semibold text-rose-900 dark:text-rose-100">🌍 Languages</h4>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-semibold text-rose-700 dark:text-rose-300 mb-2">
                         Supported translations
@@ -1200,7 +1189,7 @@ function DomainEditModal({
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Audience Name
@@ -1276,7 +1265,7 @@ function CategoryEditor({
           <Trash2 className="w-4 h-4" />
         </button>
       </div>
-      
+
       <div className="space-y-3">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -1289,7 +1278,7 @@ function CategoryEditor({
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
           />
         </div>
-        
+
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Subcategories
@@ -1316,7 +1305,7 @@ function CategoryEditor({
                 </button>
               </div>
             ))}
-            
+
             <div className="flex items-center gap-2">
               <input
                 type="text"

@@ -136,7 +136,9 @@
       "mcp__playwright__browser_close",
       "mcp__playwright-test__browser_navigate",
       "Bash(test:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(PORT=8002 npm start:*)",
+      "Bash(ping:*)"
     ],
     "deny": [],
     "ask": []

@@ -133,3 +133,11 @@ export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength).replace(/\s+\S*$/, '') + '...';
 }
+
+// Score gradient utility for ProgressBar
+export function getScoreGradient(score: number): string {
+  if (score >= 80) return 'from-green-500 to-green-600';
+  if (score >= 60) return 'from-yellow-500 to-yellow-600';
+  if (score >= 40) return 'from-orange-500 to-orange-600';
+  return 'from-red-500 to-red-600';
+}

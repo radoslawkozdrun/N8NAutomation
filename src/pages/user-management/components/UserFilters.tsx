@@ -2,14 +2,24 @@ import React from 'react';
 import Select from '../../../components/ui/Select';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
+import { User, UserFilters as UserFiltersType } from '../../../types';
 
-const UserFilters = ({ 
-  filters, 
-  onFilterChange, 
-  onClearFilters, 
+interface UserFiltersProps {
+  filters: UserFiltersType;
+  onFilterChange: (field: keyof UserFiltersType, value: any) => void;
+  onClearFilters: () => void;
+  onBulkAction: (action: string, userIds: number[]) => void;
+  selectedUsers: User[];
+  totalUsers: number;
+}
+
+const UserFilters: React.FC<UserFiltersProps> = ({
+  filters,
+  onFilterChange,
+  onClearFilters,
   onBulkAction,
   selectedUsers,
-  totalUsers 
+  totalUsers
 }) => {
   const roleOptions = [
     { value: '', label: 'All roles' },
@@ -33,9 +43,9 @@ const UserFilters = ({
     { value: 'export', label: 'Export selected' }
   ];
 
-  const handleBulkAction = (action) => {
+  const handleBulkAction = (action: string) => {
     if (action && selectedUsers?.length > 0) {
-      onBulkAction(action, selectedUsers);
+      onBulkAction(action, selectedUsers.map(u => u.id));
     }
   };
 
@@ -46,23 +56,23 @@ const UserFilters = ({
         <Input
           type="search"
           placeholder="Search users..."
-          value={filters?.search}
-          onChange={(e) => onFilterChange('search', e?.target?.value)}
+          value={filters?.search || ''}
+          onChange={(e) => onFilterChange('search', e.target.value)}
           className="md:col-span-2"
         />
-        
+
         <Select
-          placeholder="Filter by role"
+          label="Role"
           options={roleOptions}
-          value={filters?.role}
+          value={filters?.role || ''}
           onChange={(value) => onFilterChange('role', value)}
         />
-        
+
         <Select
-          placeholder="Filter by status"
+          label="Status"
           options={statusOptions}
-          value={filters?.status}
-          onChange={(value) => onFilterChange('status', value)}
+          value={filters?.active === undefined ? '' : (filters.active ? 'ACTIVE' : 'INACTIVE')}
+          onChange={(value) => onFilterChange('active', value === 'ACTIVE' ? true : (value === 'INACTIVE' ? false : undefined))}
         />
       </div>
       {/* Actions Row */}
@@ -72,15 +82,15 @@ const UserFilters = ({
             Found {totalUsers} users
             {selectedUsers?.length > 0 && (
               <span className="ml-2 text-primary">
-                ({selectedUsers?.length} zaznaczonych)
+                ({selectedUsers?.length} selected)
               </span>
             )}
           </p>
-          
+
           {selectedUsers?.length > 0 && (
             <div className="flex items-center space-x-2">
               <Select
-                placeholder="Bulk actions"
+                label="Bulk Actions"
                 options={bulkActionOptions}
                 value=""
                 onChange={handleBulkAction}

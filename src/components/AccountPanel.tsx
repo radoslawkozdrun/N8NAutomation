@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  User, 
-  Settings, 
-  Shield, 
-  Lock, 
-  Mail, 
-  Eye, 
-  EyeOff, 
+import {
+  User,
+  Lock,
+  Mail,
+  Eye,
+  EyeOff,
   Save,
   Users,
   LogOut,
   AlertCircle,
   CheckCircle,
-  UserPlus,
-  Trash2
+  UserPlus
 } from 'lucide-react';
 import Button from './ui/Button';
 import { Badge } from '@/components/ui/Badge';

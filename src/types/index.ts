@@ -22,7 +22,7 @@ export interface Article {
   created_date: string;
 }
 
-export type ArticleCategory = 
+export type ArticleCategory =
   | 'AI_ML'
   | 'WEB_DEV'
   | 'MOBILE_DEV'
@@ -34,14 +34,14 @@ export type ArticleCategory =
   | 'IOT'
   | 'OTHER';
 
-export type Priority = 
+export type Priority =
   | 'P0_BREAKING'
   | 'P1_TRENDING'
   | 'P2_TIMELY'
   | 'P3_EVERGREEN'
   | 'P4_FILLER';
 
-export type TargetAudience = 
+export type TargetAudience =
   | 'developers'
   | 'architects'
   | 'managers'
@@ -49,7 +49,7 @@ export type TargetAudience =
   | 'experts'
   | 'mixed';
 
-export type ArticleStatus = 
+export type ArticleStatus =
   | 'NEW'
   | 'PENDING_REVIEW'
   | 'ACCEPTED'
@@ -59,15 +59,15 @@ export type ArticleStatus =
   | 'RESEARCH_DONE';
 
 export interface ReviewDecision {
-  action: 'accept' | 'reject';
-  notes?: string;
-  justification?: string;
+  action: 'accept' | 'reject' | 'needs_more';
+  notes?: string | undefined;
+  justification?: string | undefined;
 }
 
 export interface BulkUpdateRequest {
   articleIds: number[];
   action: 'accept' | 'reject';
-  notes?: string;
+  notes?: string | undefined;
 }
 
 export interface ResearchMaterial {
@@ -97,9 +97,9 @@ export interface User {
 }
 
 export interface UserFilters {
-  role?: UserRole;
-  active?: boolean;
-  search?: string;
+  role?: UserRole | undefined;
+  active?: boolean | undefined;
+  search?: string | undefined;
 }
 
 export interface CreateUserRequest {
@@ -119,16 +119,16 @@ export interface UpdateUserRequest {
 }
 
 export interface ArticleFilters {
-  status?: string;
-  category?: ArticleCategory;
-  priority?: Priority;
-  target_audience?: TargetAudience;
-  score_min?: number;
-  score_max?: number;
-  search?: string;
-  tags?: string[];
-  sort_by?: string;
-  sort_order?: 'asc' | 'desc';
+  status?: string | undefined;
+  category?: ArticleCategory | undefined;
+  priority?: Priority | undefined;
+  target_audience?: TargetAudience | undefined;
+  score_min?: number | undefined;
+  score_max?: number | undefined;
+  search?: string | undefined;
+  tags?: string[] | undefined;
+  sort_by?: string | undefined;
+  sort_order?: 'asc' | 'desc' | undefined;
 }
 
 
@@ -184,7 +184,9 @@ export type ViewType =
   | 'config-properties'
   | 'master-content'
   | 'master-content-edit'
-  | 'social-platforms';
+  | 'social-platforms'
+  | 'post-creation'
+  | 'social-media-management';
 
 // n8n Types
 export interface N8nWorkflow {
@@ -281,14 +283,14 @@ export interface MasterContent {
   article?: Article; // Populated article details
 }
 
-export type MasterContentStatus = 
+export type MasterContentStatus =
   | 'DRAFT'
   | 'READY_FOR_REVIEW'
   | 'APPROVED'
   | 'REJECTED'
   | 'PROCESSING';
 
-export type ContentTone = 
+export type ContentTone =
   | 'professional'
   | 'casual'
   | 'friendly'
@@ -336,14 +338,14 @@ export interface PlatformContent {
   master_content?: MasterContent;
 }
 
-export type SocialPlatform = 
+export type SocialPlatform =
   | 'TWITTER'
   | 'LINKEDIN'
   | 'FACEBOOK'
   | 'INSTAGRAM'
   | 'TIKTOK';
 
-export type PlatformContentStatus = 
+export type PlatformContentStatus =
   | 'DRAFT'
   | 'READY_FOR_REVIEW'
   | 'SCHEDULED'
@@ -352,7 +354,7 @@ export type PlatformContentStatus =
   | 'POSTPONED'
   | 'DECLINED';
 
-export type PublishDecision = 
+export type PublishDecision =
   | 'PUBLISH'
   | 'POSTPONE'
   | 'DECLINE'
@@ -361,9 +363,9 @@ export type PublishDecision =
 
 export interface PublishDecisionData {
   decision: PublishDecision;
-  scheduled_for?: string; // For PUBLISH_ON_SCHEDULE
+  scheduled_for?: string | undefined; // For PUBLISH_ON_SCHEDULE
   target_accounts: number[]; // Selected social media account IDs
-  notes?: string;
+  notes?: string | undefined;
   user_id: number;
 }
 

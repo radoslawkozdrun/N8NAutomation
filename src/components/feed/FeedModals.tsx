@@ -1,4 +1,4 @@
-import React from 'react';
+import { memo } from 'react';
 import { X } from 'lucide-react';
 import { Feed, FeedFormData } from '@/types/feed';
 
@@ -13,7 +13,7 @@ interface FeedModalsProps {
     domains: any[];
 }
 
-export const FeedModals: React.FC<FeedModalsProps> = ({
+export const FeedModals = memo<FeedModalsProps>(({
     showAddModal,
     showEditModal,
     editingFeed,
@@ -146,4 +146,7 @@ export const FeedModals: React.FC<FeedModalsProps> = ({
             </div>
         </div>
     );
-};
+});
+
+FeedModals.displayName = 'FeedModals';
+

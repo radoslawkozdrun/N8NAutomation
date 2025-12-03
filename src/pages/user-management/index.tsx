@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Icon from '../../components/AppIcon';
 import Button from '../../components/ui/Button';
 import { useToast } from '../../components/ui/Toast';
@@ -9,7 +9,7 @@ import EditUserModal from './components/EditUserModal';
 import UserActivityModal from './components/UserActivityModal';
 import DeleteConfirmModal from './components/DeleteConfirmModal';
 import UserFilters from './components/UserFilters';
-import { User, UserFilters as UserFiltersType } from '../../types';
+import { User, UserFilters as UserFiltersType, CreateUserRequest } from '../../types';
 import { api } from '../../lib/api';
 
 const UserManagement = () => {
@@ -64,7 +64,7 @@ const UserManagement = () => {
     fetchUsers();
   }, [page, filters]);
 
-  const handleFilterChange = (field, value) => {
+  const handleFilterChange = (field: keyof UserFiltersType, value: any) => {
     setFilters(prev => ({ ...prev, [field]: value }));
     setPage(1); // Reset to first page when filters change
   };
@@ -78,7 +78,7 @@ const UserManagement = () => {
     setPage(1);
   };
 
-  const handleSort = (field) => {
+  const handleSort = (field: string) => {
     if (sortField === field) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
@@ -87,7 +87,7 @@ const UserManagement = () => {
     }
   };
 
-  const handleAddUser = async (userData) => {
+  const handleAddUser = async (userData: CreateUserRequest) => {
     try {
       await api.createUser(userData);
       success('User successfully added');
@@ -98,12 +98,12 @@ const UserManagement = () => {
     }
   };
 
-  const handleEditUser = (user) => {
+  const handleEditUser = (user: User) => {
     setSelectedUser(user);
     setShowEditModal(true);
   };
 
-  const handleUpdateUser = async (userData) => {
+  const handleUpdateUser = async (userData: Partial<User>) => {
     try {
       if (selectedUser) {
         await api.updateUser(selectedUser.id, userData);
@@ -116,7 +116,7 @@ const UserManagement = () => {
     }
   };
 
-  const handleToggleStatus = async (user) => {
+  const handleToggleStatus = async (user: User) => {
     try {
       await api.toggleUserStatus(user.id);
       const newStatus = user?.is_active ? 'deactivated' : 'activated';
@@ -128,7 +128,7 @@ const UserManagement = () => {
     }
   };
 
-  const handleDeleteUser = (user) => {
+  const handleDeleteUser = (user: User) => {
     setSelectedUser(user);
     setShowDeleteModal(true);
   };
@@ -152,13 +152,13 @@ const UserManagement = () => {
     }
   };
 
-  const handleViewActivity = (user) => {
+  const handleViewActivity = (user: User) => {
     setSelectedUser(user);
     setShowActivityModal(true);
   };
 
-  const handleBulkAction = async (action, userIds) => {
-    const selectedUserObjects = users?.filter(user => userIds?.includes(user?.id));
+  const handleBulkAction = async (action: string, userIds: number[]) => {
+
 
     try {
       switch (action) {
@@ -227,167 +227,167 @@ const UserManagement = () => {
 
   return (
     <div className="h-full flex flex-col p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="skote-page-title">User Management</h1>
-            <p className="text-muted-foreground mt-2">
-              Manage user accounts, roles and permissions
-            </p>
-          </div>
-          <div className="flex items-center space-x-3">
-            {/* View Mode Toggle */}
-            <div className="flex items-center bg-muted rounded-lg p-1">
-              <Button
-                variant={viewMode === 'table' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('table')}
-                iconName="Table"
-                iconSize={16}
-              >
-                Table
-              </Button>
-              <Button
-                variant={viewMode === 'cards' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('cards')}
-                iconName="Grid3X3"
-                iconSize={16}
-              >
-                Cards
-              </Button>
-            </div>
-            
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="skote-page-title">User Management</h1>
+          <p className="text-muted-foreground mt-2">
+            Manage user accounts, roles and permissions
+          </p>
+        </div>
+        <div className="flex items-center space-x-3">
+          {/* View Mode Toggle */}
+          <div className="flex items-center bg-muted rounded-lg p-1">
             <Button
-              onClick={() => setShowAddModal(true)}
-              iconName="UserPlus"
+              variant={viewMode === 'table' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('table')}
+              iconName="Table"
+              iconSize={16}
+            >
+              Table
+            </Button>
+            <Button
+              variant={viewMode === 'cards' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('cards')}
+              iconName="Grid3X3"
+              iconSize={16}
+            >
+              Cards
+            </Button>
+          </div>
+
+          <Button
+            onClick={() => setShowAddModal(true)}
+            iconName="UserPlus"
+            iconPosition="left"
+          >
+            Add User
+          </Button>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <UserFilters
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        onClearFilters={handleClearFilters}
+        onBulkAction={handleBulkAction}
+        selectedUsers={selectedUsers}
+        totalUsers={totalUsers}
+      />
+
+      {/* Content */}
+      <div className="mt-6">
+        {filteredUsers?.length === 0 ? (
+          <div className="bg-card border border-border rounded-lg p-12 text-center">
+            <Icon name="Users" size={48} className="text-muted-foreground mx-auto mb-4" />
+            <h3 className="skote-card-title font-semibold text-card-foreground mb-2">
+              No Users
+            </h3>
+            <p className="text-muted-foreground mb-4">
+              No users found matching the search criteria.
+            </p>
+            <Button
+              variant="outline"
+              onClick={handleClearFilters}
+              iconName="RefreshCw"
               iconPosition="left"
             >
-              Add User
+              Clear Filters
+            </Button>
+          </div>
+        ) : (
+          <>
+            {viewMode === 'table' ? (
+              <UserTable
+                users={filteredUsers}
+                onEdit={handleEditUser}
+                onToggleStatus={handleToggleStatus}
+                onDelete={handleDeleteUser}
+                onViewActivity={handleViewActivity}
+                onSort={handleSort}
+                sortField={sortField}
+                sortDirection={sortDirection}
+              />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredUsers?.map((user) => (
+                  <UserCard
+                    key={user?.id}
+                    user={user}
+                    onEdit={handleEditUser}
+                    onToggleStatus={handleToggleStatus}
+                    onDelete={handleDeleteUser}
+                    onViewActivity={handleViewActivity}
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-6 flex items-center justify-between">
+          <div className="flex items-center skote-body-text text-muted-foreground">
+            <span>
+              Page {page} of {totalPages} ({totalUsers} users)
+            </span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(page - 1)}
+              disabled={page <= 1}
+            >
+              Previous
+            </Button>
+            <span className="skote-body-text text-muted-foreground">
+              {page} / {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(page + 1)}
+              disabled={page >= totalPages}
+            >
+              Next
             </Button>
           </div>
         </div>
+      )}
 
-        {/* Filters */}
-        <UserFilters
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          onClearFilters={handleClearFilters}
-          onBulkAction={handleBulkAction}
-          selectedUsers={selectedUsers}
-          totalUsers={totalUsers}
-        />
+      {/* Modals */}
+      <AddUserModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onAddUser={handleAddUser}
+      />
 
-        {/* Content */}
-        <div className="mt-6">
-          {filteredUsers?.length === 0 ? (
-            <div className="bg-card border border-border rounded-lg p-12 text-center">
-              <Icon name="Users" size={48} className="text-muted-foreground mx-auto mb-4" />
-              <h3 className="skote-card-title font-semibold text-card-foreground mb-2">
-                No Users
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                No users found matching the search criteria.
-              </p>
-              <Button
-                variant="outline"
-                onClick={handleClearFilters}
-                iconName="RefreshCw"
-                iconPosition="left"
-              >
-                Clear Filters
-              </Button>
-            </div>
-          ) : (
-            <>
-              {viewMode === 'table' ? (
-                <UserTable
-                  users={filteredUsers}
-                  onEdit={handleEditUser}
-                  onToggleStatus={handleToggleStatus}
-                  onDelete={handleDeleteUser}
-                  onViewActivity={handleViewActivity}
-                  onSort={handleSort}
-                  sortField={sortField}
-                  sortDirection={sortDirection}
-                />
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredUsers?.map((user) => (
-                    <UserCard
-                      key={user?.id}
-                      user={user}
-                      onEdit={handleEditUser}
-                      onToggleStatus={handleToggleStatus}
-                      onDelete={handleDeleteUser}
-                      onViewActivity={handleViewActivity}
-                    />
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </div>
+      <EditUserModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onUpdateUser={handleUpdateUser}
+        user={selectedUser}
+      />
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="mt-6 flex items-center justify-between">
-            <div className="flex items-center skote-body-text text-muted-foreground">
-              <span>
-                Page {page} of {totalPages} ({totalUsers} users)
-              </span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(page - 1)}
-                disabled={page <= 1}
-              >
-                Previous
-              </Button>
-              <span className="skote-body-text text-muted-foreground">
-                {page} / {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(page + 1)}
-                disabled={page >= totalPages}
-              >
-                Next
-              </Button>
-            </div>
-          </div>
-        )}
+      <UserActivityModal
+        isOpen={showActivityModal}
+        onClose={() => setShowActivityModal(false)}
+        user={selectedUser}
+      />
 
-        {/* Modals */}
-        <AddUserModal
-          isOpen={showAddModal}
-          onClose={() => setShowAddModal(false)}
-          onAddUser={handleAddUser}
-        />
-
-        <EditUserModal
-          isOpen={showEditModal}
-          onClose={() => setShowEditModal(false)}
-          onUpdateUser={handleUpdateUser}
-          user={selectedUser}
-        />
-
-        <UserActivityModal
-          isOpen={showActivityModal}
-          onClose={() => setShowActivityModal(false)}
-          user={selectedUser}
-        />
-
-        <DeleteConfirmModal
-          isOpen={showDeleteModal}
-          onClose={() => setShowDeleteModal(false)}
-          onConfirm={handleConfirmDelete}
-          user={selectedUser}
-          isLoading={deleteLoading}
-        />
+      <DeleteConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleConfirmDelete}
+        user={selectedUser}
+        isLoading={deleteLoading}
+      />
     </div>
   );
 };

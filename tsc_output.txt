@@ -1,0 +1,644 @@
+src/components/AccountPanel.tsx(4,3): error TS6133: 'Settings' is declared but its value is never read.
+src/components/AccountPanel.tsx(5,3): error TS6133: 'Shield' is declared but its value is never read.
+src/components/AccountPanel.tsx(16,3): error TS6133: 'Trash2' is declared but its value is never read.
+src/components/AppIcon.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/ArticleCard.tsx(14,3): error TS6133: 'formatDate' is declared but its value is never read.
+src/components/ArticleDetailModal.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/ArticleDetailModal.tsx(18,10): error TS6133: 'Article' is declared but its value is never read.
+src/components/ArticleDetailModal.tsx(30,3): error TS6133: 'cn' is declared but its value is never read.
+src/components/ArticleDetailModal.tsx(94,7): error TS2375: Type '{ action: "accept"; notes: string | undefined; }' is not assignable to type 'ReviewDecision' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'notes' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/components/ArticleDetailModal.tsx(100,7): error TS2375: Type '{ action: "reject"; notes: string | undefined; }' is not assignable to type 'ReviewDecision' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'notes' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/components/ArticleDetailModal.tsx(106,19): error TS2322: Type '"needs_more"' is not assignable to type '"accept" | "reject"'.
+src/components/ArticleFilters.tsx(6,3): error TS6133: 'SortAsc' is declared but its value is never read.
+src/components/ArticleFilters.tsx(7,3): error TS6133: 'SortDesc' is declared but its value is never read.
+src/components/ArticleFilters.tsx(73,21): error TS2379: Argument of type '{ search: string | undefined; status?: string; category?: ArticleCategory; priority?: Priority; target_audience?: TargetAudience; score_min?: number; score_max?: number; tags?: string[]; sort_by?: string; sort_order?: "asc" | "desc"; }' is not assignable to parameter of type 'ArticleFilters' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'search' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/components/ArticleFilters.tsx(108,37): error TS2379: Argument of type '{ search: undefined; status?: string; category?: ArticleCategory; priority?: Priority; target_audience?: TargetAudience; score_min?: number; score_max?: number; tags?: string[]; sort_by?: string; sort_order?: "asc" | "desc"; }' is not assignable to parameter of type 'ArticleFilters' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'search' are incompatible.
+    Type 'undefined' is not assignable to type 'string'.
+src/components/ArticleFilters.tsx(309,40): error TS2379: Argument of type '{ score_min: number | undefined; }' is not assignable to parameter of type 'Partial<ArticleFilters>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'score_min' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+src/components/ArticleFilters.tsx(323,40): error TS2379: Argument of type '{ score_max: number | undefined; }' is not assignable to parameter of type 'Partial<ArticleFilters>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'score_max' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+src/components/dashboard/QuickActions.tsx(2,1): error TS6133: 'Button' is declared but its value is never read.
+src/components/dashboard/ScoreDistributionChart.tsx(84,22): error TS6133: 'entry' is declared but its value is never read.
+src/components/DomainManagement.tsx(5,3): error TS6133: 'Edit2' is declared but its value is never read.
+src/components/DomainManagement.tsx(7,3): error TS6133: 'Power' is declared but its value is never read.
+src/components/DomainManagement.tsx(8,3): error TS6133: 'PowerOff' is declared but its value is never read.
+src/components/DomainManagement.tsx(10,3): error TS6133: 'Filter' is declared but its value is never read.
+src/components/DomainManagement.tsx(14,3): error TS6133: 'Eye' is declared but its value is never read.
+src/components/DomainManagement.tsx(21,21): error TS6133: 'Column' is declared but its value is never read.
+src/components/DomainManagement.tsx(91,10): error TS6133: 'showAddModal' is declared but its value is never read.
+src/components/DomainManagement.tsx(244,9): error TS6133: 'getStatusBadgeColor' is declared but its value is never read.
+src/components/DomainManagement.tsx(388,24): error TS6133: 'value' is declared but its value is never read.
+src/components/DomainManagement.tsx(1021,73): error TS7006: Parameter 'lang' implicitly has an 'any' type.
+src/components/DomainManagement.tsx(1021,79): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/components/DomainManagement.tsx(1101,61): error TS7006: Parameter 'category' implicitly has an 'any' type.
+src/components/DomainManagement.tsx(1101,71): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/components/ErrorBoundary.tsx(28,37): error TS6133: 'error' is declared but its value is never read.
+src/components/Layout.tsx(6,3): error TS6133: 'List' is declared but its value is never read.
+src/components/Layout.tsx(7,3): error TS6133: 'Table' is declared but its value is never read.
+src/components/Layout.tsx(19,3): error TS6133: 'BarChart3' is declared but its value is never read.
+src/components/Layout.tsx(26,1): error TS6133: 'Button' is declared but its value is never read.
+src/components/N8NConfigModal.tsx(58,9): error TS6133: 'autoLoginForDevelopment' is declared but its value is never read.
+src/components/N8NConfigModal.tsx(132,15): error TS6133: 'errorData' is declared but its value is never read.
+src/components/N8NConfigModal.tsx(171,17): error TS4111: Property 'baseUrl' comes from an index signature, so it must be accessed with ['baseUrl'].
+src/components/N8NConfigModal.tsx(173,17): error TS4111: Property 'baseUrl' comes from an index signature, so it must be accessed with ['baseUrl'].
+src/components/N8NConfigModal.tsx(177,17): error TS4111: Property 'apiKey' comes from an index signature, so it must be accessed with ['apiKey'].
+src/components/N8NConfigModal.tsx(182,17): error TS4111: Property 'timeout' comes from an index signature, so it must be accessed with ['timeout'].
+src/components/N8NConfigModal.tsx(187,17): error TS4111: Property 'retryAttempts' comes from an index signature, so it must be accessed with ['retryAttempts'].
+src/components/N8NConfigModal.tsx(349,30): error TS4111: Property 'baseUrl' comes from an index signature, so it must be accessed with ['baseUrl'].
+src/components/N8NConfigModal.tsx(353,27): error TS4111: Property 'baseUrl' comes from an index signature, so it must be accessed with ['baseUrl'].
+src/components/N8NConfigModal.tsx(354,70): error TS4111: Property 'baseUrl' comes from an index signature, so it must be accessed with ['baseUrl'].
+src/components/N8NConfigModal.tsx(372,32): error TS4111: Property 'apiKey' comes from an index signature, so it must be accessed with ['apiKey'].
+src/components/N8NConfigModal.tsx(393,27): error TS4111: Property 'apiKey' comes from an index signature, so it must be accessed with ['apiKey'].
+src/components/N8NConfigModal.tsx(394,70): error TS4111: Property 'apiKey' comes from an index signature, so it must be accessed with ['apiKey'].
+src/components/N8NConfigModal.tsx(412,32): error TS4111: Property 'timeout' comes from an index signature, so it must be accessed with ['timeout'].
+src/components/N8NConfigModal.tsx(417,29): error TS4111: Property 'timeout' comes from an index signature, so it must be accessed with ['timeout'].
+src/components/N8NConfigModal.tsx(418,72): error TS4111: Property 'timeout' comes from an index signature, so it must be accessed with ['timeout'].
+src/components/N8NConfigModal.tsx(432,32): error TS4111: Property 'retryAttempts' comes from an index signature, so it must be accessed with ['retryAttempts'].
+src/components/N8NConfigModal.tsx(437,29): error TS4111: Property 'retryAttempts' comes from an index signature, so it must be accessed with ['retryAttempts'].
+src/components/N8NConfigModal.tsx(438,72): error TS4111: Property 'retryAttempts' comes from an index signature, so it must be accessed with ['retryAttempts'].
+src/components/NewDashboard.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/NewSocialMediaAccountManagement.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/NewSocialMediaAccountManagement.tsx(3,1): error TS6133: 'Icon' is declared but its value is never read.
+src/components/NewSocialMediaAccountManagement.tsx(5,29): error TS7016: Could not find a declaration file for module './social-media/AccountOverview'. 'C:/Data/03_Repozytoria/N8NAutomation/src/components/social-media/AccountOverview.jsx' implicitly has an 'any' type.
+src/components/NewSocialMediaAccountManagement.tsx(6,33): error TS7016: Could not find a declaration file for module './social-media/N8NIntegrationPanel'. 'C:/Data/03_Repozytoria/N8NAutomation/src/components/social-media/N8NIntegrationPanel.jsx' implicitly has an 'any' type.
+src/components/NewSocialMediaAccountManagement.tsx(7,28): error TS7016: Could not find a declaration file for module './social-media/AccountFilters'. 'C:/Data/03_Repozytoria/N8NAutomation/src/components/social-media/AccountFilters.jsx' implicitly has an 'any' type.
+src/components/NewSocialMediaAccountManagement.tsx(8,26): error TS7016: Could not find a declaration file for module './social-media/AccountTable'. 'C:/Data/03_Repozytoria/N8NAutomation/src/components/social-media/AccountTable.jsx' implicitly has an 'any' type.
+src/components/NewSocialMediaAccountManagement.tsx(20,10): error TS6133: 'selectedAccount' is declared but its value is never read.
+src/components/NewSocialMediaAccountManagement.tsx(104,31): error TS6133: 'workflow' is declared but its value is never read.
+src/components/NewSocialMediaAccountManagement.tsx(139,23): error TS2345: Argument of type '{ id: string; name: string; status: string; lastRun: Date | null; success: boolean; accountsImported: number; description: string; tags: string[]; nodes: number; }[]' is not assignable to parameter of type 'SetStateAction<N8nWorkflow[]>'.
+  Type '{ id: string; name: string; status: string; lastRun: Date | null; success: boolean; accountsImported: number; description: string; tags: string[]; nodes: number; }[]' is not assignable to type 'N8nWorkflow[]'.
+    Type '{ id: string; name: string; status: string; lastRun: Date | null; success: boolean; accountsImported: number; description: string; tags: string[]; nodes: number; }' is missing the following properties from type 'N8nWorkflow': active, createdAt, updatedAt, connections
+src/components/NewSocialMediaAccountManagement.tsx(146,23): error TS2345: Argument of type '({ id: string; name: string; status: string; lastRun: Date; success: boolean; accountsImported: number; description: string; errorMessage?: never; } | { id: string; name: string; status: string; ... 4 more ...; errorMessage: string; })[]' is not assignable to parameter of type 'SetStateAction<N8nWorkflow[]>'.
+  Type '({ id: string; name: string; status: string; lastRun: Date; success: boolean; accountsImported: number; description: string; errorMessage?: never; } | { id: string; name: string; status: string; ... 4 more ...; errorMessage: string; })[]' is not assignable to type 'N8nWorkflow[]'.
+    Type '{ id: string; name: string; status: string; lastRun: Date; success: boolean; accountsImported: number; description: string; errorMessage?: never; } | { id: string; name: string; status: string; ... 4 more ...; errorMessage: string; }' is not assignable to type 'N8nWorkflow'.
+      Type '{ id: string; name: string; status: string; lastRun: Date; success: boolean; accountsImported: number; description: string; errorMessage?: never; }' is missing the following properties from type 'N8nWorkflow': active, tags, createdAt, updatedAt, and 2 more.
+src/components/NewSocialMediaAccountManagement.tsx(165,19): error TS2345: Argument of type '{ id: any; platform: any; username: any; displayName: any; status: any; followers: any; lastSync: Date | null; connectionHealth: any; postingEnabled: any; errorMessage: any; warningMessage: any; apiRateLimit: { ...; } | null; }[]' is not assignable to parameter of type 'SetStateAction<never[]>'.
+  Type '{ id: any; platform: any; username: any; displayName: any; status: any; followers: any; lastSync: Date | null; connectionHealth: any; postingEnabled: any; errorMessage: any; warningMessage: any; apiRateLimit: { ...; } | null; }[]' is not assignable to type 'never[]'.
+    Type '{ id: any; platform: any; username: any; displayName: any; status: any; followers: any; lastSync: Date | null; connectionHealth: any; postingEnabled: any; errorMessage: any; warningMessage: any; apiRateLimit: { ...; } | null; }' is not assignable to type 'never'.
+src/components/NewSocialMediaAccountManagement.tsx(188,53): error TS2339: Property 'platform' does not exist on type 'never'.
+src/components/NewSocialMediaAccountManagement.tsx(192,53): error TS2339: Property 'status' does not exist on type 'never'.
+src/components/NewSocialMediaAccountManagement.tsx(197,17): error TS2339: Property 'displayName' does not exist on type 'never'.
+src/components/NewSocialMediaAccountManagement.tsx(198,17): error TS2339: Property 'username' does not exist on type 'never'.
+src/components/NewSocialMediaAccountManagement.tsx(206,42): error TS7006: Parameter 'accountId' implicitly has an 'any' type.
+src/components/NewSocialMediaAccountManagement.tsx(216,19): error TS2345: Argument of type '(prev: never[]) => any[]' is not assignable to parameter of type 'SetStateAction<never[]>'.
+  Type '(prev: never[]) => any[]' is not assignable to type '(prevState: never[]) => never[]'.
+    Type 'any[]' is not assignable to type 'never[]'.
+      Type 'any' is not assignable to type 'never'.
+src/components/NewSocialMediaAccountManagement.tsx(217,13): error TS2339: Property 'id' does not exist on type 'never'.
+src/components/NewSocialMediaAccountManagement.tsx(218,15): error TS2698: Spread types may only be created from object types.
+src/components/NewSocialMediaAccountManagement.tsx(229,39): error TS7006: Parameter 'accountId' implicitly has an 'any' type.
+src/components/NewSocialMediaAccountManagement.tsx(232,19): error TS2345: Argument of type '(prev: never[]) => any[]' is not assignable to parameter of type 'SetStateAction<never[]>'.
+  Type '(prev: never[]) => any[]' is not assignable to type '(prevState: never[]) => never[]'.
+    Type 'any[]' is not assignable to type 'never[]'.
+src/components/NewSocialMediaAccountManagement.tsx(233,13): error TS2339: Property 'id' does not exist on type 'never'.
+src/components/NewSocialMediaAccountManagement.tsx(234,15): error TS2698: Spread types may only be created from object types.
+src/components/NewSocialMediaAccountManagement.tsx(246,19): error TS2345: Argument of type '(prev: never[]) => any[]' is not assignable to parameter of type 'SetStateAction<never[]>'.
+  Type '(prev: never[]) => any[]' is not assignable to type '(prevState: never[]) => never[]'.
+    Type 'any[]' is not assignable to type 'never[]'.
+src/components/NewSocialMediaAccountManagement.tsx(247,13): error TS2339: Property 'id' does not exist on type 'never'.
+src/components/NewSocialMediaAccountManagement.tsx(249,13): error TS2698: Spread types may only be created from object types.
+src/components/NewSocialMediaAccountManagement.tsx(265,19): error TS2345: Argument of type '(prev: never[]) => any[]' is not assignable to parameter of type 'SetStateAction<never[]>'.
+  Type '(prev: never[]) => any[]' is not assignable to type '(prevState: never[]) => never[]'.
+    Type 'any[]' is not assignable to type 'never[]'.
+src/components/NewSocialMediaAccountManagement.tsx(266,13): error TS2339: Property 'id' does not exist on type 'never'.
+src/components/NewSocialMediaAccountManagement.tsx(267,15): error TS2698: Spread types may only be created from object types.
+src/components/NewSocialMediaAccountManagement.tsx(273,37): error TS7006: Parameter 'account' implicitly has an 'any' type.
+src/components/NewSocialMediaAccountManagement.tsx(275,11): error TS2339: Property 'info' does not exist on type '{ (message: Message, opts?: Partial<Pick<Toast, "className" | "id" | "style" | "duration" | "icon" | "ariaProps" | "position" | "iconTheme" | "toasterId" | "removeDelay">> | undefined): string; ... 8 more ...; promise<T>(promise: Promise<...> | (() => Promise<...>), msgs: { ...; }, opts?: DefaultToastOptions | undef...'.
+src/components/NewSocialMediaAccountManagement.tsx(279,36): error TS7006: Parameter 'workflowId' implicitly has an 'any' type.
+src/components/NewSocialMediaAccountManagement.tsx(318,33): error TS7006: Parameter 'platform' implicitly has an 'any' type.
+src/components/NewSocialMediaAccountManagement.tsx(323,31): error TS7006: Parameter 'status' implicitly has an 'any' type.
+src/components/NewSocialMediaAccountManagement.tsx(328,31): error TS7006: Parameter 'query' implicitly has an 'any' type.
+src/components/NewSocialMediaAccountManagement.tsx(342,43): error TS2339: Property 'status' does not exist on type 'never'.
+src/components/NewSocialMediaAccountManagement.tsx(343,40): error TS2339: Property 'status' does not exist on type 'never'.
+src/components/NewSocialMediaAccountManagement.tsx(344,42): error TS2339: Property 'status' does not exist on type 'never'.
+src/components/NewSocialMediaAccountManagement.tsx(346,43): error TS2339: Property 'platform' does not exist on type 'never'.
+src/components/NewSocialMediaAccountManagement.tsx(347,44): error TS2339: Property 'platform' does not exist on type 'never'.
+src/components/NewSocialMediaAccountManagement.tsx(348,45): error TS2339: Property 'platform' does not exist on type 'never'.
+src/components/NewSocialMediaAccountManagement.tsx(349,40): error TS2339: Property 'platform' does not exist on type 'never'.
+src/components/NewSocialMediaAccountManagement.tsx(442,60): error TS2339: Property 'followers' does not exist on type 'never'.
+src/components/NewSocialMediaAccountManagement.tsx(450,47): error TS2339: Property 'status' does not exist on type 'N8nWorkflow'.
+src/components/ResearchMaterialsModal.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/social-media/WorkflowDetailsModal.tsx(206,54): error TS2339: Property 'name' does not exist on type 'never'.
+src/components/social-media/WorkflowDetailsModal.tsx(206,65): error TS2339: Property 'name' does not exist on type 'never'.
+src/components/social-media/WorkflowTable.tsx(4,21): error TS6133: 'Column' is declared but its value is never read.
+src/components/social-media/WorkflowTable.tsx(82,59): error TS2339: Property 'name' does not exist on type 'never'.
+src/components/social-media/WorkflowTable.tsx(82,70): error TS2339: Property 'name' does not exist on type 'never'.
+src/components/social-media/WorkflowTable.tsx(175,22): error TS6133: 'value' is declared but its value is never read.
+src/components/social-media/WorkflowTable.tsx(214,22): error TS6133: 'value' is declared but its value is never read.
+src/components/social-media/WorkflowTable.tsx(217,46): error TS7006: Parameter 'tag' implicitly has an 'any' type.
+src/components/social-media/WorkflowTable.tsx(217,51): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/components/ui/ProgressBar.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/ui/ProgressBar.tsx(2,14): error TS2305: Module '"@/lib/utils"' has no exported member 'getScoreGradient'.
+src/components/ui/ScoreIndicator.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/ui/ScoreIndicator.tsx(2,29): error TS6133: 'getScoreBackgroundColor' is declared but its value is never read.
+src/components/ui/Select.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/ui/Toast.tsx(51,14): error TS2379: Argument of type '{ type: "success"; title: string; message: string | undefined; }' is not assignable to parameter of type 'Omit<Toast, "id">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'message' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/components/ui/Toast.tsx(55,14): error TS2379: Argument of type '{ type: "error"; title: string; message: string | undefined; }' is not assignable to parameter of type 'Omit<Toast, "id">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'message' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/components/ui/Toast.tsx(59,14): error TS2379: Argument of type '{ type: "warning"; title: string; message: string | undefined; }' is not assignable to parameter of type 'Omit<Toast, "id">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'message' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/components/ui/Toast.tsx(63,14): error TS2379: Argument of type '{ type: "info"; title: string; message: string | undefined; }' is not assignable to parameter of type 'Omit<Toast, "id">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'message' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/components/UserManagement.tsx(6,3): error TS6133: 'Filter' is declared but its value is never read.
+src/components/UserManagement.tsx(485,46): error TS4111: Property 'username' comes from an index signature, so it must be accessed with ['username'].
+src/components/UserManagement.tsx(486,43): error TS4111: Property 'email' comes from an index signature, so it must be accessed with ['email'].
+src/components/UserManagement.tsx(487,46): error TS4111: Property 'password' comes from an index signature, so it must be accessed with ['password'].
+src/components/UserManagement.tsx(488,49): error TS4111: Property 'password' comes from an index signature, so it must be accessed with ['password'].
+src/components/UserManagement.tsx(538,25): error TS4111: Property 'username' comes from an index signature, so it must be accessed with ['username'].
+src/components/UserManagement.tsx(538,86): error TS4111: Property 'username' comes from an index signature, so it must be accessed with ['username'].
+src/components/UserManagement.tsx(551,25): error TS4111: Property 'email' comes from an index signature, so it must be accessed with ['email'].
+src/components/UserManagement.tsx(551,83): error TS4111: Property 'email' comes from an index signature, so it must be accessed with ['email'].
+src/components/UserManagement.tsx(564,25): error TS4111: Property 'password' comes from an index signature, so it must be accessed with ['password'].
+src/components/UserManagement.tsx(564,86): error TS4111: Property 'password' comes from an index signature, so it must be accessed with ['password'].
+src/components/UserManagement.tsx(645,47): error TS4111: Property 'username' comes from an index signature, so it must be accessed with ['username'].
+src/components/UserManagement.tsx(646,44): error TS4111: Property 'email' comes from an index signature, so it must be accessed with ['email'].
+src/components/UserManagement.tsx(648,17): error TS4111: Property 'password' comes from an index signature, so it must be accessed with ['password'].
+src/components/UserManagement.tsx(690,25): error TS4111: Property 'username' comes from an index signature, so it must be accessed with ['username'].
+src/components/UserManagement.tsx(690,86): error TS4111: Property 'username' comes from an index signature, so it must be accessed with ['username'].
+src/components/UserManagement.tsx(703,25): error TS4111: Property 'email' comes from an index signature, so it must be accessed with ['email'].
+src/components/UserManagement.tsx(703,83): error TS4111: Property 'email' comes from an index signature, so it must be accessed with ['email'].
+src/components/UserManagement.tsx(717,25): error TS4111: Property 'password' comes from an index signature, so it must be accessed with ['password'].
+src/components/UserManagement.tsx(717,86): error TS4111: Property 'password' comes from an index signature, so it must be accessed with ['password'].
+src/components/WorkflowVisualization.tsx(3,3): error TS6133: 'Play' is declared but its value is never read.
+src/components/WorkflowVisualization.tsx(15,3): error TS6133: 'CheckCircle' is declared but its value is never read.
+src/components/WorkflowVisualization.tsx(179,47): error TS6133: 'index' is declared but its value is never read.
+src/contexts/AuthContext.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/hooks/useFeeds.ts(3,27): error TS6133: 'FeedFormData' is declared but its value is never read.
+src/hooks/useFeeds.ts(145,30): error TS2339: Property 'pagination' does not exist on type 'ApiResponse<any[]>'.
+src/hooks/useFeeds.ts(146,48): error TS2339: Property 'pagination' does not exist on type 'ApiResponse<any[]>'.
+src/hooks/useKeyboardShortcuts.ts(3,23): error TS6133: 'isModifierKey' is declared but its value is never read.
+src/hooks/useResizableColumns.ts(49,5): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+src/lib/api.ts(690,40): error TS2379: Argument of type '{ decision: "POSTPONE"; target_accounts: never[]; notes: string | undefined; user_id: number; }' is not assignable to parameter of type 'PublishDecisionData' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'notes' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/lib/api.ts(699,40): error TS2379: Argument of type '{ decision: "DECLINE"; target_accounts: never[]; notes: string | undefined; user_id: number; }' is not assignable to parameter of type 'PublishDecisionData' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'notes' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/lib/utils.ts(32,3): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/lib/utils.ts(46,3): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/lib/utils.ts(61,3): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/pages/article-details/components/ArticleContent.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/article-details/components/ArticleContent.tsx(5,27): error TS7031: Binding element 'article' implicitly has an 'any' type.
+src/pages/article-details/components/ArticleContent.tsx(8,26): error TS7006: Parameter 'content' implicitly has an 'any' type.
+src/pages/article-details/components/ArticleContent.tsx(10,41): error TS7006: Parameter 'paragraph' implicitly has an 'any' type.
+src/pages/article-details/components/ArticleContent.tsx(10,52): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/pages/article-details/components/ArticleContent.tsx(32,24): error TS2339: Property 'src' does not exist on type 'EventTarget'.
+src/pages/article-details/components/ArticleHeader.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/article-details/components/ArticleHeader.tsx(5,26): error TS7031: Binding element 'article' implicitly has an 'any' type.
+src/pages/article-details/components/ArticleHeader.tsx(5,35): error TS7031: Binding element 'onBack' implicitly has an 'any' type.
+src/pages/article-details/components/ArticleHeader.tsx(6,23): error TS7006: Parameter 'dateString' implicitly has an 'any' type.
+src/pages/article-details/components/ArticleHeader.tsx(16,27): error TS7006: Parameter 'status' implicitly has an 'any' type.
+src/pages/article-details/components/ArticleHeader.tsx(26,12): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ NEW: string; PENDING_REVIEW: string; ACCEPTED: string; REJECTED: string; ARCHIVED: string; NEEDS_MORE: string; RESEARCH_DONE: string; }'.
+src/pages/article-details/components/ArticleHeader.tsx(45,35): error TS2322: Type '"icon"' is not assignable to type '"xs" | "sm" | "md" | "lg"'.
+src/pages/article-details/components/ArticleHeader.tsx(75,32): error TS7006: Parameter 'tag' implicitly has an 'any' type.
+src/pages/article-details/components/ArticleHeader.tsx(75,37): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/pages/article-details/components/CategoryPanel.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/article-details/components/CategoryPanel.tsx(4,26): error TS7031: Binding element 'category' implicitly has an 'any' type.
+src/pages/article-details/components/CategoryPanel.tsx(4,36): error TS7031: Binding element 'subcategory' implicitly has an 'any' type.
+src/pages/article-details/components/CategoryPanel.tsx(4,49): error TS7031: Binding element 'priority' implicitly has an 'any' type.
+src/pages/article-details/components/CategoryPanel.tsx(4,59): error TS7031: Binding element 'targetAudience' implicitly has an 'any' type.
+src/pages/article-details/components/CategoryPanel.tsx(4,75): error TS6133: 'confidence' is declared but its value is never read.
+src/pages/article-details/components/CategoryPanel.tsx(4,75): error TS7031: Binding element 'confidence' implicitly has an 'any' type.
+src/pages/article-details/components/CategoryPanel.tsx(5,28): error TS7006: Parameter 'cat' implicitly has an 'any' type.
+src/pages/article-details/components/CategoryPanel.tsx(18,12): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ AI_ML: string; WEB_DEV: string; MOBILE_DEV: string; DATA_SCIENCE: string; DEVOPS: string; SECURITY: string; CLOUD: string; BLOCKCHAIN: string; IOT: string; OTHER: string; }'.
+src/pages/article-details/components/CategoryPanel.tsx(21,29): error TS7006: Parameter 'cat' implicitly has an 'any' type.
+src/pages/article-details/components/CategoryPanel.tsx(21,34): error TS7006: Parameter 'subcat' implicitly has an 'any' type.
+src/pages/article-details/components/CategoryPanel.tsx(35,27): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ AI_ML: string; WEB_DEV: string; MOBILE_DEV: string; DATA_SCIENCE: string; DEVOPS: string; SECURITY: string; CLOUD: string; BLOCKCHAIN: string; IOT: string; OTHER: string; }'.
+src/pages/article-details/components/CategoryPanel.tsx(44,29): error TS7006: Parameter 'priority' implicitly has an 'any' type.
+src/pages/article-details/components/CategoryPanel.tsx(52,12): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ P0_BREAKING: string; P1_TRENDING: string; P2_TIMELY: string; P3_EVERGREEN: string; P4_FILLER: string; }'.
+src/pages/article-details/components/CategoryPanel.tsx(55,29): error TS7006: Parameter 'priority' implicitly has an 'any' type.
+src/pages/article-details/components/CategoryPanel.tsx(63,12): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ P0_BREAKING: string; P1_TRENDING: string; P2_TIMELY: string; P3_EVERGREEN: string; P4_FILLER: string; }'.
+src/pages/article-details/components/CategoryPanel.tsx(66,28): error TS7006: Parameter 'audience' implicitly has an 'any' type.
+src/pages/article-details/components/CategoryPanel.tsx(75,12): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ developers: string; architects: string; managers: string; beginners: string; experts: string; mixed: string; }'.
+src/pages/article-details/components/CategoryPanel.tsx(78,29): error TS7006: Parameter 'audience' implicitly has an 'any' type.
+src/pages/article-details/components/CategoryPanel.tsx(90,12): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ developers: string; architects: string; managers: string; beginners: string; experts: string; mixed: string; }'.
+src/pages/article-details/components/CategoryPanel.tsx(93,9): error TS6133: 'getConfidenceColor' is declared but its value is never read.
+src/pages/article-details/components/CategoryPanel.tsx(93,31): error TS7006: Parameter 'conf' implicitly has an 'any' type.
+src/pages/article-details/components/ChangeHistory.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/article-details/components/ChangeHistory.tsx(5,26): error TS7031: Binding element 'history' implicitly has an 'any' type.
+src/pages/article-details/components/ChangeHistory.tsx(9,26): error TS7006: Parameter 'action' implicitly has an 'any' type.
+src/pages/article-details/components/ChangeHistory.tsx(20,12): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ created: string; status_changed: string; reviewed: string; accepted: string; rejected: string; needs_more: string; archived: string; updated: string; }'.
+src/pages/article-details/components/ChangeHistory.tsx(23,27): error TS7006: Parameter 'action' implicitly has an 'any' type.
+src/pages/article-details/components/ChangeHistory.tsx(34,12): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ created: string; status_changed: string; reviewed: string; accepted: string; rejected: string; needs_more: string; archived: string; updated: string; }'.
+src/pages/article-details/components/ChangeHistory.tsx(37,27): error TS7006: Parameter 'action' implicitly has an 'any' type.
+src/pages/article-details/components/ChangeHistory.tsx(48,12): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ created: string; status_changed: string; reviewed: string; accepted: string; rejected: string; needs_more: string; archived: string; updated: string; }'.
+src/pages/article-details/components/ChangeHistory.tsx(51,23): error TS7006: Parameter 'dateString' implicitly has an 'any' type.
+src/pages/article-details/components/ChangeHistory.tsx(73,31): error TS7006: Parameter 'entry' implicitly has an 'any' type.
+src/pages/article-details/components/ChangeHistory.tsx(73,38): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/pages/article-details/components/ChangeHistory.tsx(136,47): error TS7006: Parameter 'change' implicitly has an 'any' type.
+src/pages/article-details/components/ChangeHistory.tsx(136,55): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/pages/article-details/components/DecisionPanel.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/article-details/components/DecisionPanel.tsx(7,26): error TS6133: 'articleId' is declared but its value is never read.
+src/pages/article-details/components/DecisionPanel.tsx(7,26): error TS7031: Binding element 'articleId' implicitly has an 'any' type.
+src/pages/article-details/components/DecisionPanel.tsx(7,37): error TS7031: Binding element 'currentStatus' implicitly has an 'any' type.
+src/pages/article-details/components/DecisionPanel.tsx(7,52): error TS7031: Binding element 'onDecisionMade' implicitly has an 'any' type.
+src/pages/article-details/components/DecisionPanel.tsx(31,31): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/pages/article-details/components/DecisionPanel.tsx(84,12): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ NEW: string[]; PENDING_REVIEW: string[]; NEEDS_MORE: string[]; RESEARCH_DONE: string[]; ACCEPTED: string[]; REJECTED: string[]; }'.
+src/pages/article-details/components/DecisionPanel.tsx(178,41): error TS7006: Parameter 'status' implicitly has an 'any' type.
+src/pages/article-details/components/ResearchPanel.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/article-details/components/ResearchPanel.tsx(5,26): error TS7031: Binding element 'researchData' implicitly has an 'any' type.
+src/pages/article-details/components/ResearchPanel.tsx(5,40): error TS7031: Binding element 'onAddResearch' implicitly has an 'any' type.
+src/pages/article-details/components/ResearchPanel.tsx(23,24): error TS7006: Parameter 'type' implicitly has an 'any' type.
+src/pages/article-details/components/ResearchPanel.tsx(28,9): error TS6133: 'getTypeLabel' is declared but its value is never read.
+src/pages/article-details/components/ResearchPanel.tsx(28,25): error TS7006: Parameter 'type' implicitly has an 'any' type.
+src/pages/article-details/components/ResearchPanel.tsx(33,9): error TS6133: 'getStatusColor' is declared but its value is never read.
+src/pages/article-details/components/ResearchPanel.tsx(33,27): error TS7006: Parameter 'status' implicitly has an 'any' type.
+src/pages/article-details/components/ResearchPanel.tsx(40,12): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ pending: string; completed: string; failed: string; in_progress: string; }'.
+src/pages/article-details/components/ResearchPanel.tsx(43,9): error TS6133: 'getStatusLabel' is declared but its value is never read.
+src/pages/article-details/components/ResearchPanel.tsx(43,27): error TS7006: Parameter 'status' implicitly has an 'any' type.
+src/pages/article-details/components/ResearchPanel.tsx(50,12): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ pending: string; completed: string; failed: string; in_progress: string; }'.
+src/pages/article-details/components/ResearchPanel.tsx(53,23): error TS7006: Parameter 'dateString' implicitly has an 'any' type.
+src/pages/article-details/components/ResearchPanel.tsx(63,39): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/pages/article-details/components/ResearchPanel.tsx(185,30): error TS7006: Parameter 'research' implicitly has an 'any' type.
+src/pages/article-details/components/ResearchPanel.tsx(261,39): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/pages/article-details/components/ResearchPanel.tsx(267,39): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/pages/article-details/components/ResearchPanel.tsx(273,39): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/pages/article-details/components/ScoringPanel.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/article-details/components/ScoringPanel.tsx(4,25): error TS7031: Binding element 'scores' implicitly has an 'any' type.
+src/pages/article-details/components/ScoringPanel.tsx(4,33): error TS7031: Binding element 'insights' implicitly has an 'any' type.
+src/pages/article-details/components/ScoringPanel.tsx(8,25): error TS7006: Parameter 'insight' implicitly has an 'any' type.
+src/pages/article-details/components/ScoringPanel.tsx(44,26): error TS7006: Parameter 'score' implicitly has an 'any' type.
+src/pages/article-details/components/ScoringPanel.tsx(51,31): error TS7006: Parameter 'score' implicitly has an 'any' type.
+src/pages/article-details/components/ScoringPanel.tsx(58,31): error TS7006: Parameter 'score' implicitly has an 'any' type.
+src/pages/article-details/components/ScoringPanel.tsx(80,48): error TS2345: Argument of type 'string' is not assignable to parameter of type 'SetStateAction<null>'.
+src/pages/article-details/components/ScoringPanel.tsx(136,27): error TS7006: Parameter 'insight' implicitly has an 'any' type.
+src/pages/article-details/components/ScoringPanel.tsx(136,36): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/pages/article-details/index.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/article-details/index.tsx(32,35): error TS7006: Parameter 'articleId' implicitly has an 'any' type.
+src/pages/article-details/index.tsx(35,23): error TS2345: Argument of type 'ResearchMaterial[]' is not assignable to parameter of type 'SetStateAction<never[]>'.
+  Type 'ResearchMaterial[]' is not assignable to type 'never[]'.
+    Type 'ResearchMaterial' is not assignable to type 'never'.
+src/pages/article-details/index.tsx(89,18): error TS2345: Argument of type '{ id: number; title: string; author: string; publishedAt: string; source: string; rssSource: string; url: string; content: string; summary: string; category: ArticleCategory; subcategory: string; ... 13 more ...; final_score: number; }' is not assignable to parameter of type 'SetStateAction<null>'.
+  Type '{ id: number; title: string; author: string; publishedAt: string; source: string; rssSource: string; url: string; content: string; summary: string; category: ArticleCategory; subcategory: string; ... 13 more ...; final_score: number; }' provides no match for the signature '(prevState: null): null'.
+src/pages/article-details/index.tsx(99,9): error TS6133: 'mockArticle' is declared but its value is never read.
+src/pages/article-details/index.tsx(138,28): error TS2339: Property 'relevance_score' does not exist on type 'never'.
+src/pages/article-details/index.tsx(139,26): error TS2339: Property 'novelty_score' does not exist on type 'never'.
+src/pages/article-details/index.tsx(140,24): error TS2339: Property 'viral_score' does not exist on type 'never'.
+src/pages/article-details/index.tsx(141,24): error TS2339: Property 'value_score' does not exist on type 'never'.
+src/pages/article-details/index.tsx(142,24): error TS2339: Property 'final_score' does not exist on type 'never'.
+src/pages/article-details/index.tsx(154,9): error TS6133: 'mockInsights' is declared but its value is never read.
+src/pages/article-details/index.tsx(213,9): error TS6133: 'mockResearchData' is declared but its value is never read.
+src/pages/article-details/index.tsx(257,30): error TS7006: Parameter 'research' implicitly has an 'any' type.
+src/pages/article-details/index.tsx(260,21): error TS2345: Argument of type '(prev: never[]) => any[]' is not assignable to parameter of type 'SetStateAction<never[]>'.
+  Type '(prev: never[]) => any[]' is not assignable to type '(prevState: never[]) => never[]'.
+    Type 'any[]' is not assignable to type 'never[]'.
+src/pages/article-details/index.tsx(264,31): error TS7006: Parameter 'action' implicitly has an 'any' type.
+src/pages/article-details/index.tsx(274,38): error TS2339: Property 'id' does not exist on type 'never'.
+src/pages/article-details/index.tsx(279,28): error TS2339: Property 'id' does not exist on type 'never'.
+src/pages/article-details/index.tsx(283,62): error TS2339: Property 'id' does not exist on type 'never'.
+src/pages/article-details/index.tsx(286,9): error TS2698: Spread types may only be created from object types.
+src/pages/article-details/index.tsx(301,24): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/pages/article-details/index.tsx(347,18): error TS2339: Property 'status' does not exist on type 'never'.
+src/pages/article-details/index.tsx(347,47): error TS2339: Property 'status' does not exist on type 'never'.
+src/pages/article-details/index.tsx(347,81): error TS2339: Property 'status' does not exist on type 'never'.
+src/pages/article-details/index.tsx(364,23): error TS2322: Type '{ removeToast: (id: any) => void; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'removeToast' does not exist on type 'IntrinsicAttributes'.
+src/pages/article-details/index.tsx(398,71): error TS2339: Property 'keyTakeaways' does not exist on type 'never'.
+src/pages/article-details/index.tsx(422,27): error TS2339: Property 'status' does not exist on type 'never'.
+src/pages/article-details/index.tsx(439,27): error TS2339: Property 'status' does not exist on type 'never'.
+src/pages/article-details/index.tsx(469,23): error TS2339: Property 'status' does not exist on type 'never'.
+src/pages/article-details/index.tsx(469,52): error TS2339: Property 'status' does not exist on type 'never'.
+src/pages/article-details/index.tsx(469,86): error TS2339: Property 'status' does not exist on type 'never'.
+src/pages/article-details/index.tsx(471,36): error TS2339: Property 'category' does not exist on type 'never'.
+src/pages/article-details/index.tsx(472,39): error TS2339: Property 'subcategory' does not exist on type 'never'.
+src/pages/article-details/index.tsx(473,36): error TS2339: Property 'priority' does not exist on type 'never'.
+src/pages/article-details/index.tsx(474,42): error TS2339: Property 'targetAudience' does not exist on type 'never'.
+src/pages/article-list/ArticleListModern.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/article-list/ArticleListModern.tsx(12,3): error TS6133: 'Edit3' is declared but its value is never read.
+src/pages/article-list/ArticleListModern.tsx(13,3): error TS6133: 'Trash2' is declared but its value is never read.
+src/pages/article-list/ArticleListModern.tsx(15,3): error TS6133: 'TrendingUp' is declared but its value is never read.
+src/pages/article-list/ArticleListModern.tsx(16,3): error TS6133: 'Clock' is declared but its value is never read.
+src/pages/article-list/ArticleListModern.tsx(18,3): error TS6133: 'Tag' is declared but its value is never read.
+src/pages/article-list/ArticleListModern.tsx(19,3): error TS6133: 'Star' is declared but its value is never read.
+src/pages/article-list/ArticleListModern.tsx(22,3): error TS6133: 'CheckCircle' is declared but its value is never read.
+src/pages/article-list/ArticleListModern.tsx(23,3): error TS6133: 'XCircle' is declared but its value is never read.
+src/pages/article-list/ArticleListModern.tsx(29,3): error TS6133: 'ChevronRight' is declared but its value is never read.
+src/pages/article-list/ArticleListModern.tsx(35,11): error TS6133: 'success' is declared but its value is never read.
+src/pages/article-list/ArticleListModern.tsx(39,10): error TS6133: 'selectedArticles' is declared but its value is never read.
+src/pages/article-list/ArticleListModern.tsx(39,28): error TS6133: 'setSelectedArticles' is declared but its value is never read.
+src/pages/article-list/ArticleListModern.tsx(40,19): error TS6133: 'setFilters' is declared but its value is never read.
+src/pages/article-list/ArticleListModern.tsx(119,21): error TS2345: Argument of type '{ id: number; title: string; content: string; author: string; source: string; category: string; priority: string; status: string; target_audience: string; created_date: string; relevance_score: number; ... 5 more ...; summary: string; }[]' is not assignable to parameter of type 'SetStateAction<Article[]>'.
+  Type '{ id: number; title: string; content: string; author: string; source: string; category: string; priority: string; status: string; target_audience: string; created_date: string; relevance_score: number; ... 5 more ...; summary: string; }[]' is not assignable to type 'Article[]'.
+    Type '{ id: number; title: string; content: string; author: string; source: string; category: string; priority: string; status: string; target_audience: string; created_date: string; relevance_score: number; ... 5 more ...; summary: string; }' is missing the following properties from type 'Article': link, subcategory, key_takeaways, reasoning
+src/pages/article-list/ArticleListModern.tsx(168,9): error TS6133: 'ScoreCircle' is declared but its value is never read.
+src/pages/article-list/ArticleListModern.tsx(478,67): error TS2339: Property 'source' does not exist on type 'Article'.
+src/pages/article-list/components/ArticleInsights.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/article-list/components/ArticleInsights.tsx(4,28): error TS7031: Binding element 'article' implicitly has an 'any' type.
+src/pages/article-list/components/ArticleInsights.tsx(46,30): error TS7006: Parameter 'topic' implicitly has an 'any' type.
+src/pages/article-list/components/ArticleInsights.tsx(46,37): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/pages/article-list/components/ArticleInsights.tsx(73,47): error TS7006: Parameter 'material' implicitly has an 'any' type.
+src/pages/article-list/components/ArticleInsights.tsx(73,57): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/pages/article-list/components/ArticleTable.tsx(1,1): error TS6192: All imports in import declaration are unused.
+src/pages/article-list/components/ArticleTable.tsx(5,8): error TS2613: Module '"C:/Data/03_Repozytoria/N8NAutomation/src/components/ui/LoadingSpinner"' has no default export. Did you mean to use 'import { LoadingSpinner } from "C:/Data/03_Repozytoria/N8NAutomation/src/components/ui/LoadingSpinner"' instead?
+src/pages/article-list/components/ArticleTable.tsx(12,3): error TS7031: Binding element 'articles' implicitly has an 'any' type.
+src/pages/article-list/components/ArticleTable.tsx(13,3): error TS7031: Binding element 'selectedArticles' implicitly has an 'any' type.
+src/pages/article-list/components/ArticleTable.tsx(14,3): error TS7031: Binding element 'onSelectionChange' implicitly has an 'any' type.
+src/pages/article-list/components/ArticleTable.tsx(15,3): error TS6133: 'onSelectAll' is declared but its value is never read.
+src/pages/article-list/components/ArticleTable.tsx(15,3): error TS7031: Binding element 'onSelectAll' implicitly has an 'any' type.
+src/pages/article-list/components/ArticleTable.tsx(16,3): error TS7031: Binding element 'onQuickAction' implicitly has an 'any' type.
+src/pages/article-list/components/ArticleTable.tsx(17,3): error TS7031: Binding element 'onViewDetails' implicitly has an 'any' type.
+src/pages/article-list/components/ArticleTable.tsx(18,3): error TS7031: Binding element 'sortConfig' implicitly has an 'any' type.
+src/pages/article-list/components/ArticleTable.tsx(19,3): error TS7031: Binding element 'onSort' implicitly has an 'any' type.
+src/pages/article-list/components/ArticleTable.tsx(20,3): error TS7031: Binding element 'expandedRows' implicitly has an 'any' type.
+src/pages/article-list/components/ArticleTable.tsx(21,3): error TS6133: 'onToggleExpand' is declared but its value is never read.
+src/pages/article-list/components/ArticleTable.tsx(21,3): error TS7031: Binding element 'onToggleExpand' implicitly has an 'any' type.
+src/pages/article-list/components/ArticleTable.tsx(22,3): error TS7031: Binding element 'isLoading' implicitly has an 'any' type.
+src/pages/article-list/components/ArticleTable.tsx(24,23): error TS7006: Parameter 'dateString' implicitly has an 'any' type.
+src/pages/article-list/components/ArticleTable.tsx(60,16): error TS6133: 'value' is declared but its value is never read.
+src/pages/article-list/components/ArticleTable.tsx(198,25): error TS7006: Parameter 'article' implicitly has an 'any' type.
+src/pages/article-list/components/BulkActions.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/article-list/components/BulkActions.tsx(7,3): error TS7031: Binding element 'selectedCount' implicitly has an 'any' type.
+src/pages/article-list/components/BulkActions.tsx(8,3): error TS7031: Binding element 'onBulkAction' implicitly has an 'any' type.
+src/pages/article-list/components/BulkActions.tsx(9,3): error TS7031: Binding element 'onClearSelection' implicitly has an 'any' type.
+src/pages/article-list/components/CategoryBadge.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/article-list/components/CategoryBadge.tsx(4,26): error TS7031: Binding element 'category' implicitly has an 'any' type.
+src/pages/article-list/components/CategoryBadge.tsx(5,30): error TS7006: Parameter 'category' implicitly has an 'any' type.
+src/pages/article-list/components/CategoryBadge.tsx(59,12): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ AI_ML: { label: string; icon: string; className: string; }; WEB_DEV: { label: string; icon: string; className: string; }; MOBILE_DEV: { label: string; icon: string; className: string; }; DATA_SCIENCE: { ...; }; ... 5 more ...; OTHER: { ...; }; }'.
+src/pages/article-list/components/FilterToolbar.tsx(1,1): error TS6192: All imports in import declaration are unused.
+src/pages/article-list/components/FilterToolbar.tsx(9,3): error TS7031: Binding element 'filters' implicitly has an 'any' type.
+src/pages/article-list/components/FilterToolbar.tsx(10,3): error TS7031: Binding element 'onFiltersChange' implicitly has an 'any' type.
+src/pages/article-list/components/FilterToolbar.tsx(11,3): error TS7031: Binding element 'onClearFilters' implicitly has an 'any' type.
+src/pages/article-list/components/FilterToolbar.tsx(12,3): error TS6133: 'totalArticles' is declared but its value is never read.
+src/pages/article-list/components/FilterToolbar.tsx(12,3): error TS7031: Binding element 'totalArticles' implicitly has an 'any' type.
+src/pages/article-list/components/FilterToolbar.tsx(13,3): error TS6133: 'filteredCount' is declared but its value is never read.
+src/pages/article-list/components/FilterToolbar.tsx(13,3): error TS7031: Binding element 'filteredCount' implicitly has an 'any' type.
+src/pages/article-list/components/FilterToolbar.tsx(14,3): error TS6133: 'selectedArticles' is declared but its value is never read.
+src/pages/article-list/components/FilterToolbar.tsx(14,3): error TS7031: Binding element 'selectedArticles' implicitly has an 'any' type.
+src/pages/article-list/components/FilterToolbar.tsx(15,3): error TS6133: 'onBulkAction' is declared but its value is never read.
+src/pages/article-list/components/FilterToolbar.tsx(15,3): error TS7031: Binding element 'onBulkAction' implicitly has an 'any' type.
+src/pages/article-list/components/FilterToolbar.tsx(52,9): error TS6133: 'targetAudienceOptions' is declared but its value is never read.
+src/pages/article-list/components/FilterToolbar.tsx(63,31): error TS7006: Parameter 'key' implicitly has an 'any' type.
+src/pages/article-list/components/FilterToolbar.tsx(63,36): error TS7006: Parameter 'value' implicitly has an 'any' type.
+src/pages/article-list/components/Pagination.tsx(7,3): error TS7031: Binding element 'currentPage' implicitly has an 'any' type.
+src/pages/article-list/components/Pagination.tsx(8,3): error TS7031: Binding element 'totalPages' implicitly has an 'any' type.
+src/pages/article-list/components/Pagination.tsx(9,3): error TS7031: Binding element 'totalItems' implicitly has an 'any' type.
+src/pages/article-list/components/Pagination.tsx(10,3): error TS7031: Binding element 'itemsPerPage' implicitly has an 'any' type.
+src/pages/article-list/components/Pagination.tsx(11,3): error TS7031: Binding element 'onPageChange' implicitly has an 'any' type.
+src/pages/article-list/components/Pagination.tsx(12,3): error TS7031: Binding element 'onItemsPerPageChange' implicitly has an 'any' type.
+src/pages/article-list/components/PriorityBadge.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/article-list/components/PriorityBadge.tsx(4,26): error TS7031: Binding element 'priority' implicitly has an 'any' type.
+src/pages/article-list/components/PriorityBadge.tsx(5,30): error TS7006: Parameter 'priority' implicitly has an 'any' type.
+src/pages/article-list/components/PriorityBadge.tsx(34,12): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ P0_BREAKING: { label: string; icon: string; className: string; }; P1_TRENDING: { label: string; icon: string; className: string; }; P2_TIMELY: { label: string; icon: string; className: string; }; P3_EVERGREEN: { ...; }; P4_FILLER: { ...; }; }'.
+src/pages/article-list/components/ScoreDisplay.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/article-list/components/ScoreDisplay.tsx(3,25): error TS7031: Binding element 'scores' implicitly has an 'any' type.
+src/pages/article-list/components/ScoreDisplay.tsx(4,26): error TS7006: Parameter 'score' implicitly has an 'any' type.
+src/pages/article-list/components/ScoreDisplay.tsx(11,31): error TS7006: Parameter 'score' implicitly has an 'any' type.
+src/pages/article-list/components/StatusBadge.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/article-list/components/StatusBadge.tsx(3,24): error TS7031: Binding element 'status' implicitly has an 'any' type.
+src/pages/article-list/components/StatusBadge.tsx(4,28): error TS7006: Parameter 'status' implicitly has an 'any' type.
+src/pages/article-list/components/StatusBadge.tsx(40,12): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ NEW: { label: string; className: string; }; PENDING_REVIEW: { label: string; className: string; }; ACCEPTED: { label: string; className: string; }; REJECTED: { label: string; className: string; }; ARCHIVED: { ...; }; NEEDS_MORE: { ...; }; RESEARCH_DONE: { ...; }; SUMMARY_PREPARED: { ...; }; }'.
+src/pages/article-list/index.tsx(6,1): error TS6133: 'Button' is declared but its value is never read.
+src/pages/article-list/index.tsx(7,1): error TS6133: 'Icon' is declared but its value is never read.
+src/pages/article-list/index.tsx(14,3): error TS6133: 'Search' is declared but its value is never read.
+src/pages/article-list/index.tsx(15,3): error TS6133: 'Filter' is declared but its value is never read.
+src/pages/article-list/index.tsx(16,3): error TS6133: 'MoreVertical' is declared but its value is never read.
+src/pages/article-list/index.tsx(17,3): error TS6133: 'Eye' is declared but its value is never read.
+src/pages/article-list/index.tsx(18,3): error TS6133: 'Edit3' is declared but its value is never read.
+src/pages/article-list/index.tsx(19,3): error TS6133: 'Trash2' is declared but its value is never read.
+src/pages/article-list/index.tsx(21,3): error TS6133: 'TrendingUp' is declared but its value is never read.
+src/pages/article-list/index.tsx(23,3): error TS6133: 'User' is declared but its value is never read.
+src/pages/article-list/index.tsx(24,3): error TS6133: 'Tag' is declared but its value is never read.
+src/pages/article-list/index.tsx(25,3): error TS6133: 'Star' is declared but its value is never read.
+src/pages/article-list/index.tsx(26,3): error TS6133: 'Calendar' is declared but its value is never read.
+src/pages/article-list/index.tsx(29,3): error TS6133: 'XCircle' is declared but its value is never read.
+src/pages/article-list/index.tsx(30,3): error TS6133: 'AlertCircle' is declared but its value is never read.
+src/pages/article-list/index.tsx(31,3): error TS6133: 'Zap' is declared but its value is never read.
+src/pages/article-list/index.tsx(32,3): error TS6133: 'Globe' is declared but its value is never read.
+src/pages/article-list/index.tsx(34,3): error TS6133: 'ChevronDown' is declared but its value is never read.
+src/pages/article-list/index.tsx(35,3): error TS6133: 'ChevronRight' is declared but its value is never read.
+src/pages/article-list/index.tsx(36,3): error TS6133: 'Plus' is declared but its value is never read.
+src/pages/article-list/index.tsx(44,10): error TS6133: 'loading' is declared but its value is never read.
+src/pages/article-list/index.tsx(44,19): error TS6133: 'setLoading' is declared but its value is never read.
+src/pages/article-list/index.tsx(47,10): error TS6133: 'searchTerm' is declared but its value is never read.
+src/pages/article-list/index.tsx(47,22): error TS6133: 'setSearchTerm' is declared but its value is never read.
+src/pages/article-list/index.tsx(51,10): error TS6133: 'showFilters' is declared but its value is never read.
+src/pages/article-list/index.tsx(51,23): error TS6133: 'setShowFilters' is declared but its value is never read.
+src/pages/article-list/index.tsx(83,9): error TS6133: 'mockArticles' is declared but its value is never read.
+src/pages/article-list/index.tsx(239,16): error TS2345: Argument of type '{ search: string; status: undefined; category: undefined; priority: undefined; target_audience: undefined; score_min: undefined; score_max: undefined; tags: never[]; }' is not assignable to parameter of type 'SetStateAction<ArticleFilters>'.
+  Type '{ search: string; status: undefined; category: undefined; priority: undefined; target_audience: undefined; score_min: undefined; score_max: undefined; tags: never[]; }' is not assignable to type 'ArticleFilters' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'status' are incompatible.
+      Type 'undefined' is not assignable to type 'string'.
+src/pages/article-list/index.tsx(276,50): error TS2322: Type '"accept" | "reject" | "needs_more"' is not assignable to type '"accept" | "reject"'.
+  Type '"needs_more"' is not assignable to type '"accept" | "reject"'.
+src/pages/article-list/index.tsx(446,129): error TS2339: Property 'aiScores' does not exist on type 'Article'.
+src/pages/config-properties/components/AddConfigPropertyModal.tsx(47,17): error TS4111: Property 'key' comes from an index signature, so it must be accessed with ['key'].
+src/pages/config-properties/components/AddConfigPropertyModal.tsx(49,17): error TS4111: Property 'key' comes from an index signature, so it must be accessed with ['key'].
+src/pages/config-properties/components/AddConfigPropertyModal.tsx(53,17): error TS4111: Property 'description' comes from an index signature, so it must be accessed with ['description'].
+src/pages/config-properties/components/AddConfigPropertyModal.tsx(126,24): error TS4111: Property 'key' comes from an index signature, so it must be accessed with ['key'].
+src/pages/config-properties/components/AddConfigPropertyModal.tsx(131,21): error TS4111: Property 'key' comes from an index signature, so it must be accessed with ['key'].
+src/pages/config-properties/components/AddConfigPropertyModal.tsx(132,64): error TS4111: Property 'key' comes from an index signature, so it must be accessed with ['key'].
+src/pages/config-properties/components/AddConfigPropertyModal.tsx(163,24): error TS4111: Property 'description' comes from an index signature, so it must be accessed with ['description'].
+src/pages/config-properties/components/AddConfigPropertyModal.tsx(168,21): error TS4111: Property 'description' comes from an index signature, so it must be accessed with ['description'].
+src/pages/config-properties/components/AddConfigPropertyModal.tsx(169,64): error TS4111: Property 'description' comes from an index signature, so it must be accessed with ['description'].
+src/pages/config-properties/components/ConfigPropertyFilters.tsx(79,15): error TS2322: Type '{ value: string; onValueChange: (value: any) => void; options: { value: string; label: string; }[]; }' is not assignable to type 'IntrinsicAttributes & SelectProps'.
+  Property 'onValueChange' does not exist on type 'IntrinsicAttributes & SelectProps'.
+src/pages/config-properties/components/ConfigPropertyFilters.tsx(79,31): error TS7006: Parameter 'value' implicitly has an 'any' type.
+src/pages/config-properties/components/ConfigPropertyFilters.tsx(90,15): error TS2322: Type '{ value: string; onValueChange: (value: any) => void; options: { value: string; label: string; }[]; }' is not assignable to type 'IntrinsicAttributes & SelectProps'.
+  Property 'onValueChange' does not exist on type 'IntrinsicAttributes & SelectProps'.
+src/pages/config-properties/components/ConfigPropertyFilters.tsx(90,31): error TS7006: Parameter 'value' implicitly has an 'any' type.
+src/pages/config-properties/components/ConfigPropertyFilters.tsx(101,15): error TS2322: Type '{ value: string; onValueChange: (value: any) => void; options: { value: string; label: string; }[]; }' is not assignable to type 'IntrinsicAttributes & SelectProps'.
+  Property 'onValueChange' does not exist on type 'IntrinsicAttributes & SelectProps'.
+src/pages/config-properties/components/ConfigPropertyFilters.tsx(101,31): error TS7006: Parameter 'value' implicitly has an 'any' type.
+src/pages/config-properties/components/ConfigPropertyTable.tsx(194,23): error TS6133: 'direction' is declared but its value is never read.
+src/pages/config-properties/components/EditConfigPropertyModal.tsx(74,17): error TS4111: Property 'key' comes from an index signature, so it must be accessed with ['key'].
+src/pages/config-properties/components/EditConfigPropertyModal.tsx(76,17): error TS4111: Property 'key' comes from an index signature, so it must be accessed with ['key'].
+src/pages/config-properties/components/EditConfigPropertyModal.tsx(80,17): error TS4111: Property 'description' comes from an index signature, so it must be accessed with ['description'].
+src/pages/config-properties/components/EditConfigPropertyModal.tsx(150,24): error TS4111: Property 'key' comes from an index signature, so it must be accessed with ['key'].
+src/pages/config-properties/components/EditConfigPropertyModal.tsx(155,21): error TS4111: Property 'key' comes from an index signature, so it must be accessed with ['key'].
+src/pages/config-properties/components/EditConfigPropertyModal.tsx(156,64): error TS4111: Property 'key' comes from an index signature, so it must be accessed with ['key'].
+src/pages/config-properties/components/EditConfigPropertyModal.tsx(208,24): error TS4111: Property 'description' comes from an index signature, so it must be accessed with ['description'].
+src/pages/config-properties/components/EditConfigPropertyModal.tsx(213,21): error TS4111: Property 'description' comes from an index signature, so it must be accessed with ['description'].
+src/pages/config-properties/components/EditConfigPropertyModal.tsx(214,64): error TS4111: Property 'description' comes from an index signature, so it must be accessed with ['description'].
+src/pages/config-properties/index.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/config-properties/index.tsx(14,27): error TS6133: 'warning' is declared but its value is never read.
+src/pages/config-properties/index.tsx(34,69): error TS2345: Argument of type '{ search: string; data_type: undefined; is_active: undefined; is_encrypted: undefined; }' is not assignable to parameter of type 'ConfigPropertyFilters | (() => ConfigPropertyFilters)'.
+  Type '{ search: string; data_type: undefined; is_active: undefined; is_encrypted: undefined; }' is not assignable to type 'ConfigPropertyFilters' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'data_type' are incompatible.
+      Type 'undefined' is not assignable to type 'string'.
+src/pages/config-properties/index.tsx(47,30): error TS2339: Property 'pagination' does not exist on type 'ApiResponse<any>'.
+src/pages/config-properties/index.tsx(48,35): error TS2339: Property 'pagination' does not exist on type 'ApiResponse<any>'.
+src/pages/config-properties/index.tsx(67,16): error TS2345: Argument of type '{ search: string; data_type: undefined; is_active: undefined; is_encrypted: undefined; }' is not assignable to parameter of type 'SetStateAction<ConfigPropertyFilters>'.
+  Type '{ search: string; data_type: undefined; is_active: undefined; is_encrypted: undefined; }' is not assignable to type 'ConfigPropertyFilters' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'data_type' are incompatible.
+      Type 'undefined' is not assignable to type 'string'.
+src/pages/config-properties/index.tsx(119,17): error TS2339: Property 'toggleConfigPropertyStatus' does not exist on type '{ post: <T = any>(endpoint: string, data?: any) => Promise<T>; get: <T = any>(endpoint: string) => Promise<T>; put: <T = any>(endpoint: string, data?: any) => Promise<T>; ... 72 more ...; generatePlatformContent: (masterContentId: number, platform: SocialPlatform) => Promise<...>; }'.
+src/pages/config-properties/index.tsx(264,11): error TS2322: Type '{ isOpen: boolean; onClose: () => void; onAddProperty: (propertyData: CreateConfigPropertyRequest) => Promise<void>; }' is not assignable to type 'IntrinsicAttributes & AddConfigPropertyModalProps'.
+  Property 'onAddProperty' does not exist on type 'IntrinsicAttributes & AddConfigPropertyModalProps'.
+src/pages/config-properties/index.tsx(270,11): error TS2322: Type '(propertyData: UpdateConfigPropertyRequest) => Promise<void>' is not assignable to type '(data: { key: string; value: string; description: string; data_type: string; is_encrypted: boolean; is_active: boolean; }) => Promise<void>'.
+  Types of parameters 'propertyData' and 'data' are incompatible.
+    Type '{ key: string; value: string; description: string; data_type: string; is_encrypted: boolean; is_active: boolean; }' is not assignable to type 'UpdateConfigPropertyRequest'.
+      Types of property 'data_type' are incompatible.
+        Type 'string' is not assignable to type '"string" | "boolean" | "text" | "integer" | "json"'.
+src/pages/config-properties/index.tsx(271,11): error TS2322: Type 'import("C:/Data/03_Repozytoria/N8NAutomation/src/types/index").ConfigProperty | null' is not assignable to type 'ConfigProperty | null'.
+  Type 'import("C:/Data/03_Repozytoria/N8NAutomation/src/types/index").ConfigProperty' is not assignable to type 'ConfigProperty'.
+    Types of property 'value' are incompatible.
+      Type 'string | null' is not assignable to type 'string'.
+        Type 'null' is not assignable to type 'string'.
+src/pages/config-properties/index.tsx(278,11): error TS2322: Type '{ isOpen: boolean; onClose: () => void; onConfirm: () => Promise<void>; property: ConfigProperty | null; isLoading: boolean; }' is not assignable to type 'IntrinsicAttributes & DeleteConfirmModalProps'.
+  Property 'property' does not exist on type 'IntrinsicAttributes & DeleteConfirmModalProps'.
+src/pages/content-adaptation/index.tsx(253,26): error TS2786: 'PlatformIcon' cannot be used as a JSX component.
+  Its return type 'ReactNode' is not a valid JSX element.
+src/pages/content-adaptation/index.tsx(324,22): error TS2786: 'PlatformIcon' cannot be used as a JSX component.
+  Its return type 'ReactNode' is not a valid JSX element.
+src/pages/content-adaptation/index.tsx(371,20): error TS2786: 'PlatformIcon' cannot be used as a JSX component.
+  Its return type 'ReactNode' is not a valid JSX element.
+    Type 'undefined' is not assignable to type 'Element | null'.
+src/pages/content-adaptation/index.tsx(469,22): error TS2786: 'PlatformIcon' cannot be used as a JSX component.
+  Its return type 'ReactNode' is not a valid JSX element.
+src/pages/content-adaptation/index.tsx(556,8): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ dashboard: Element; master: Element; adaptation: Element; review: Element; }'.
+  No index signature with a parameter of type 'string' was found on type '{ dashboard: Element; master: Element; adaptation: Element; review: Element; }'.
+src/pages/dashboard/index.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/dashboard/index.tsx(1,27): error TS6133: 'useEffect' is declared but its value is never read.
+src/pages/dashboard/index.tsx(3,3): error TS6133: 'TrendingUp' is declared but its value is never read.
+src/pages/dashboard/index.tsx(4,3): error TS6133: 'Users' is declared but its value is never read.
+src/pages/dashboard/index.tsx(5,3): error TS6133: 'ShoppingCart' is declared but its value is never read.
+src/pages/dashboard/index.tsx(12,3): error TS6133: 'AlertCircle' is declared but its value is never read.
+src/pages/dashboard/index.tsx(15,3): error TS6133: 'DollarSign' is declared but its value is never read.
+src/pages/dashboard/index.tsx(131,12): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ blue: string; yellow: string; green: string; purple: string; }'.
+  No index signature with a parameter of type 'string' was found on type '{ blue: string; yellow: string; green: string; purple: string; }'.
+src/pages/login/components/DemoCredentials.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/login/components/DemoCredentials.tsx(5,28): error TS7031: Binding element 'onUseCredentials' implicitly has an 'any' type.
+src/pages/login/components/DemoCredentials.tsx(29,30): error TS7006: Parameter 'role' implicitly has an 'any' type.
+src/pages/login/components/LoginFooter.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/login/components/LoginForm.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/login/components/LoginForm.tsx(2,1): error TS6133: 'Button' is declared but its value is never read.
+src/pages/login/components/LoginForm.tsx(3,1): error TS6133: 'Input' is declared but its value is never read.
+src/pages/login/components/LoginForm.tsx(4,1): error TS6133: 'Checkbox' is declared but its value is never read.
+src/pages/login/components/LoginForm.tsx(7,22): error TS7031: Binding element 'onSubmit' implicitly has an 'any' type.
+src/pages/login/components/LoginForm.tsx(7,32): error TS7031: Binding element 'isLoading' implicitly has an 'any' type.
+src/pages/login/components/LoginForm.tsx(7,43): error TS7031: Binding element 'error' implicitly has an 'any' type.
+src/pages/login/components/LoginForm.tsx(7,50): error TS7031: Binding element 'initialData' implicitly has an 'any' type.
+src/pages/login/components/LoginForm.tsx(31,14): error TS2339: Property 'email' does not exist on type '{}'.
+src/pages/login/components/LoginForm.tsx(35,14): error TS2339: Property 'password' does not exist on type '{}'.
+src/pages/login/components/LoginForm.tsx(37,14): error TS2339: Property 'password' does not exist on type '{}'.
+src/pages/login/components/LoginForm.tsx(44,30): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/pages/login/components/LoginForm.tsx(52,9): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{}'.
+src/pages/login/components/LoginForm.tsx(60,25): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/pages/login/components/LoginForm.tsx(84,30): error TS2339: Property 'email' does not exist on type '{}'.
+src/pages/login/components/LoginForm.tsx(85,72): error TS2339: Property 'email' does not exist on type '{}'.
+src/pages/login/components/LoginForm.tsx(113,30): error TS2339: Property 'password' does not exist on type '{}'.
+src/pages/login/components/LoginForm.tsx(114,72): error TS2339: Property 'password' does not exist on type '{}'.
+src/pages/login/components/LoginHeader.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/login/index.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/login/index.tsx(1,27): error TS6133: 'useEffect' is declared but its value is never read.
+src/pages/login/index.tsx(61,30): error TS7006: Parameter 'loginData' implicitly has an 'any' type.
+src/pages/login/index.tsx(123,23): error TS2339: Property 'message' does not exist on type '{}'.
+src/pages/login/index.tsx(130,33): error TS7006: Parameter 'email' implicitly has an 'any' type.
+src/pages/login/index.tsx(130,40): error TS7006: Parameter 'password' implicitly has an 'any' type.
+src/pages/master-content-edit/index.tsx(18,3): error TS6133: 'User' is declared but its value is never read.
+src/pages/master-content-edit/index.tsx(26,9): error TS6133: 'user' is declared but its value is never read.
+src/pages/master-content-edit/index.tsx(28,11): error TS6133: 'toasts' is declared but its value is never read.
+src/pages/master-content-edit/index.tsx(28,35): error TS6133: 'removeToast' is declared but its value is never read.
+src/pages/master-content-edit/index.tsx(79,39): error TS2552: Cannot find name 'MasterContentStatus'. Did you mean 'MasterContent'?
+src/pages/master-content-edit/index.tsx(101,31): error TS2552: Cannot find name 'MasterContentStatus'. Did you mean 'MasterContent'?
+src/pages/master-content-edit/index.tsx(123,28): error TS2552: Cannot find name 'MasterContentStatus'. Did you mean 'MasterContent'?
+src/pages/master-content-edit/index.tsx(131,12): error TS7053: Element implicitly has an 'any' type because expression of type 'number' can't be used to index type '{ 1: { id: number; article_id: number; title: string; content: string; summary: string; key_points: string[]; tags: string[]; category: ArticleCategory; target_audience: TargetAudience; ... 5 more ...; updated_by: number; }; 2: { ...; }; 3: { ...; }; }'.
+  No index signature with a parameter of type 'number' was found on type '{ 1: { id: number; article_id: number; title: string; content: string; summary: string; key_points: string[]; tags: string[]; category: ArticleCategory; target_audience: TargetAudience; ... 5 more ...; updated_by: number; }; 2: { ...; }; 3: { ...; }; }'.
+src/pages/master-content/index.tsx(11,3): error TS6133: 'Plus' is declared but its value is never read.
+src/pages/master-content/index.tsx(12,3): error TS6133: 'Eye' is declared but its value is never read.
+src/pages/master-content/index.tsx(14,3): error TS6133: 'Trash2' is declared but its value is never read.
+src/pages/master-content/index.tsx(17,3): error TS6133: 'Clock' is declared but its value is never read.
+src/pages/master-content/index.tsx(27,9): error TS6133: 'user' is declared but its value is never read.
+src/pages/master-content/index.tsx(29,11): error TS6133: 'toasts' is declared but its value is never read.
+src/pages/master-content/index.tsx(29,35): error TS6133: 'removeToast' is declared but its value is never read.
+src/pages/master-content/index.tsx(39,10): error TS6133: 'sortBy' is declared but its value is never read.
+src/pages/master-content/index.tsx(39,18): error TS6133: 'setSortBy' is declared but its value is never read.
+src/pages/master-content/index.tsx(40,10): error TS6133: 'sortOrder' is declared but its value is never read.
+src/pages/master-content/index.tsx(40,21): error TS6133: 'setSortOrder' is declared but its value is never read.
+src/pages/master-content/index.tsx(126,54): error TS2379: Argument of type '{ search: string | undefined; status?: MasterContentStatus; category?: ArticleCategory; target_audience?: TargetAudience; tone?: ContentTone; created_by?: number; date_from?: string; date_to?: string; }' is not assignable to parameter of type 'MasterContentFilters' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'search' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/pages/master-content/index.tsx(194,9): error TS6133: 'handleSelectAll' is declared but its value is never read.
+src/pages/NotFound.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/NotFound.tsx(3,20): error TS2307: Cannot find module 'components/ui/Button' or its corresponding type declarations.
+src/pages/NotFound.tsx(4,18): error TS2307: Cannot find module 'components/AppIcon' or its corresponding type declarations.
+src/pages/social-platforms/index.tsx(265,31): error TS2345: Argument of type '{ id: number; master_content_id: number; platform: SocialPlatform; content: string; hashtags: string[]; mentions: string[]; media_urls: never[]; scheduled_for: null; status: PlatformContentStatus; ... 4 more ...; published_at: null; }[]' is not assignable to parameter of type 'SetStateAction<PlatformContent[]>'.
+  Type '{ id: number; master_content_id: number; platform: SocialPlatform; content: string; hashtags: string[]; mentions: string[]; media_urls: never[]; scheduled_for: null; status: PlatformContentStatus; ... 4 more ...; published_at: null; }[]' is not assignable to type 'PlatformContent[]'.
+    Type '{ id: number; master_content_id: number; platform: SocialPlatform; content: string; hashtags: string[]; mentions: string[]; media_urls: never[]; scheduled_for: null; status: PlatformContentStatus; ... 4 more ...; published_at: null; }' is not assignable to type 'PlatformContent'.
+      Types of property 'scheduled_for' are incompatible.
+        Type 'null' is not assignable to type 'string'.
+src/pages/social-platforms/index.tsx(268,31): error TS2345: Argument of type '{ id: number; master_content_id: number; platform: SocialPlatform; content: string; hashtags: string[]; mentions: string[]; media_urls: never[]; scheduled_for: null; status: PlatformContentStatus; ... 4 more ...; published_at: null; }[]' is not assignable to parameter of type 'SetStateAction<PlatformContent[]>'.
+src/pages/social-platforms/index.tsx(333,71): error TS2379: Argument of type '{ decision: PublishDecision; target_accounts: number[]; scheduled_for: string | undefined; notes: string | undefined; user_id: number; }' is not assignable to parameter of type 'PublishDecisionData' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'scheduled_for' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/pages/social-platforms/index.tsx(495,21): error TS6133: 'availablePlatformAccounts' is declared but its value is never read.
+src/pages/user-management/components/DeleteConfirmModal.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/user-management/components/DeleteConfirmModal.tsx(5,31): error TS7031: Binding element 'isOpen' implicitly has an 'any' type.
+src/pages/user-management/components/DeleteConfirmModal.tsx(5,39): error TS7031: Binding element 'onClose' implicitly has an 'any' type.
+src/pages/user-management/components/DeleteConfirmModal.tsx(5,48): error TS7031: Binding element 'onConfirm' implicitly has an 'any' type.
+src/pages/user-management/components/DeleteConfirmModal.tsx(5,59): error TS7031: Binding element 'user' implicitly has an 'any' type.
+src/pages/user-management/components/DeleteConfirmModal.tsx(5,65): error TS7031: Binding element 'isLoading' implicitly has an 'any' type.
+src/pages/user-management/components/DeleteConfirmModal.tsx(22,13): error TS2322: Type '"icon"' is not assignable to type '"xs" | "sm" | "md" | "lg"'.
+src/pages/user-management/components/EditUserModal.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/user-management/components/EditUserModal.tsx(7,26): error TS7031: Binding element 'isOpen' implicitly has an 'any' type.
+src/pages/user-management/components/EditUserModal.tsx(7,34): error TS7031: Binding element 'onClose' implicitly has an 'any' type.
+src/pages/user-management/components/EditUserModal.tsx(7,43): error TS7031: Binding element 'onUpdateUser' implicitly has an 'any' type.
+src/pages/user-management/components/EditUserModal.tsx(7,57): error TS7031: Binding element 'user' implicitly has an 'any' type.
+src/pages/user-management/components/EditUserModal.tsx(43,17): error TS2339: Property 'name' does not exist on type '{}'.
+src/pages/user-management/components/EditUserModal.tsx(47,17): error TS2339: Property 'email' does not exist on type '{}'.
+src/pages/user-management/components/EditUserModal.tsx(49,17): error TS2339: Property 'email' does not exist on type '{}'.
+src/pages/user-management/components/EditUserModal.tsx(56,31): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/pages/user-management/components/EditUserModal.tsx(84,30): error TS7006: Parameter 'field' implicitly has an 'any' type.
+src/pages/user-management/components/EditUserModal.tsx(84,37): error TS7006: Parameter 'value' implicitly has an 'any' type.
+src/pages/user-management/components/EditUserModal.tsx(86,9): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{}'.
+src/pages/user-management/components/EditUserModal.tsx(102,13): error TS2322: Type '"icon"' is not assignable to type '"xs" | "sm" | "md" | "lg"'.
+src/pages/user-management/components/EditUserModal.tsx(117,28): error TS2339: Property 'name' does not exist on type '{}'.
+src/pages/user-management/components/EditUserModal.tsx(127,28): error TS2339: Property 'email' does not exist on type '{}'.
+src/pages/user-management/components/EditUserModal.tsx(136,13): error TS2322: Type '{ label: string; options: { value: string; label: string; description: string; }[]; value: string; onChange: (value: string) => void; description: string; }' is not assignable to type 'IntrinsicAttributes & SelectProps'.
+  Property 'description' does not exist on type 'IntrinsicAttributes & SelectProps'.
+src/pages/user-management/components/EditUserModal.tsx(161,20): error TS2339: Property 'submit' does not exist on type '{}'.
+src/pages/user-management/components/EditUserModal.tsx(164,30): error TS2339: Property 'submit' does not exist on type '{}'.
+src/pages/user-management/components/UserActivityModal.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/user-management/components/UserActivityModal.tsx(5,30): error TS7031: Binding element 'isOpen' implicitly has an 'any' type.
+src/pages/user-management/components/UserActivityModal.tsx(5,38): error TS7031: Binding element 'onClose' implicitly has an 'any' type.
+src/pages/user-management/components/UserActivityModal.tsx(5,47): error TS7031: Binding element 'user' implicitly has an 'any' type.
+src/pages/user-management/components/UserActivityModal.tsx(46,28): error TS7006: Parameter 'type' implicitly has an 'any' type.
+src/pages/user-management/components/UserActivityModal.tsx(59,29): error TS7006: Parameter 'type' implicitly has an 'any' type.
+src/pages/user-management/components/UserActivityModal.tsx(72,28): error TS7006: Parameter 'timestamp' implicitly has an 'any' type.
+src/pages/user-management/components/UserActivityModal.tsx(82,28): error TS7006: Parameter 'timestamp' implicitly has an 'any' type.
+src/pages/user-management/components/UserActivityModal.tsx(111,13): error TS2322: Type '"icon"' is not assignable to type '"xs" | "sm" | "md" | "lg"'.
+src/pages/user-management/components/UserCard.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/user-management/components/UserCard.tsx(5,21): error TS7031: Binding element 'user' implicitly has an 'any' type.
+src/pages/user-management/components/UserCard.tsx(5,27): error TS7031: Binding element 'onEdit' implicitly has an 'any' type.
+src/pages/user-management/components/UserCard.tsx(5,35): error TS7031: Binding element 'onToggleStatus' implicitly has an 'any' type.
+src/pages/user-management/components/UserCard.tsx(5,51): error TS7031: Binding element 'onDelete' implicitly has an 'any' type.
+src/pages/user-management/components/UserCard.tsx(5,61): error TS7031: Binding element 'onViewActivity' implicitly has an 'any' type.
+src/pages/user-management/components/UserCard.tsx(6,25): error TS7006: Parameter 'role' implicitly has an 'any' type.
+src/pages/user-management/components/UserCard.tsx(19,27): error TS7006: Parameter 'status' implicitly has an 'any' type.
+src/pages/user-management/components/UserCard.tsx(23,28): error TS7006: Parameter 'timestamp' implicitly has an 'any' type.
+src/pages/user-management/components/UserCard.tsx(97,13): error TS2322: Type '"success" | "warning"' is not assignable to type '"default" | "outline" | "secondary" | "ghost" | "destructive" | "primary" | "danger"'.
+  Type '"success"' is not assignable to type '"default" | "outline" | "secondary" | "ghost" | "destructive" | "primary" | "danger"'.
+src/pages/user-management/components/UserTable.tsx(63,16): error TS6133: 'value' is declared but its value is never read.
+src/pages/user-management/components/UserTable.tsx(182,23): error TS6133: 'direction' is declared but its value is never read.

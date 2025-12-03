@@ -3,68 +3,89 @@ import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
+import { User, UserRole } from '../../../types';
 
-const EditUserModal = ({ isOpen, onClose, onUpdateUser, user }) => {
-  const [formData, setFormData] = useState({
-    name: '',
+interface EditUserModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onUpdateUser: (user: Partial<User>) => Promise<void>;
+  user: User | null;
+}
+
+interface FormData {
+  username: string;
+  email: string;
+  role: UserRole;
+  is_active: boolean;
+}
+
+interface FormErrors {
+  username?: string;
+  email?: string;
+  submit?: string;
+  [key: string]: string | undefined;
+}
+
+const EditUserModal: React.FC<EditUserModalProps> = ({ isOpen, onClose, onUpdateUser, user }) => {
+  const [formData, setFormData] = useState<FormData>({
+    username: '',
     email: '',
     role: 'USER',
-    status: 'ACTIVE'
+    is_active: true
   });
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
 
   const roleOptions = [
-    { value: 'USER', label: 'User', description: 'Basic permissions for viewing and reviewing articles' },
-    { value: 'ADMIN', label: 'Administrator', description: 'Full system management permissions' },
-    { value: 'DEMO', label: 'Demo', description: 'Limited demonstration permissions' }
+    { value: 'USER', label: 'User' },
+    { value: 'ADMIN', label: 'Administrator' },
+    { value: 'DEMO', label: 'Demo' }
   ];
 
   const statusOptions = [
-    { value: 'ACTIVE', label: 'Active' },
-    { value: 'INACTIVE', label: 'Inactive' }
+    { value: 'true', label: 'Active' },
+    { value: 'false', label: 'Inactive' }
   ];
 
   useEffect(() => {
     if (user) {
       setFormData({
-        name: user?.username || '',
-        email: user?.email || '',
-        role: user?.role || 'USER',
-        status: user?.is_active ? 'ACTIVE' : 'INACTIVE'
+        username: user.username || '',
+        email: user.email || '',
+        role: user.role || 'USER',
+        is_active: user.is_active
       });
     }
   }, [user]);
 
   const validateForm = () => {
-    const newErrors = {};
+    const newErrors: FormErrors = {};
 
-    if (!formData?.name?.trim()) {
-      newErrors.name = 'Username is required';
+    if (!formData.username.trim()) {
+      newErrors.username = 'Username is required';
     }
 
-    if (!formData?.email?.trim()) {
+    if (!formData.email.trim()) {
       newErrors.email = 'Email address is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/?.test(formData?.email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Invalid email address format';
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors)?.length === 0;
+    return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e?.preventDefault();
-    
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     if (!validateForm()) return;
 
     setIsLoading(true);
-    
+
     try {
-      const updatedUser = {
-        ...user,
+      const updatedUser: Partial<User> = {
         ...formData,
-        updatedAt: new Date()?.toISOString()
+        updatedAt: new Date().toISOString()
       };
 
       await onUpdateUser(updatedUser);
@@ -81,9 +102,9 @@ const EditUserModal = ({ isOpen, onClose, onUpdateUser, user }) => {
     onClose();
   };
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: keyof FormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    if (errors?.[field]) {
+    if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
@@ -99,7 +120,7 @@ const EditUserModal = ({ isOpen, onClose, onUpdateUser, user }) => {
           <h2 className="text-lg font-semibold text-card-foreground">Edit User</h2>
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
             onClick={handleClose}
             iconName="X"
             iconSize={20}
@@ -112,9 +133,9 @@ const EditUserModal = ({ isOpen, onClose, onUpdateUser, user }) => {
             label="Username"
             type="text"
             placeholder="Enter username"
-            value={formData?.name}
-            onChange={(e) => handleInputChange('name', e?.target?.value)}
-            error={errors?.name}
+            value={formData.username}
+            onChange={(e) => handleInputChange('username', e.target.value)}
+            error={errors.username || ''}
             required
           />
 
@@ -122,25 +143,24 @@ const EditUserModal = ({ isOpen, onClose, onUpdateUser, user }) => {
             label="Email Address"
             type="email"
             placeholder="user@example.com"
-            value={formData?.email}
-            onChange={(e) => handleInputChange('email', e?.target?.value)}
-            error={errors?.email}
+            value={formData.email}
+            onChange={(e) => handleInputChange('email', e.target.value)}
+            error={errors.email || ''}
             required
           />
 
           <Select
             label="User Role"
             options={roleOptions}
-            value={formData?.role}
+            value={formData.role}
             onChange={(value) => handleInputChange('role', value)}
-            description="Select appropriate permission level"
           />
 
           <Select
             label="Account Status"
             options={statusOptions}
-            value={formData?.status}
-            onChange={(value) => handleInputChange('status', value)}
+            value={formData.is_active ? 'true' : 'false'}
+            onChange={(value) => handleInputChange('is_active', value === 'true')}
           />
 
           {/* User Stats */}
@@ -149,19 +169,19 @@ const EditUserModal = ({ isOpen, onClose, onUpdateUser, user }) => {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-muted-foreground">Article Reviews:</span>
-                <span className="ml-2 font-medium text-card-foreground">{user?.articleReviews}</span>
+                <span className="ml-2 font-medium text-card-foreground">{user.articleReviews}</span>
               </div>
               <div>
                 <span className="text-muted-foreground">Logins:</span>
-                <span className="ml-2 font-medium text-card-foreground">{user?.loginCount}</span>
+                <span className="ml-2 font-medium text-card-foreground">{user.loginCount}</span>
               </div>
             </div>
           </div>
 
-          {errors?.submit && (
+          {errors.submit && (
             <div className="flex items-center space-x-2 text-sm text-error">
               <Icon name="AlertCircle" size={16} />
-              <span>{errors?.submit}</span>
+              <span>{errors.submit}</span>
             </div>
           )}
 

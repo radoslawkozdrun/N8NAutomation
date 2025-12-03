@@ -1,4 +1,4 @@
-import { Article, ReviewDecision, BulkUpdateRequest, ArticleFilters, PaginatedResponse, ApiResponse, ResearchMaterial, User, UserFilters, CreateUserRequest, UpdateUserRequest, MasterContent, MasterContentFilters, PlatformContent, PlatformContentFilters, PublishDecisionData, SocialPlatform, SocialMediaAccount } from '@/types';
+import { Article, ReviewDecision, BulkUpdateRequest, ArticleFilters, PaginatedResponse, ApiResponse, ResearchMaterial, User, UserFilters, CreateUserRequest, UpdateUserRequest, MasterContent, MasterContentFilters, PlatformContent, PlatformContentFilters, PublishDecisionData, SocialPlatform, SocialMediaAccount } from '../types';
 
 // Dynamic API URL detection
 const getApiBaseUrl = () => {
@@ -6,12 +6,12 @@ const getApiBaseUrl = () => {
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
-  
+
   // For production: if serving from same domain, use relative URL
   if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
     return '/api';
   }
-  
+
   // For development: use full localhost URL
   return 'http://localhost:8002/api';
 };
@@ -34,10 +34,10 @@ async function request<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
-  
+
   // Get auth token if available
   const token = localStorage.getItem('authToken');
-  
+
   const config: RequestInit = {
     headers: {
       'Content-Type': 'application/json',
@@ -49,7 +49,7 @@ async function request<T>(
 
   try {
     const response = await fetch(url, config);
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new ApiError(
@@ -564,8 +564,8 @@ export const api = {
 
   // Master Content API
   getMasterContents: async (
-    filters: MasterContentFilters = {}, 
-    page = 1, 
+    filters: MasterContentFilters = {},
+    page = 1,
     limit = 20
   ): Promise<PaginatedResponse<MasterContent>> => {
     const params = new URLSearchParams({
@@ -640,7 +640,7 @@ export const api = {
   createPlatformContent: async (masterContentId: number, platform: SocialPlatform): Promise<ApiResponse<PlatformContent>> => {
     return request<ApiResponse<PlatformContent>>('/platform-content', {
       method: 'POST',
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         master_content_id: masterContentId,
         platform
       })

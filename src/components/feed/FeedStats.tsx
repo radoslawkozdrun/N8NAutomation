@@ -1,4 +1,4 @@
-import React from 'react';
+import { memo } from 'react';
 import { Rss, CheckCircle } from 'lucide-react';
 import { FeedStats as FeedStatsType } from '@/types/feed';
 
@@ -6,7 +6,7 @@ interface FeedStatsProps {
     stats: FeedStatsType | null;
 }
 
-export const FeedStats: React.FC<FeedStatsProps> = ({ stats }) => {
+export const FeedStats = memo<FeedStatsProps>(({ stats }) => {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-card border border-border rounded-lg p-4">
@@ -34,4 +34,6 @@ export const FeedStats: React.FC<FeedStatsProps> = ({ stats }) => {
             </div>
         </div>
     );
-};
+});
+
+FeedStats.displayName = 'FeedStats';

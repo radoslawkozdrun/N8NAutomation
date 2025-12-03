@@ -1,6 +1,6 @@
 import React from 'react';
 import { Check } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../utils/cn';
 
 interface CheckboxProps {
   checked?: boolean;
@@ -38,8 +38,8 @@ export function Checkbox({
           onClick={() => !disabled && onChange?.(!checked)}
           className={cn(
             "w-4 h-4 border-2 rounded cursor-pointer transition-colors",
-            checked 
-              ? "bg-blue-600 border-blue-600" 
+            checked
+              ? "bg-blue-600 border-blue-600"
               : "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600",
             disabled && "opacity-50 cursor-not-allowed"
           )}
@@ -50,7 +50,7 @@ export function Checkbox({
         </div>
       </div>
       {label && (
-        <label 
+        <label
           htmlFor={id}
           className={cn(
             "ml-2 text-sm text-gray-700 dark:text-gray-300",

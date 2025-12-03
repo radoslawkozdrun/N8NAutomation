@@ -1,25 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigation } from '../../contexts/NavigationContext';
 import { api } from '../../lib/api';
-import { 
-  PlatformContent, 
-  PlatformContentFilters, 
-  SocialPlatform, 
-  PublishDecision, 
+import {
+  PlatformContent,
+  SocialPlatform,
+  PublishDecision,
   SocialMediaAccount,
-  MasterContent
+  MasterContent,
+  ArticleCategory,
+  TargetAudience,
+  ContentTone,
+  MasterContentStatus,
+  PlatformContentStatus
 } from '../../types';
 import { useToast } from '../../components/ui/Toast';
 import Button from '../../components/ui/Button';
-import { 
+import {
   ArrowLeft,
-  Plus,
   Send,
   Clock,
   X,
-  Eye,
-  Edit3,
   Calendar,
   Users,
   RefreshCw,
@@ -40,8 +41,8 @@ import {
 const SocialPlatformsPage = () => {
   const { user } = useAuth();
   const { setCurrentView } = useNavigation();
-  const { toasts, success, error, removeToast } = useToast();
-  
+  const { success, error } = useToast();
+
   const [platformContents, setPlatformContents] = useState<PlatformContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [masterContent, setMasterContent] = useState<MasterContent | null>(null);
@@ -52,7 +53,7 @@ const SocialPlatformsPage = () => {
     INSTAGRAM: [],
     TIKTOK: []
   });
-  
+
   // Decision modal state
   const [decisionModal, setDecisionModal] = useState<{
     isOpen: boolean;
@@ -63,11 +64,11 @@ const SocialPlatformsPage = () => {
     platformContent: null,
     decision: null
   });
-  
+
   const [scheduledDateTime, setScheduledDateTime] = useState('');
   const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
   const [decisionNotes, setDecisionNotes] = useState('');
-  
+
   // Get master content ID from URL hash
   const getMasterContentIdFromHash = () => {
     const hash = window.location.hash;
@@ -154,7 +155,7 @@ const SocialPlatformsPage = () => {
         published_at: null
       }
     ];
-    
+
     return baseContents;
   };
 
@@ -211,16 +212,16 @@ const SocialPlatformsPage = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      
+
       const masterContentId = getMasterContentIdFromHash();
-      
+
       // Try to load from API first, fall back to mock data
       try {
         if (masterContentId) {
           // Load specific master content and its platform contents
           const masterContentResponse = await api.getMasterContent(parseInt(masterContentId));
           setMasterContent(masterContentResponse.data);
-          
+
           const platformResponse = await api.getPlatformContents({
             master_content_id: parseInt(masterContentId)
           });
@@ -230,7 +231,7 @@ const SocialPlatformsPage = () => {
           const response = await api.getPlatformContents({}, 1, 50);
           setPlatformContents(response.data);
         }
-        
+
         // Load social media accounts for each platform
         const platforms: SocialPlatform[] = ['TWITTER', 'LINKEDIN', 'FACEBOOK', 'INSTAGRAM', 'TIKTOK'];
         const accountsData: Record<SocialPlatform, SocialMediaAccount[]> = {
@@ -240,7 +241,7 @@ const SocialPlatformsPage = () => {
           INSTAGRAM: [],
           TIKTOK: []
         };
-        
+
         await Promise.all(
           platforms.map(async (platform) => {
             try {
@@ -251,12 +252,12 @@ const SocialPlatformsPage = () => {
             }
           })
         );
-        
+
         setAvailableAccounts(accountsData);
       } catch (apiError) {
         // Fall back to mock data if API fails
         console.log('API not available, using mock data');
-        
+
         if (masterContentId) {
           const mockMasterContent = getMockMasterContent(parseInt(masterContentId));
           setMasterContent(mockMasterContent);
@@ -266,7 +267,7 @@ const SocialPlatformsPage = () => {
           const mockPlatformContents = getMockPlatformContents();
           setPlatformContents(mockPlatformContents);
         }
-        
+
         const mockAccounts = getMockSocialAccounts();
         setAvailableAccounts(mockAccounts);
       }
@@ -285,7 +286,7 @@ const SocialPlatformsPage = () => {
   // Generate platform content
   const generatePlatformContent = async (platform: SocialPlatform) => {
     if (!masterContent) return;
-    
+
     try {
       await api.generatePlatformContent(masterContent.id, platform);
       success(`Generated content for ${platform}`);
@@ -319,7 +320,7 @@ const SocialPlatformsPage = () => {
   // Submit decision
   const submitDecision = async () => {
     if (!decisionModal.platformContent || !decisionModal.decision) return;
-    
+
     try {
       const decisionData = {
         decision: decisionModal.decision,
@@ -328,7 +329,7 @@ const SocialPlatformsPage = () => {
         notes: decisionNotes || undefined,
         user_id: user?.id || 0
       };
-      
+
       await api.makePublishDecision(decisionModal.platformContent.id, decisionData);
       success(`Decision "${decisionModal.decision}" submitted successfully`);
       closeDecisionModal();
@@ -447,12 +448,12 @@ const SocialPlatformsPage = () => {
               <p className="text-muted-foreground mb-4">
                 Create optimized content for each social media platform based on your master content.
               </p>
-              
+
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 {(['TWITTER', 'LINKEDIN', 'FACEBOOK', 'INSTAGRAM', 'TIKTOK'] as SocialPlatform[]).map((platform) => {
                   const Icon = getPlatformIcon(platform);
                   const existing = platformContents.find(pc => pc.platform === platform);
-                  
+
                   return (
                     <Button
                       key={platform}
@@ -481,7 +482,7 @@ const SocialPlatformsPage = () => {
               <Send className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">No platform content found</h3>
               <p className="text-muted-foreground">
-                {masterContent 
+                {masterContent
                   ? 'Generate content for social platforms using the buttons above'
                   : 'Platform content will appear here when generated from master content'
                 }
@@ -492,7 +493,7 @@ const SocialPlatformsPage = () => {
               const Icon = getPlatformIcon(platformContent.platform);
               const StatusIcon = getStatusIcon(platformContent.status);
               const availablePlatformAccounts = availableAccounts[platformContent.platform] || [];
-              
+
               return (
                 <div key={platformContent.id} className="bg-card border border-border rounded-lg">
                   {/* Platform Header */}
@@ -509,7 +510,7 @@ const SocialPlatformsPage = () => {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center space-x-2">
                       {platformContent.decision === 'PENDING' ? (
                         <>
@@ -577,8 +578,9 @@ const SocialPlatformsPage = () => {
                             ))}
                           </div>
                         </div>
+
                       )}
-                      
+
                       {platformContent.mentions.length > 0 && (
                         <div className="flex items-center space-x-2">
                           <AtSign size={14} />
@@ -589,7 +591,7 @@ const SocialPlatformsPage = () => {
                           </div>
                         </div>
                       )}
-                      
+
                       {platformContent.media_urls && platformContent.media_urls.length > 0 && (
                         <div className="flex items-center space-x-2">
                           <Image size={14} />
@@ -622,125 +624,127 @@ const SocialPlatformsPage = () => {
       </div>
 
       {/* Decision Modal */}
-      {decisionModal.isOpen && decisionModal.platformContent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className="bg-card border border-border rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-border">
-              <h3 className="text-lg font-semibold text-foreground">
-                {decisionModal.decision === 'PUBLISH' && 'Publish Now'}
-                {decisionModal.decision === 'PUBLISH_ON_SCHEDULE' && 'Schedule Publication'}
-                {decisionModal.decision === 'POSTPONE' && 'Postpone Decision'}
-                {decisionModal.decision === 'DECLINE' && 'Decline Content'}
-              </h3>
-              <button
-                onClick={closeDecisionModal}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-4">
-              {/* Platform Info */}
-              <div className="flex items-center space-x-3 p-3 bg-muted rounded">
-                {(() => {
-                  const Icon = getPlatformIcon(decisionModal.platformContent.platform);
-                  return (
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${getPlatformColor(decisionModal.platformContent.platform)}`}>
-                      <Icon size={16} />
-                    </div>
-                  );
-                })()}
-                <span className="font-medium text-foreground">{decisionModal.platformContent.platform}</span>
+      {
+        decisionModal.isOpen && decisionModal.platformContent && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+            <div className="bg-card border border-border rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
+              <div className="flex items-center justify-between p-6 border-b border-border">
+                <h3 className="text-lg font-semibold text-foreground">
+                  {decisionModal.decision === 'PUBLISH' && 'Publish Now'}
+                  {decisionModal.decision === 'PUBLISH_ON_SCHEDULE' && 'Schedule Publication'}
+                  {decisionModal.decision === 'POSTPONE' && 'Postpone Decision'}
+                  {decisionModal.decision === 'DECLINE' && 'Decline Content'}
+                </h3>
+                <button
+                  onClick={closeDecisionModal}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <X size={20} />
+                </button>
               </div>
 
-              {/* Account Selection */}
-              {(decisionModal.decision === 'PUBLISH' || decisionModal.decision === 'PUBLISH_ON_SCHEDULE') && (
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Select Accounts *
-                  </label>
-                  <div className="space-y-2 max-h-32 overflow-y-auto">
-                    {availableAccounts[decisionModal.platformContent.platform].map((account) => (
-                      <label key={account.id} className="flex items-center space-x-2 p-2 hover:bg-muted rounded">
-                        <input
-                          type="checkbox"
-                          checked={selectedAccounts.includes(account.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedAccounts([...selectedAccounts, account.id]);
-                            } else {
-                              setSelectedAccounts(selectedAccounts.filter(id => id !== account.id));
-                            }
-                          }}
-                        />
-                        <div>
-                          <div className="text-sm font-medium text-foreground">{account.display_name}</div>
-                          <div className="text-xs text-muted-foreground">@{account.username}</div>
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-                  {availableAccounts[decisionModal.platformContent.platform].length === 0 && (
-                    <p className="text-sm text-muted-foreground">No accounts available for this platform</p>
-                  )}
+              <div className="p-6 space-y-4">
+                {/* Platform Info */}
+                <div className="flex items-center space-x-3 p-3 bg-muted rounded">
+                  {(() => {
+                    const Icon = getPlatformIcon(decisionModal.platformContent.platform);
+                    return (
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${getPlatformColor(decisionModal.platformContent.platform)}`}>
+                        <Icon size={16} />
+                      </div>
+                    );
+                  })()}
+                  <span className="font-medium text-foreground">{decisionModal.platformContent.platform}</span>
                 </div>
-              )}
 
-              {/* Schedule DateTime */}
-              {decisionModal.decision === 'PUBLISH_ON_SCHEDULE' && (
+                {/* Account Selection */}
+                {(decisionModal.decision === 'PUBLISH' || decisionModal.decision === 'PUBLISH_ON_SCHEDULE') && (
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Select Accounts *
+                    </label>
+                    <div className="space-y-2 max-h-32 overflow-y-auto">
+                      {availableAccounts[decisionModal.platformContent.platform].map((account) => (
+                        <label key={account.id} className="flex items-center space-x-2 p-2 hover:bg-muted rounded">
+                          <input
+                            type="checkbox"
+                            checked={selectedAccounts.includes(account.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedAccounts([...selectedAccounts, account.id]);
+                              } else {
+                                setSelectedAccounts(selectedAccounts.filter(id => id !== account.id));
+                              }
+                            }}
+                          />
+                          <div>
+                            <div className="text-sm font-medium text-foreground">{account.display_name}</div>
+                            <div className="text-xs text-muted-foreground">@{account.username}</div>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                    {availableAccounts[decisionModal.platformContent.platform].length === 0 && (
+                      <p className="text-sm text-muted-foreground">No accounts available for this platform</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Schedule DateTime */}
+                {decisionModal.decision === 'PUBLISH_ON_SCHEDULE' && (
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Schedule Date & Time *
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={scheduledDateTime}
+                      onChange={(e) => setScheduledDateTime(e.target.value)}
+                      min={new Date().toISOString().slice(0, 16)}
+                      className="w-full p-2 border border-border rounded bg-background text-foreground"
+                    />
+                  </div>
+                )}
+
+                {/* Notes */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Schedule Date & Time *
+                    Notes (Optional)
                   </label>
-                  <input
-                    type="datetime-local"
-                    value={scheduledDateTime}
-                    onChange={(e) => setScheduledDateTime(e.target.value)}
-                    min={new Date().toISOString().slice(0, 16)}
-                    className="w-full p-2 border border-border rounded bg-background text-foreground"
+                  <textarea
+                    value={decisionNotes}
+                    onChange={(e) => setDecisionNotes(e.target.value)}
+                    rows={3}
+                    placeholder="Add any additional notes..."
+                    className="w-full p-2 border border-border rounded bg-background text-foreground placeholder:text-muted-foreground resize-none"
                   />
                 </div>
-              )}
+              </div>
 
-              {/* Notes */}
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Notes (Optional)
-                </label>
-                <textarea
-                  value={decisionNotes}
-                  onChange={(e) => setDecisionNotes(e.target.value)}
-                  rows={3}
-                  placeholder="Add any additional notes..."
-                  className="w-full p-2 border border-border rounded bg-background text-foreground placeholder:text-muted-foreground resize-none"
-                />
+              <div className="flex justify-end space-x-3 p-6 border-t border-border">
+                <Button
+                  variant="outline"
+                  onClick={closeDecisionModal}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={submitDecision}
+                  disabled={
+                    (decisionModal.decision === 'PUBLISH' || decisionModal.decision === 'PUBLISH_ON_SCHEDULE') && selectedAccounts.length === 0 ||
+                    decisionModal.decision === 'PUBLISH_ON_SCHEDULE' && !scheduledDateTime
+                  }
+                >
+                  Confirm {decisionModal.decision === 'PUBLISH' ? 'Publication' :
+                    decisionModal.decision === 'PUBLISH_ON_SCHEDULE' ? 'Schedule' :
+                      decisionModal.decision === 'POSTPONE' ? 'Postpone' : 'Decline'}
+                </Button>
               </div>
             </div>
-
-            <div className="flex justify-end space-x-3 p-6 border-t border-border">
-              <Button
-                variant="outline"
-                onClick={closeDecisionModal}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={submitDecision}
-                disabled={
-                  (decisionModal.decision === 'PUBLISH' || decisionModal.decision === 'PUBLISH_ON_SCHEDULE') && selectedAccounts.length === 0 ||
-                  decisionModal.decision === 'PUBLISH_ON_SCHEDULE' && !scheduledDateTime
-                }
-              >
-                Confirm {decisionModal.decision === 'PUBLISH' ? 'Publication' : 
-                        decisionModal.decision === 'PUBLISH_ON_SCHEDULE' ? 'Schedule' :
-                        decisionModal.decision === 'POSTPONE' ? 'Postpone' : 'Decline'}
-              </Button>
-            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 };
 
