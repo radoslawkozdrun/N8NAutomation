@@ -1042,7 +1042,7 @@
     },
     {
       "parameters": {
-        "url": "=https://n8n.srv936559.hstgr.cloud/webhook-test/run-content-generation",
+        "url": "=https://n8n.deradoslawkozdrun.pl/webhook-test/run-content-generation",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [

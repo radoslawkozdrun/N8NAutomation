@@ -1,20 +1,19 @@
 const { Pool } = require('pg');
-const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
+const config = require('./config');
 
-// Database connection pool
+// Database connection pool using centralized configuration
 const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+  host: config.database.host,
+  port: config.database.port,
+  database: config.database.name,
+  user: config.database.user,
+  password: config.database.password,
+  ssl: config.database.ssl ? { rejectUnauthorized: false } : false,
   // Connection pool settings
-  max: 10, // Maximum number of clients
-  idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  connectionTimeoutMillis: 20000, // Return error after 20 seconds if connection could not be established
-  acquireTimeoutMillis: 20000, // Return error after 20 seconds if connection could not be acquired from pool
+  max: config.database.pool.max,
+  idleTimeoutMillis: config.database.pool.idleTimeoutMillis,
+  connectionTimeoutMillis: config.database.pool.connectionTimeoutMillis,
+  acquireTimeoutMillis: config.database.pool.acquireTimeoutMillis,
 });
 
 // Test database connection

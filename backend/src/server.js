@@ -4,10 +4,10 @@ const helmet = require('helmet');
 const compression = require('compression');
 const path = require('path');
 const { testConnection } = require('./database');
-require('dotenv').config();
+const config = require('./config');
 
 const app = express();
-const PORT = process.env.PORT || 8002;
+const PORT = config.server.port;
 
 // Middleware
 app.use(helmet({
@@ -22,20 +22,19 @@ app.use(cors({
     const allowedOrigins = [
       'http://localhost:3000',
       'http://localhost:8002',
-      process.env.FRONTEND_URL,
-      process.env.CORS_ORIGIN
+      config.domain.frontend,
+      config.cors.origin
     ].filter(Boolean);
 
     // Allow any origin containing the VPS hostname
-    const vpsDomain = process.env.VPS_DOMAIN || 'srv936559.hstgr.cloud';
-    if (origin.includes(vpsDomain) ||
+    if (origin.includes(config.domain.vps) ||
       allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       callback(null, true); // For now, allow all origins
     }
   },
-  credentials: true
+  credentials: config.cors.credentials
 }));
 app.use(express.json({ limit: '10mb' }));
 

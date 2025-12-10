@@ -7,14 +7,14 @@ async function saveWebhooks() {
     // Save production webhook
     await query(`
       INSERT INTO config_property (key, value)
-      VALUES ('n8n_webhook_production', 'https://n8n.srv936559.hstgr.cloud/webhook/feeds/fetch')
+      VALUES ('n8n_webhook_production', 'https://n8n.deradoslawkozdrun.pl/webhook/feeds/fetch')
       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()
     `);
 
     // Save test webhook
     await query(`
       INSERT INTO config_property (key, value)
-      VALUES ('n8n_webhook_test', 'https://n8n.srv936559.hstgr.cloud/webhook-test/feeds/fetch')
+      VALUES ('n8n_webhook_test', 'https://n8n.deradoslawkozdrun.pl/webhook-test/feeds/fetch')
       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()
     `);
 

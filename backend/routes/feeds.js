@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const fetch = require('node-fetch');
 const { query } = require('../src/database');
 const { authenticateToken, requireAdmin, auditLog, addUserFilter, addUserConstraint, requireOwnershipOrAdmin } = require('../middleware/auth');
+const config = require('../src/config');
 
 const router = express.Router();
 
@@ -82,20 +83,20 @@ async function getN8NConfig() {
       AND is_active = true
     `);
 
-    const config = {};
+    const dbConfig = {};
     result.rows.forEach(row => {
-      config[row.key] = row.value;
+      dbConfig[row.key] = row.value;
     });
 
     return {
-      baseUrl: config.n8n_base_url || process.env.N8N_BASE_URL || 'https://n8n.srv936559.hstgr.cloud/api/v1',
-      apiKey: config.n8n_api_key || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkOGI1M2UwNS00NjIxLTQyZTktYjk4Yi1hM2E4NDRjNzRlYmMiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzU3MDYyOTg0fQ.iHyLCgW7-N1nHk0TJ4yE4JzzgIyr3Cdo63GivTprLUA'
+      baseUrl: dbConfig.n8n_base_url || config.n8n.baseUrl,
+      apiKey: dbConfig.n8n_api_key || config.n8n.apiKey
     };
   } catch (error) {
-    console.error('❌ Failed to get N8N config:', error.message);
+    console.error('❌ Failed to get N8N config from database:', error.message);
     return {
-      baseUrl: process.env.N8N_BASE_URL || 'https://n8n.srv936559.hstgr.cloud/api/v1',
-      apiKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkOGI1M2UwNS00NjIxLTQyZTktYjk4Yi1hM2E4NDRjNzRlYmMiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzU3MDYyOTg0fQ.iHyLCgW7-N1nHk0TJ4yE4JzzgIyr3Cdo63GivTprLUA'
+      baseUrl: config.n8n.baseUrl,
+      apiKey: config.n8n.apiKey
     };
   }
 }
@@ -826,7 +827,7 @@ router.post('/feeds/fetch-articles', authenticateToken, async (req, res) => {
     // Check ContentFlowAI workflow status and determine webhook URL
     const isWorkflowActive = await isContentFlowAIWorkflowActive();
     const webhookPath = isWorkflowActive ? '/webhook/feeds/fetch' : '/webhook-test/feeds/fetch';
-    const webhookUrl = `${process.env.N8N_WEBHOOK_BASE || 'https://n8n.srv936559.hstgr.cloud'}${webhookPath}`;
+    const webhookUrl = `${config.n8n.webhookBase}${webhookPath}`;
 
     console.log(`Using webhook: ${webhookUrl} (ContentFlowAI workflow is ${isWorkflowActive ? 'ACTIVE' : 'INACTIVE'})`);
     const response = await fetch(webhookUrl, {

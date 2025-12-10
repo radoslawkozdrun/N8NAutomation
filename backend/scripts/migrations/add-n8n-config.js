@@ -5,7 +5,7 @@ async function addN8NConfig() {
     const configs = [
       {
         key: 'n8n_base_url',
-        value: 'https://n8n.srv936559.hstgr.cloud/api/v1',
+        value: 'https://n8n.deradoslawkozdrun.pl/api/v1',
         description: 'N8N base API URL'
       },
       {

@@ -2,21 +2,10 @@ import React, { useState, useEffect } from 'react';
 import Button from './ui/Button';
 import { cn } from '../lib/utils';
 import Toast from './ui/Toast';
+import appConfig from '../config';
 
-// API base URL configuration
-const getApiBaseUrl = () => {
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-
-  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    return '/api';
-  }
-
-  return 'http://localhost:8002/api';
-};
-
-const API_BASE_URL = getApiBaseUrl();
+// Use centralized API configuration
+const API_BASE_URL = appConfig.api.baseUrl;
 
 interface N8NConfig {
   baseUrl: string;
@@ -37,7 +26,7 @@ const N8NConfigModal: React.FC<N8NConfigModalProps> = ({
   onConfigSaved
 }) => {
   const [config, setConfig] = useState<N8NConfig>({
-    baseUrl: 'https://n8n.srv936559.hstgr.cloud/api/v1',
+    baseUrl: appConfig.n8n.defaultBaseUrl,
     apiKey: '',
     timeout: '30000',
     retryAttempts: '3'
@@ -97,7 +86,7 @@ const N8NConfigModal: React.FC<N8NConfigModalProps> = ({
         console.log('No auth token found, using default config values');
         // Don't show error toast for missing token - just use defaults
         setConfig({
-          baseUrl: 'https://n8n.srv936559.hstgr.cloud/api/v1',
+          baseUrl: appConfig.n8n.defaultBaseUrl,
           apiKey: '',
           timeout: '30000',
           retryAttempts: '3'
@@ -117,7 +106,7 @@ const N8NConfigModal: React.FC<N8NConfigModalProps> = ({
         if (result.success && result.data) {
           // Ensure we have valid values, fallback to defaults if needed
           const loadedConfig = {
-            baseUrl: result.data.baseUrl || 'https://n8n.srv936559.hstgr.cloud/api/v1',
+            baseUrl: result.data.baseUrl || appConfig.n8n.defaultBaseUrl,
             apiKey: result.data.apiKey || '',
             timeout: result.data.timeout || '30000',
             retryAttempts: result.data.retryAttempts || '3'
@@ -133,7 +122,7 @@ const N8NConfigModal: React.FC<N8NConfigModalProps> = ({
 
         // Use defaults but show warning
         setConfig({
-          baseUrl: 'https://n8n.srv936559.hstgr.cloud/api/v1',
+          baseUrl: appConfig.n8n.defaultBaseUrl,
           apiKey: '',
           timeout: '30000',
           retryAttempts: '3'
@@ -149,7 +138,7 @@ const N8NConfigModal: React.FC<N8NConfigModalProps> = ({
 
       // Always provide default values even on error
       setConfig({
-        baseUrl: 'https://n8n.srv936559.hstgr.cloud/api/v1',
+        baseUrl: appConfig.n8n.defaultBaseUrl,
         apiKey: '',
         timeout: '30000',
         retryAttempts: '3'

@@ -1,22 +1,8 @@
 import { Article, ReviewDecision, BulkUpdateRequest, ArticleFilters, PaginatedResponse, ApiResponse, ResearchMaterial, User, UserFilters, CreateUserRequest, UpdateUserRequest, MasterContent, MasterContentFilters, PlatformContent, PlatformContentFilters, PublishDecisionData, SocialPlatform, SocialMediaAccount } from '../types';
+import config from '../config';
 
-// Dynamic API URL detection
-const getApiBaseUrl = () => {
-  // If VITE_API_URL is set during build, use it
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-
-  // For production: if serving from same domain, use relative URL
-  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    return '/api';
-  }
-
-  // For development: use full localhost URL
-  return 'http://localhost:8002/api';
-};
-
-const API_BASE_URL = getApiBaseUrl();
+// Use centralized API configuration
+const API_BASE_URL = config.api.baseUrl;
 
 class ApiError extends Error {
   constructor(

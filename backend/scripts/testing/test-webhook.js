@@ -5,8 +5,8 @@ async function testWebhooks() {
     console.log('🔍 Testing webhook URLs...');
 
     const urls = [
-      'https://n8n.srv936559.hstgr.cloud/webhook/feeds/fetch',
-      'https://n8n.srv936559.hstgr.cloud/webhook-test/feeds/fetch'
+      'https://n8n.deradoslawkozdrun.pl/webhook/feeds/fetch',
+      'https://n8n.deradoslawkozdrun.pl/webhook-test/feeds/fetch'
     ];
 
     for (const url of urls) {
